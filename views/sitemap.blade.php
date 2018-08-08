@@ -9,15 +9,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 @foreach($urlset->urls as $url)
     <url>
-        <loc>{{ $url->location }}</loc>
+        <loc>{!! htmlspecialchars($url->location, ENT_XML1) !!}</loc>
 @if ($url->lastModified)
-        <lastmod>{{ $url->lastModified->format('Y-m-d\TH:i:sP') }}</lastmod>
+        <lastmod>{!! $url->lastModified->toW3cString() !!}</lastmod>
 @endif
 @if ($url->changeFrequency)
-        <changefreq>{{ $url->changeFrequency }}</changefreq>
+        <changefreq>{!! htmlspecialchars($url->changeFrequency, ENT_XML1) !!}</changefreq>
 @endif
 @if ($url->priority)
-        <priority>{{ $url->priority }}</priority>
+        <priority>{!! htmlspecialchars($url->priority, ENT_XML1) !!}</priority>
 @endif
     </url>
 @endforeach
