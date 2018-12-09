@@ -5,12 +5,12 @@ namespace Flagrow\Sitemap;
 use Carbon\Carbon;
 use Flagrow\Sitemap\Sitemap\Frequency;
 use Flagrow\Sitemap\Sitemap\UrlSet;
-use Flarum\Core\Discussion;
-use Flarum\Core\Guest;
-use Flarum\Core\User;
+use Flarum\Discussion\Discussion;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Tags\Tag;
+use Flarum\User\Guest;
+use Flarum\User\User;
 use Sijad\Pages\Page;
 
 class SitemapGenerator

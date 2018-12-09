@@ -2,9 +2,12 @@
 .github export-ignore
 .gitignore export-ignore
 .gitmodules export-ignore
-js/*/src export-ignore
-js/*/Gulfile.js
-js/*/package.json
-js/*/yarn.lock
+js/src export-ignore
+js/admin.js export-ignore
+js/forum.js export-ignore
+js/webpack.config.js export-ignore
+js/package.json export-ignore
+js/yarn.lock export-ignore
 
-js/*/dist/*.js -diff
+js/dist/*.js -diff
+js/dist/*.map -diff

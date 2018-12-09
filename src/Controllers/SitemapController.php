@@ -3,12 +3,13 @@
 namespace Flagrow\Sitemap\Controllers;
 
 use Flagrow\Sitemap\SitemapGenerator;
-use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\View\Factory;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response;
 
-class SitemapController implements ControllerInterface
+class SitemapController implements RequestHandlerInterface
 {
     protected $sitemap;
     protected $view;
@@ -19,14 +20,14 @@ class SitemapController implements ControllerInterface
         $this->view = $view;
     }
 
-    protected function render(Request $request)
+    protected function render(ServerRequestInterface $request)
     {
         return $this->view->make('flagrow-sitemap::sitemap')
             ->with('urlset', $this->sitemap->getUrlSet())
             ->render();
     }
 
-    public function handle(Request $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $response = new Response();
 

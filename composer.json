@@ -21,19 +21,19 @@
         "source": "https://github.com/flagrow/sitemap"
     },
     "require": {
-        "flarum/core": "^0.1.0-beta.7"
+        "flarum/core": "^0.1.0-beta.8"
     },
     "extra": {
         "flarum-extension": {
             "title": "Flagrow Sitemap",
             "icon": {
-                "name": "sitemap",
+                "name": "fas fa-sitemap",
                 "backgroundColor": "#f4f4f4",
                 "color": "#5f4bb6"
             }
         },
         "flagrow": {
-            "discuss": "https://discuss.flarum.org/d/14941-flagrow-sitemap"
+            "discuss": "https://discuss.flarum.org/d/14941"
         }
     },
     "autoload": {
