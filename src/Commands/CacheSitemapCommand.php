@@ -9,7 +9,7 @@ use Illuminate\Contracts\View\Factory;
 
 class CacheSitemapCommand extends Command
 {
-    protected $signature = 'flagrow:sitemap:cache';
+    protected $signature = 'flagrow:sitemap:cache {--write-xml-file}';
     protected $description = 'Persists sitemap to disk and to cache.';
 
     public function handle(Factory $view, Store $cache, SitemapGenerator $generator)
@@ -18,9 +18,11 @@ class CacheSitemapCommand extends Command
 
         $cache->forever('flagrow.sitemap', $urlSet);
 
-        @file_put_contents(
-            public_path('sitemap.xml'),
-            $view->make('flagrow-sitemap::sitemap')->with('urlset', $urlSet)->render()
-        );
+        if ($this->option('write-xml-file')) {
+            @file_put_contents(
+                public_path('sitemap.xml'),
+                $view->make('flagrow-sitemap::sitemap')->with('urlset', $urlSet)->render()
+            );
+        }
     }
 }
