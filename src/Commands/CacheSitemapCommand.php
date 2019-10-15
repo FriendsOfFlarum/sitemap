@@ -9,8 +9,8 @@ use Illuminate\Contracts\View\Factory;
 
 class CacheSitemapCommand extends Command
 {
-    protected $signature = 'flagrow:sitemap:cache {--write-xml-file}';
-    protected $description = 'Persists sitemap to disk and to cache.';
+    protected $signature = 'flagrow:sitemap:cache {--write-xml-file : write to sitemap.xml}';
+    protected $description = 'Persists sitemap to cache and optionally to disk.';
 
     public function handle(Factory $view, Store $cache, SitemapGenerator $generator)
     {
