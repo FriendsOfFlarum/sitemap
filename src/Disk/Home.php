@@ -1,9 +1,9 @@
 <?php
 
-namespace Flagrow\Sitemap\Disk;
+namespace FoF\Sitemap\Disk;
 
 use Carbon\Carbon;
-use Flagrow\Sitemap\Sitemap\Frequency;
+use FoF\Sitemap\Sitemap\Frequency;
 
 class Home extends Sitemap
 {
@@ -32,9 +32,9 @@ EOM
 
         fwrite(
             $stream,
-            $this->view()->make('flagrow-sitemap::url')->with('url', (object) [
+            $this->view()->make('fof-sitemap::url')->with('url', (object) [
                 'location' => $this->url,
-                'lastModified' => Carbon::now(),
+                'lastModified' => $now = Carbon::now(),
                 'changeFrequency' => Frequency::DAILY,
                 'priority' => 0.9
             ])->render()
@@ -54,6 +54,6 @@ EOM
 
         $path = str_replace($directory, null, $gzipped ?? $path);
 
-        return [$path];
+        return [$path => $now];
     }
 }

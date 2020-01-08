@@ -1,8 +1,8 @@
 <?php
 
-namespace Flagrow\Sitemap\Providers;
+namespace FoF\Sitemap\Providers;
 
-use Flagrow\Sitemap\Resources;
+use FoF\Sitemap\Resources;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Tags\Tag;
@@ -11,14 +11,14 @@ class ResourceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->app->singleton('flagrow.sitemap.resources', function () {
+        $this->app->singleton('fof.sitemap.resources', function () {
             return [
                 new Resources\User,
                 new Resources\Discussion
             ];
         });
 
-        $this->app->resolving('flagrow.sitemap.resources', function (array $resources) {
+        $this->app->resolving('fof.sitemap.resources', function (array $resources) {
             /** @var ExtensionManager $extensions */
             $extensions = $this->app->make(ExtensionManager::class);
 

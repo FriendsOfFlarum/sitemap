@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Sitemap\Resources;
+namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;

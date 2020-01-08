@@ -1,11 +1,11 @@
 <?php
 
-namespace Flagrow\Sitemap;
+namespace FoF\Sitemap;
 
 use Carbon\Carbon;
-use Flagrow\Sitemap\Resources\Resource;
-use Flagrow\Sitemap\Sitemap\Frequency;
-use Flagrow\Sitemap\Sitemap\UrlSet;
+use FoF\Sitemap\Resources\Resource;
+use FoF\Sitemap\Sitemap\Frequency;
+use FoF\Sitemap\Sitemap\UrlSet;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Sijad\Pages\Page;
@@ -29,7 +29,7 @@ class SitemapGenerator
 
         $urlSet->addUrl($url . '/', Carbon::now(), Frequency::DAILY, 0.9);
 
-        $resources = $this->app->make('flagrow.sitemap.resources') ?? [];
+        $resources = $this->app->make('fof.sitemap.resources') ?? [];
 
         /** @var Resource $resource */
         foreach ($resources as $resource) {

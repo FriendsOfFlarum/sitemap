@@ -1,8 +1,8 @@
 <?php
 
-namespace Flagrow\Sitemap\Resources;
+namespace FoF\Sitemap\Resources;
 
-use Flagrow\Sitemap\Sitemap\Frequency;
+use FoF\Sitemap\Sitemap\Frequency;
 use Flarum\User\User as Model;
 use Flarum\User\Guest;
 use Illuminate\Database\Eloquent\Builder;

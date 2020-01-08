@@ -1,7 +1,8 @@
 <?php
 
-namespace Flagrow\Sitemap\Disk;
+namespace FoF\Sitemap\Disk;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -94,8 +95,9 @@ class Sitemap
         $index = 0;
         $filesWritten = [];
 
-        $this->query->chunk(5000, function ($query) use (&$index, &$filesWritten, $directory) {
+        $this->query->chunk(50000, function ($query) use (&$index, &$filesWritten, $directory) {
             $filename = "sitemap-{$this->filename}-{$index}.xml";
+            $lastModified = Carbon::now()->subYear();
 
             $stream = fopen($path = "$directory/$filename", 'w+');
 
@@ -105,12 +107,16 @@ class Sitemap
 EOM
             );
 
-            $query->each(function ($item) use (&$stream) {
+            $query->each(function ($item) use (&$stream, &$lastModified) {
                 $url = $this->each($item);
+
+                if ($url->lastModified->isAfter($lastModified)) {
+                    $lastModified = $url->lastModified;
+                }
 
                 fwrite(
                     $stream,
-                    $this->view()->make('flagrow-sitemap::url')->with('url', $url)->render()
+                    $this->view()->make('fof-sitemap::url')->with('url', $url)->render()
                 );
             });
 
@@ -127,8 +133,9 @@ EOM
                 unlink($path);
             }
 
+            $path = str_replace($directory, null, $gzipped ?? $path);
 
-            $filesWritten[] = str_replace($directory, null, $gzipped ?? $path);
+            $filesWritten[$path] = $lastModified;
         });
 
         return $filesWritten;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Flagrow\Sitemap\Disk;
+namespace FoF\Sitemap\Disk;
 
 use Carbon\Carbon;
-use Flagrow\Sitemap\Resources\Resource;
+use FoF\Sitemap\Resources\Resource;
 
 class Index
 {
@@ -45,7 +45,7 @@ class Index
                 storage_path('sitemaps-processing/sitemaps')
             );
 
-            array_push($this->sitemaps, ...$sitemap->write());
+            $this->sitemaps = array_merge($this->sitemaps, $sitemap->write());
         }
 
         $this->saveIndexFile();
@@ -53,8 +53,6 @@ class Index
 
     protected function saveIndexFile()
     {
-        $now = Carbon::now()->toW3cString();
-
         $stream = fopen(storage_path('sitemaps-processing/sitemap.xml'), 'w+');
 
         fwrite($stream, <<<EOM
@@ -63,11 +61,11 @@ class Index
 EOM
         );
 
-        foreach ($this->sitemaps as $sitemap) {
+        foreach ($this->sitemaps as $sitemap => $lastModified) {
             fwrite($stream, <<<EOM
   <sitemap>
-      <loc>{$this->url}/sitemaps/{$sitemap}</loc>
-      <lastmod>{$now}</lastmod>
+      <loc>{$this->url}/sitemaps{$sitemap}</loc>
+      <lastmod>{$lastModified->toW3cString()}</lastmod>
    </sitemap>
 EOM
             );
@@ -83,25 +81,25 @@ EOM
 
     public function publish()
     {
-        copy(
-            storage_path('sitemaps-processing/sitemap.xml'),
-            public_path('sitemap.xml')
-        );
-
         if (! is_dir(public_path("sitemaps"))) mkdir(public_path("sitemaps"));
 
-        foreach ($this->sitemaps as $sitemap) {
+        foreach ($this->sitemaps as $sitemap => $_) {
             copy(
                 storage_path("sitemaps-processing/sitemaps$sitemap"),
                 public_path("sitemaps$sitemap")
             );
         }
+
+        copy(
+            storage_path('sitemaps-processing/sitemap.xml'),
+            public_path('sitemap.xml')
+        );
     }
 
     protected function saveHomepage()
     {
         $home = new Home($this->url, storage_path('sitemaps-processing/sitemaps'));
 
-        array_push($this->sitemaps, ...$home->write());
+        $this->sitemaps = array_merge($this->sitemaps, $home->write());
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace Flagrow\Sitemap\Resources;
+namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
-use Flagrow\Sitemap\Sitemap\Frequency;
+use FoF\Sitemap\Sitemap\Frequency;
 use FoF\Pages\Page as Model;
 use Illuminate\Database\Eloquent\Builder;
 
