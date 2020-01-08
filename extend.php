@@ -12,10 +12,12 @@ return [
     (new Extend\Routes('forum'))
         ->get('/sitemap.xml', 'flagrow-sitemap-index', SitemapController::class),
     function (Application $app, Dispatcher $events) {
+        $app->register(Providers\ResourceProvider::class);
         $app->register(Providers\ViewProvider::class);
 
         $events->listen(Configuring::class, function (Configuring $event) {
             $event->addCommand(Commands\CacheSitemapCommand::class);
+            $event->addCommand(Commands\MultiPageSitemapCommand::class);
         });
     },
 ];
