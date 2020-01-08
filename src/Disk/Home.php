@@ -49,7 +49,7 @@ EOM
         fclose($stream);
 
         if ($gzipped = $this->gzCompressFile($path)) {
-//            unlink($path);
+            unlink($path);
         }
 
         $path = str_replace($directory, null, $gzipped ?? $path);
