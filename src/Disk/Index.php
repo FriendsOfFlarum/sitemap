@@ -88,6 +88,8 @@ EOM
             public_path('sitemap.xml')
         );
 
+        if (! is_dir(public_path("sitemaps"))) mkdir(public_path("sitemaps"));
+
         foreach ($this->sitemaps as $sitemap) {
             copy(
                 storage_path("sitemaps-processing/sitemaps$sitemap"),
