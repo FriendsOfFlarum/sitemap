@@ -16,7 +16,7 @@ class CacheSitemapCommand extends Command
     {
         $urlSet = $generator->getUrlSet();
 
-        $cache->forever('flagrow.sitemap', $urlSet);
+        $cache->forever('fof-sitemap', $urlSet);
 
         if ($this->option('write-xml-file')) {
             @file_put_contents(

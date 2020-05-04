@@ -28,7 +28,7 @@ class SitemapController implements RequestHandlerInterface
 
     protected function render(ServerRequestInterface $request)
     {
-        $urlset = $this->cache->get('flagrow.sitemap') ?? $this->sitemap->getUrlSet();
+        $urlset = $this->cache->get('fof-sitemap') ?? $this->sitemap->getUrlSet();
 
         return $this->view->make('fof-sitemap::sitemap')
             ->with('urlset', $urlset)
