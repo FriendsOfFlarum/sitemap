@@ -1,14 +1,14 @@
 <?php
 
-namespace Flagrow\Sitemap\Controllers;
+namespace FoF\Sitemap\Controllers;
 
-use Flagrow\Sitemap\SitemapGenerator;
+use FoF\Sitemap\SitemapGenerator;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\View\Factory;
+use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response;
 
 class SitemapController implements RequestHandlerInterface
 {
@@ -28,9 +28,9 @@ class SitemapController implements RequestHandlerInterface
 
     protected function render(ServerRequestInterface $request)
     {
-        $urlset = $this->cache->get('flagrow.sitemap') ?? $this->sitemap->getUrlSet();
+        $urlset = $this->cache->get('fof-sitemap') ?? $this->sitemap->getUrlSet();
 
-        return $this->view->make('flagrow-sitemap::sitemap')
+        return $this->view->make('fof-sitemap::sitemap')
             ->with('urlset', $urlset)
             ->render();
     }

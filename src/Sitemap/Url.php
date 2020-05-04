@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Sitemap\Sitemap;
+namespace FoF\Sitemap\Sitemap;
 
 use Carbon\Carbon;
 
