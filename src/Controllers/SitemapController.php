@@ -5,10 +5,10 @@ namespace FoF\Sitemap\Controllers;
 use FoF\Sitemap\SitemapGenerator;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\View\Factory;
+use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response;
 
 class SitemapController implements RequestHandlerInterface
 {
