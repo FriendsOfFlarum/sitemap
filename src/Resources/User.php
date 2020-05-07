@@ -16,7 +16,7 @@ class User extends Resource
 
     public function url($model): string
     {
-        return $this->generateUrl("u/{$model->username}");
+        return $this->generateUrl("u/{$model->id}");
     }
 
     public function priority(): float
