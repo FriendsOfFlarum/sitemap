@@ -2,8 +2,8 @@
 
 namespace FoF\Sitemap\Commands;
 
-use FoF\Sitemap\Disk\Index;
 use Flarum\Foundation\Application;
+use FoF\Sitemap\Disk\Index;
 use Illuminate\Console\Command;
 
 class MultiPageSitemapCommand extends Command

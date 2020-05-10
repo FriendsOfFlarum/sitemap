@@ -2,9 +2,9 @@
 
 namespace FoF\Sitemap\Providers;
 
-use FoF\Sitemap\Resources;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\AbstractServiceProvider;
+use FoF\Sitemap\Resources;
 
 class ResourceProvider extends AbstractServiceProvider
 {

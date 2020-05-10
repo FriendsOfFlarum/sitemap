@@ -3,11 +3,11 @@
 namespace FoF\Sitemap;
 
 use Carbon\Carbon;
+use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\Application;
 use FoF\Sitemap\Resources\Resource;
 use FoF\Sitemap\Sitemap\Frequency;
 use FoF\Sitemap\Sitemap\UrlSet;
-use Flarum\Extension\ExtensionManager;
-use Flarum\Foundation\Application;
 
 class SitemapGenerator
 {

@@ -2,9 +2,9 @@
 
 namespace FoF\Sitemap\Resources;
 
-use FoF\Sitemap\Sitemap\Frequency;
-use Flarum\User\User as Model;
 use Flarum\User\Guest;
+use Flarum\User\User as Model;
+use FoF\Sitemap\Sitemap\Frequency;
 use Illuminate\Database\Eloquent\Builder;
 
 class User extends Resource

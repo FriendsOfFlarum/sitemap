@@ -3,9 +3,9 @@
 namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
-use FoF\Sitemap\Sitemap\Frequency;
 use Flarum\Discussion\Discussion as Model;
 use Flarum\User\Guest;
+use FoF\Sitemap\Sitemap\Frequency;
 use Illuminate\Database\Eloquent\Builder;
 
 class Discussion extends Resource

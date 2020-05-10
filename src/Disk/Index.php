@@ -2,7 +2,6 @@
 
 namespace FoF\Sitemap\Disk;
 
-use Carbon\Carbon;
 use FoF\Sitemap\Resources\Resource;
 
 class Index

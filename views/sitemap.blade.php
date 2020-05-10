@@ -1,8 +1,7 @@
 <?php
 
+// Using echo statement because we can't use <? without causing issues with PHP templates
 echo '<?xml version="1.0" encoding="UTF-8"?>';
-
-/* @var $urlset \Flagrow\Sitemap\Sitemap\UrlSet */
 
 ?>
 

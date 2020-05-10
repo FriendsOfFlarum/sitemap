@@ -3,8 +3,8 @@
 namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
-use FoF\Sitemap\Sitemap\Frequency;
 use FoF\Pages\Page as Model;
+use FoF\Sitemap\Sitemap\Frequency;
 use Illuminate\Database\Eloquent\Builder;
 
 class Page extends Resource

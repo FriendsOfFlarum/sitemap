@@ -2,9 +2,9 @@
 
 namespace FoF\Sitemap\Resources;
 
-use FoF\Sitemap\Sitemap\Frequency;
 use Flarum\Tags\Tag as Model;
 use Flarum\User\Guest;
+use FoF\Sitemap\Sitemap\Frequency;
 use Illuminate\Database\Eloquent\Builder;
 
 class Tag extends Resource
