@@ -44,6 +44,10 @@
     "replace": {
         "flagrow/sitemap": "*"
     },
+    "suggest": {
+        "fof/pages": "List pages in the sitemap",
+        "flarum/tags": "List tags in the sitemap"
+    },
     "autoload": {
         "psr-4": {
             "FoF\\Sitemap\\": "src/"

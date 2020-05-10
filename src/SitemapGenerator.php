@@ -8,7 +8,6 @@ use FoF\Sitemap\Sitemap\Frequency;
 use FoF\Sitemap\Sitemap\UrlSet;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
-use Sijad\Pages\Page;
 
 class SitemapGenerator
 {
