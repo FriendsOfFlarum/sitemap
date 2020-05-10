@@ -85,6 +85,6 @@ php flarum cache:clear
 
 - [![OpenCollective](https://img.shields.io/badge/donate-friendsofflarum-44AEE5?style=for-the-badge&logo=open-collective)](https://opencollective.com/fof/donate)
 - [Flarum Discuss post](https://discuss.flarum.org/d/14941)
-- [Source code on GitHub](https://github.com/FriendsOFlarum/sitemap)
-- [Report an issue](https://github.com/FriendsOFlarum/sitemap/issues)
+- [Source code on GitHub](https://github.com/FriendsOfFlarum/sitemap)
+- [Report an issue](https://github.com/FriendsOFflarum/sitemap/issues)
 - [Download via Packagist](https://packagist.org/packages/fof/sitemap)
