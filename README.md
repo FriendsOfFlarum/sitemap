@@ -7,6 +7,8 @@ It uses default entries like Discussions and Users, but is also smart enough to 
 based on the availability of extensions. This currently applies to flarum/tags and fof/pages. Other extensions
 can easily inject their own Resource information, check Extending below.
 
+## Modes
+
 There are several modes to use the sitemap.
 
 ### Runtime mode
@@ -80,6 +82,18 @@ composer update fof/sitemap
 php flarum migrate
 php flarum cache:clear
 ```
+
+## Nginx issues
+
+If you are using nginx and accessing `/sitemap.xml` results in an nginx 404 page, you can add the following rule to your configuration file, underneath your existing `location` rule:
+
+```
+location = /sitemap.xml {
+    try_files $uri $uri/ /index.php?$query_string;
+}
+```
+
+This rule makes sure that Flarum will answer the request for `/sitemap.xml` when no file exists with that name.
 
 ## Links
 
