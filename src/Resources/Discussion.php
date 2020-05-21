@@ -17,7 +17,9 @@ class Discussion extends Resource
 
     public function url($model): string
     {
-        return $this->generateUrl('d/' . $model->id . (trim($model->slug) ? '-' . $model->slug : ''));
+        return $this->generateRouteUrl('discussion', [
+            'id' => $model->id . (trim($model->slug) ? '-' . $model->slug : ''),
+        ]);
     }
 
     public function priority(): float

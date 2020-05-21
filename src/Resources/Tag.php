@@ -16,7 +16,9 @@ class Tag extends Resource
 
     public function url($model): string
     {
-        return $this->generateUrl("t/{$model->slug}");
+        return $this->generateRouteUrl('tag', [
+            'slug' => $model->slug,
+        ]);
     }
 
     public function priority(): float
