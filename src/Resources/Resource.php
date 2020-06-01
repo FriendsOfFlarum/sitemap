@@ -3,6 +3,7 @@
 namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
+use Flarum\Http\UrlGenerator;
 use Illuminate\Database\Eloquent\Builder;
 
 abstract class Resource
@@ -20,10 +21,32 @@ abstract class Resource
         return Carbon::now();
     }
 
+    /**
+     * Generates an absolute URL to an arbitrary path
+     * Not actually used by the extension anymore but kept for compatibility with third-party code extending this class
+     * @param $path
+     * @return string
+     */
     protected function generateUrl($path): string
     {
         $url = app()->url();
 
         return "$url/$path";
+    }
+
+    /**
+     * Generates an absolute URL to a named route
+     * @param $name
+     * @param array $parameters
+     * @return string
+     */
+    protected function generateRouteUrl($name, $parameters = []): string
+    {
+        /**
+         * @var $generator UrlGenerator
+         */
+        $generator = app(UrlGenerator::class);
+
+        return $generator->to('forum')->route($name, $parameters);
     }
 }

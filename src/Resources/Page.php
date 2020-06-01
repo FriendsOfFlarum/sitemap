@@ -35,7 +35,9 @@ class Page extends Resource
 
     public function url($model): string
     {
-        return $this->generateUrl('p/' . $model->id . (trim($model->slug) ? '-' . $model->slug : ''));
+        return $this->generateRouteUrl('pages.page', [
+            'id' => $model->id . (trim($model->slug) ? '-' . $model->slug : ''),
+        ]);
     }
 
     public function priority(): float

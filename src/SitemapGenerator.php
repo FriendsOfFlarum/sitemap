@@ -5,6 +5,7 @@ namespace FoF\Sitemap;
 use Carbon\Carbon;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Resources\Resource;
 use FoF\Sitemap\Sitemap\Frequency;
@@ -14,28 +15,27 @@ class SitemapGenerator
 {
     protected $app;
     protected $extensions;
+    protected $settings;
+    protected $url;
 
-    public function __construct(Application $app, ExtensionManager $extensions)
+    public function __construct(Application $app, ExtensionManager $extensions, SettingsRepositoryInterface $settings, UrlGenerator $url)
     {
         $this->app = $app;
         $this->extensions = $extensions;
+        $this->settings = $settings;
+        $this->url = $url;
     }
 
     public function getUrlSet()
     {
         $urlSet = new UrlSet();
 
-        $url = $this->app->url();
-
         // Always add the homepage, whichever it is
-        $urlSet->addUrl($url . '/', Carbon::now(), Frequency::DAILY, 0.9);
-
-        /** @var SettingsRepositoryInterface $settings */
-        $settings = $this->app->make(SettingsRepositoryInterface::class);
+        $urlSet->addUrl($this->url->to('forum')->base() . '/', Carbon::now(), Frequency::DAILY, 0.9);
 
         // If the homepage is different from /all, also add /all
-        if ($settings->get('default_route') !== '/all') {
-            $urlSet->addUrl($url . '/all', Carbon::now(), Frequency::DAILY, 0.9);
+        if ($this->settings->get('default_route') !== '/all') {
+            $urlSet->addUrl($this->url->to('forum')->route('index'), Carbon::now(), Frequency::DAILY, 0.9);
         }
 
         $resources = $this->app->make('fof.sitemap.resources') ?? [];
