@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) 2020 FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE.md
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
@@ -23,8 +33,10 @@ abstract class Resource
 
     /**
      * Generates an absolute URL to an arbitrary path
-     * Not actually used by the extension anymore but kept for compatibility with third-party code extending this class
+     * Not actually used by the extension anymore but kept for compatibility with third-party code extending this class.
+     *
      * @param $path
+     *
      * @return string
      */
     protected function generateUrl($path): string
@@ -35,9 +47,11 @@ abstract class Resource
     }
 
     /**
-     * Generates an absolute URL to a named route
+     * Generates an absolute URL to a named route.
+     *
      * @param $name
      * @param array $parameters
+     *
      * @return string
      */
     protected function generateRouteUrl($name, $parameters = []): string
