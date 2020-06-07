@@ -31,6 +31,7 @@ return [
     function (Application $app, Dispatcher $events) {
         $app->register(Providers\ResourceProvider::class);
         $app->register(Providers\ViewProvider::class);
+        $app->register(Providers\ConsoleProvider::class);
     },
 
     (new Extend\Console())->command(Commands\CacheSitemapCommand::class),

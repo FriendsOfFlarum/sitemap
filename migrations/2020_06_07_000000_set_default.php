@@ -19,10 +19,12 @@ return [
         $settings = app('flarum.settings');
 
         $settings->set('fof-sitemap.mode', 'run');
+        $settings->set('fof-sitemap.frequency', 'daily');
     },
     'down' => function (Builder $schema) {
         $settings = app('flarum.settings');
 
         $settings->delete('fof-sitemap.mode');
+        $settings->delete('fof-sitemap.frequency');
     },
 ];

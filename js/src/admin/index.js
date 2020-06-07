@@ -28,7 +28,7 @@ app.initializers.add('fof/sitemap', () => {
                                 'multi-file': app.translator.trans('fof-sitemap.admin.settings.modes.multi_file'),
                             },
                             key: "fof-sitemap.mode",
-                            required: false
+                            required: true
                         })}
                     </div>,
                     <p>
@@ -53,6 +53,23 @@ app.initializers.add('fof/sitemap', () => {
                     </div>,
                     <hr />,
                     <h3>{app.translator.trans("fof-sitemap.admin.settings.advanced_options_label")}</h3>,
+                    <div className="Form-group">
+                        <label>
+                            {app.translator.trans(
+                                "fof-sitemap.admin.settings.frequency_label"
+                            )}
+                        </label>
+
+                        {SelectItem.component({
+                            options: {
+                                'hourly': app.translator.trans('fof-sitemap.admin.settings.frequency.hourly'),
+                                'twice-daily': app.translator.trans('fof-sitemap.admin.settings.frequency.twice_daily'),
+                                'daily': app.translator.trans('fof-sitemap.admin.settings.frequency.daily'),
+                            },
+                            key: "fof-sitemap.frequency",
+                            required: true
+                        })}
+                    </div>,
                 ],
             })
         );

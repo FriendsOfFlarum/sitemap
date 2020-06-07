@@ -31,7 +31,9 @@ class ConsoleProvider extends AbstractServiceProvider
             return;
         }
 
-        $this->app->resolving(Schedule::class, function (Schedule $schedule) use ($mode) {
+        $frequency = $settings->get('fof-sitemap.frequency', 'daily');
+
+        $this->app->resolving(Schedule::class, function (Schedule $schedule) use ($mode, $frequency) {
             switch ($mode) {
                 case 'multi-file':
                     $command = 'fof:sitemap:multi';
@@ -46,9 +48,22 @@ class ConsoleProvider extends AbstractServiceProvider
                     return;
             }
 
-            $schedule->command($command)
-                ->dailyAt('02:00')
-                ->withoutOverlapping();
+            $builder = $schedule->command($command);
+
+            switch ($frequency) {
+                case 'hourly':
+                    $builder->hourly();
+                    break;
+                case 'twice-daily':
+                    $builder->twiceDaily();
+                    break;
+                case 'daily':
+                default:
+                    $builder->daily();
+                    break;
+            }
+
+            $builder->withoutOverlapping();
         });
     }
 }
