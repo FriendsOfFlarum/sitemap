@@ -50,7 +50,7 @@ class SitemapGenerator
 
         $resources = $this->app->make('fof.sitemap.resources') ?? [];
 
-        /** @var resource $resource */
+        /** @var FoF\Sitemap\Resources\Resource $resource */
         foreach ($resources as $resource) {
             $resource->query()->each(function ($model) use (&$urlSet, $resource) {
                 $urlSet->addUrl(
