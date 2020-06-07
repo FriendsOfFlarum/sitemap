@@ -17,7 +17,6 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\Sitemap\Resources\Resource;
 use FoF\Sitemap\Sitemap\Frequency;
 use FoF\Sitemap\Sitemap\UrlSet;
 

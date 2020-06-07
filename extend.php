@@ -20,7 +20,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     new AddFofComponents(),
-    
+
     new \FoF\Console\Extend\EnableConsole(),
 
     (new Extend\Frontend('admin'))
