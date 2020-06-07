@@ -42,6 +42,7 @@ app.initializers.add('fof/sitemap', () => {
                         <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_runtime')}</p>
                     </div>,
                     <h4>{app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule')}</h4>,
+                    <p>Without the Flarum scheduler correctly setup, the following modes will not run. Refer here <a href="https://discuss.flarum.org/d/24118" target="_blank">for more information.</a></p>,
                     <div>
                         <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_cache_disk_label')}</h3>
                         <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_cache_disk')}</p>
