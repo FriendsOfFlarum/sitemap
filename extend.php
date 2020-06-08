@@ -14,12 +14,11 @@ namespace FoF\Sitemap;
 
 use Flarum\Extend;
 use Flarum\Foundation\Application;
-use FoF\Components\Extend\AddFofComponents;
 use FoF\Sitemap\Controllers\SitemapController;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
-    new AddFofComponents(),
+    new \FoF\Components\Extend\AddFofComponents(),
 
     new \FoF\Console\Extend\EnableConsole(),
 
