@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) 2020 FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE.md
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Extend;
 
 use Flarum\Extend\ExtenderInterface;
@@ -28,7 +38,7 @@ class RegisterResource implements ExtenderInterface
             if ($resource instanceof Resource) {
                 $resources[] = $resource;
             } else {
-                throw new InvalidArgumentException("{$this->resource} has to extend " . Resource::class);
+                throw new InvalidArgumentException("{$this->resource} has to extend ".Resource::class);
             }
 
             return $resources;

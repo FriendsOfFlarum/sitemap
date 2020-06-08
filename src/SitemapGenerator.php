@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) 2020 FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE.md
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap;
 
 use Carbon\Carbon;
@@ -7,7 +17,6 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\Sitemap\Resources\Resource;
 use FoF\Sitemap\Sitemap\Frequency;
 use FoF\Sitemap\Sitemap\UrlSet;
 
@@ -31,7 +40,7 @@ class SitemapGenerator
         $urlSet = new UrlSet();
 
         // Always add the homepage, whichever it is
-        $urlSet->addUrl($this->url->to('forum')->base() . '/', Carbon::now(), Frequency::DAILY, 0.9);
+        $urlSet->addUrl($this->url->to('forum')->base().'/', Carbon::now(), Frequency::DAILY, 0.9);
 
         // If the homepage is different from /all, also add /all
         if ($this->settings->get('default_route') !== '/all') {
@@ -40,7 +49,7 @@ class SitemapGenerator
 
         $resources = $this->app->make('fof.sitemap.resources') ?? [];
 
-        /** @var Resource $resource */
+        /** @var FoF\Sitemap\Resources\Resource $resource */
         foreach ($resources as $resource) {
             $resource->query()->each(function ($model) use (&$urlSet, $resource) {
                 $urlSet->addUrl(

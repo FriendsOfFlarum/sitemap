@@ -1,0 +1,26 @@
+fof-sitemap:
+    admin:
+      settings:
+        title: FoF Sitemap
+        mode_label: Operation mode
+        mode_help: Selecting the correct mode for your size of forum is vitally important.
+        mode_help_runtime_label: Runtime Mode
+        mode_help_runtime: For small forums, most likely on shared hosting environments, with discussions, users, tags and pages summed up being less than 10.000 items. The sitemap is generated on the fly at each request.
+        mode_help_schedule: The following modes add their tasks to the Flarum schedule.
+        mode_help_cache_disk_label: Cache Mode/Disk Mode
+        mode_help_cache_disk: Best for small or medium forums, most likely on hosting environments allowing cronjobs and enabling the Flarum scheduler (see below), and with discussions, users, tags and pages summed up being less than 50.000 items.
+        mode_help_large: 50.000 is the technical limit for sitemap files. If you have more entries to store, use the following option!
+        mode_help_multi_label: Multi-file Mode
+        mode_help_multi: Best for larger forums, starting at 50.000 items. Mult part, compressed sitemap files will be generated and stored in the /public folder
+        advanced_options_label: Advanced options
+        frequency_label: How often should the scheduler re-build the cache or disk based sitemap?
+        modes:
+            runtime: Runtime
+            cache: Cache
+            cache_disk: Disk
+            multi_file: Multi file
+        frequency:
+            hourly: Hourly
+            twice_daily: Twice daily
+            daily: Daily
+

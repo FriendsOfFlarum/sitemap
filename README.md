@@ -63,6 +63,10 @@ return [
 ```
 That's it.
 
+## Scheduling
+
+If the size of your forum requires one of the cache modes - either in-memory or disk, consider setting up the Flarum scheduler. Read more information about this [here](https://discuss.flarum.org/d/24118)
+
 ## Commissioned
 
 The initial version of this extension was sponsored by [profesionalreview.com](https://www.profesionalreview.com/).

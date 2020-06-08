@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) 2020 FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE.md
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Disk;
 
 use FoF\Sitemap\Resources\Resource;
@@ -7,7 +17,7 @@ use FoF\Sitemap\Resources\Resource;
 class Index
 {
     /**
-     * @var array|Resource[]
+     * @var array|resource[]
      */
     protected $resources;
 
@@ -35,10 +45,10 @@ class Index
                 $builder,
                 function ($model) use ($resource) {
                     return (object) [
-                        'location' => $resource->url($model),
+                        'location'        => $resource->url($model),
                         'changeFrequency' => $resource->frequency(),
-                        'lastModified' => $resource->lastModifiedAt($model),
-                        'priority' => $resource->priority()
+                        'lastModified'    => $resource->lastModifiedAt($model),
+                        'priority'        => $resource->priority(),
                     ];
                 },
                 storage_path('sitemaps-processing/sitemaps')
@@ -54,14 +64,18 @@ class Index
     {
         $stream = fopen(storage_path('sitemaps-processing/sitemap.xml'), 'w+');
 
-        fwrite($stream, <<<EOM
+        fwrite(
+            $stream,
+            <<<'EOM'
 <?xml version="1.0" encoding="UTF-8"?>
    <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 EOM
         );
 
         foreach ($this->sitemaps as $sitemap => $lastModified) {
-            fwrite($stream, <<<EOM
+            fwrite(
+                $stream,
+                <<<EOM
   <sitemap>
       <loc>{$this->url}/sitemaps{$sitemap}</loc>
       <lastmod>{$lastModified->toW3cString()}</lastmod>
@@ -70,7 +84,9 @@ EOM
             );
         }
 
-        fwrite($stream, <<<EOM
+        fwrite(
+            $stream,
+            <<<'EOM'
 </sitemapindex>
 EOM
         );
@@ -80,7 +96,9 @@ EOM
 
     public function publish()
     {
-        if (! is_dir(public_path("sitemaps"))) mkdir(public_path("sitemaps"));
+        if (!is_dir(public_path('sitemaps'))) {
+            mkdir(public_path('sitemaps'));
+        }
 
         foreach ($this->sitemaps as $sitemap => $_) {
             copy(

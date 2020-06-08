@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) 2020 FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE.md
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Disk;
 
 use Carbon\Carbon;
@@ -42,7 +52,7 @@ class Sitemap
     {
         $directory = $this->tmpDir ?? public_path('sitemaps');
 
-        if (! is_dir($directory)) {
+        if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
 
@@ -60,13 +70,14 @@ class Sitemap
 
     protected function gzCompressFile($source, $level = 9)
     {
-        $dest = $source . '.gz';
-        $mode = 'wb' . $level;
+        $dest = $source.'.gz';
+        $mode = 'wb'.$level;
         $error = false;
         if ($fp_out = gzopen($dest, $mode)) {
-            if ($fp_in = fopen($source,'rb')) {
-                while (!feof($fp_in))
+            if ($fp_in = fopen($source, 'rb')) {
+                while (!feof($fp_in)) {
                     gzwrite($fp_out, fread($fp_in, 1024 * 512));
+                }
                 fclose($fp_in);
             } else {
                 $error = true;
@@ -75,10 +86,11 @@ class Sitemap
         } else {
             $error = true;
         }
-        if ($error)
+        if ($error) {
             return false;
-        else
+        } else {
             return $dest;
+        }
     }
 
     protected function view(): Factory
@@ -88,6 +100,7 @@ class Sitemap
 
     /**
      * @param string $directory
+     *
      * @return array
      */
     protected function chunk(string $directory): array
@@ -101,7 +114,9 @@ class Sitemap
 
             $stream = fopen($path = "$directory/$filename", 'w+');
 
-            fwrite($stream, <<<EOM
+            fwrite(
+                $stream,
+                <<<'EOM'
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 EOM
@@ -120,7 +135,9 @@ EOM
                 );
             });
 
-            fwrite($stream, <<<EOM
+            fwrite(
+                $stream,
+                <<<'EOM'
 </urlset>
 EOM
             );
