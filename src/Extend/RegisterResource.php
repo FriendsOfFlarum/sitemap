@@ -32,14 +32,18 @@ class RegisterResource implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->resolving('fof.sitemap.resources', function (array $resources) use ($container) {
+        $container->extend('fof.sitemap.resources', function (array $resources) use ($container) {
             $resource = $container->make($this->resource);
 
             if ($resource instanceof Resource) {
                 $resources[] = $resource;
+                // confirms extension is added here.
+                app('log')->debug('[RegisterResource::extend] added '.get_class($resource));
             } else {
                 throw new InvalidArgumentException("{$this->resource} has to extend ".Resource::class);
             }
+            // here on extension register poiint we correctly see all core + extension resources.
+            app('log')->debug('[RegisterResource::extend] resolved '.count($resources).' resources.');
 
             return $resources;
         });
