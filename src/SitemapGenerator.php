@@ -49,9 +49,6 @@ class SitemapGenerator
 
         $resources = $this->app->make('fof.sitemap.resources') ?? [];
 
-        // confirms we now have all extensions.
-        app('log')->debug('[SitemapGenerator::getUrlSet] resolved '.count($resources).' resources.');
-
         /** @var FoF\Sitemap\Resources\Resource $resource */
         foreach ($resources as $resource) {
             $resource->query()->each(function ($model) use (&$urlSet, $resource) {
