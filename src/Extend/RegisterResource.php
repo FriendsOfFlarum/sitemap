@@ -32,7 +32,7 @@ class RegisterResource implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->resolving('fof.sitemap.resources', function (array $resources) use ($container) {
+        $container->extend('fof.sitemap.resources', function (array $resources) use ($container) {
             $resource = $container->make($this->resource);
 
             if ($resource instanceof Resource) {
