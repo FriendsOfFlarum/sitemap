@@ -12,22 +12,23 @@
 
 namespace FoF\Sitemap\Commands;
 
-use Flarum\Foundation\Application;
+use Flarum\Foundation\Config;
+use Flarum\Foundation\Paths;
 use FoF\Sitemap\Disk\Index;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\Container;
 
 class MultiPageSitemapCommand extends Command
 {
     protected $signature = 'fof:sitemap:multi';
     protected $description = 'Persists sitemap to disk into multiple gzipped files.';
 
-    public function handle(Application $app)
+    public function handle(Config $config, Container $container, Paths $paths)
     {
-        $url = $app->url();
-
         $index = new Index(
-            $url,
-            $app->make('fof.sitemap.resources') ?? []
+            $config->url(),
+            $container->make('fof.sitemap.resources') ?? [],
+            $paths
         );
 
         $index->write();

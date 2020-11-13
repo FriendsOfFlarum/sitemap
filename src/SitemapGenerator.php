@@ -14,11 +14,11 @@ namespace FoF\Sitemap;
 
 use Carbon\Carbon;
 use Flarum\Extension\ExtensionManager;
-use Flarum\Foundation\Application;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Sitemap\Frequency;
 use FoF\Sitemap\Sitemap\UrlSet;
+use Illuminate\Contracts\Container\Container;
 
 class SitemapGenerator
 {
@@ -27,7 +27,7 @@ class SitemapGenerator
     protected $settings;
     protected $url;
 
-    public function __construct(Application $app, ExtensionManager $extensions, SettingsRepositoryInterface $settings, UrlGenerator $url)
+    public function __construct(Container $app, ExtensionManager $extensions, SettingsRepositoryInterface $settings, UrlGenerator $url)
     {
         $this->app = $app;
         $this->extensions = $extensions;
@@ -49,7 +49,7 @@ class SitemapGenerator
 
         $resources = $this->app->make('fof.sitemap.resources') ?? [];
 
-        /** @var FoF\Sitemap\Resources\Resource $resource */
+        /** @var \FoF\Sitemap\Resources\Resource $resource */
         foreach ($resources as $resource) {
             $resource->query()->each(function ($model) use (&$urlSet, $resource) {
                 $urlSet->addUrl(

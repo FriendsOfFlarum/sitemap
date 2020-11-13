@@ -12,6 +12,7 @@
 
 namespace FoF\Sitemap\Commands;
 
+use Flarum\Foundation\Paths;
 use FoF\Sitemap\SitemapGenerator;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Store;
@@ -22,7 +23,7 @@ class CacheSitemapCommand extends Command
     protected $signature = 'fof:sitemap:cache {--write-xml-file : write to sitemap.xml}';
     protected $description = 'Persists sitemap to cache and optionally to disk.';
 
-    public function handle(Factory $view, Store $cache, SitemapGenerator $generator)
+    public function handle(Factory $view, Store $cache, SitemapGenerator $generator, Paths $paths)
     {
         $urlSet = $generator->getUrlSet();
 
@@ -30,7 +31,7 @@ class CacheSitemapCommand extends Command
 
         if ($this->option('write-xml-file')) {
             @file_put_contents(
-                public_path('sitemap.xml'),
+                $paths->public . DIRECTORY_SEPARATOR . 'sitemap.xml',
                 $view->make('fof-sitemap::sitemap')->with('urlset', $urlSet)->render()
             );
         }

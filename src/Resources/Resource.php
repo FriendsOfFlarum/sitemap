@@ -13,6 +13,7 @@
 namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
+use Flarum\Foundation\Config;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -41,7 +42,7 @@ abstract class Resource
      */
     protected function generateUrl($path): string
     {
-        $url = app()->url();
+        $url = app(Config::class)->url();
 
         return "$url/$path";
     }
