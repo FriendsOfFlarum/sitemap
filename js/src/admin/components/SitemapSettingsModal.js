@@ -39,10 +39,9 @@ export default class AuthSettingsModal extends SettingsModal {
             </div>,
             <h4>{app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule')}</h4>,
             <p>
-                Without the Flarum scheduler correctly setup, the following modes will not run. Refer here{' '}
-                <a href="https://discuss.flarum.org/d/24118" target="_blank">
-                    for more information.
-                </a>
+                {app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule_setup', {
+                    a: <a href="https://discuss.flarum.org/d/24118" target="_blank"></a>,
+                })}
             </p>,
             <div>
                 <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_cache_disk_label')}</h3>
