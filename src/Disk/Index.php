@@ -48,14 +48,14 @@ class Index
                 $builder->getModel()->getTable(),
                 $builder,
                 function ($model) use ($resource) {
-                    return (object)[
-                        'location' => $resource->url($model),
+                    return (object) [
+                        'location'        => $resource->url($model),
                         'changeFrequency' => $resource->frequency(),
-                        'lastModified' => $resource->lastModifiedAt($model),
-                        'priority' => $resource->priority(),
+                        'lastModified'    => $resource->lastModifiedAt($model),
+                        'priority'        => $resource->priority(),
                     ];
                 },
-                $this->paths->storage . DIRECTORY_SEPARATOR . 'sitemaps-processing/sitemaps'
+                $this->paths->storage.DIRECTORY_SEPARATOR.'sitemaps-processing/sitemaps'
             );
 
             $this->sitemaps = array_merge($this->sitemaps, $sitemap->write());
@@ -66,7 +66,7 @@ class Index
 
     protected function saveIndexFile()
     {
-        $stream = fopen($this->paths->storage . DIRECTORY_SEPARATOR . 'sitemaps-processing/sitemap.xml', 'w+');
+        $stream = fopen($this->paths->storage.DIRECTORY_SEPARATOR.'sitemaps-processing/sitemap.xml', 'w+');
 
         fwrite(
             $stream,
@@ -100,26 +100,26 @@ EOM
 
     public function publish()
     {
-        if (!is_dir($this->paths->public . DIRECTORY_SEPARATOR . 'sitemaps')) {
-            mkdir($this->paths->public . DIRECTORY_SEPARATOR . 'sitemaps');
+        if (!is_dir($this->paths->public.DIRECTORY_SEPARATOR.'sitemaps')) {
+            mkdir($this->paths->public.DIRECTORY_SEPARATOR.'sitemaps');
         }
 
         foreach ($this->sitemaps as $sitemap => $_) {
             copy(
-                $this->paths->storage . DIRECTORY_SEPARATOR . "sitemaps-processing/sitemaps$sitemap",
-                $this->paths->public . DIRECTORY_SEPARATOR . "sitemaps$sitemap"
+                $this->paths->storage.DIRECTORY_SEPARATOR."sitemaps-processing/sitemaps$sitemap",
+                $this->paths->public.DIRECTORY_SEPARATOR."sitemaps$sitemap"
             );
         }
 
         copy(
-            $this->paths->storage . DIRECTORY_SEPARATOR . 'sitemaps-processing/sitemap.xml',
-            $this->paths->public . DIRECTORY_SEPARATOR . 'sitemap.xml'
+            $this->paths->storage.DIRECTORY_SEPARATOR.'sitemaps-processing/sitemap.xml',
+            $this->paths->public.DIRECTORY_SEPARATOR.'sitemap.xml'
         );
     }
 
     protected function saveHomepage()
     {
-        $home = new Home($this->url, $this->paths->storage . DIRECTORY_SEPARATOR . 'sitemaps-processing/sitemaps');
+        $home = new Home($this->url, $this->paths->storage.DIRECTORY_SEPARATOR.'sitemaps-processing/sitemaps');
 
         $this->sitemaps = array_merge($this->sitemaps, $home->write());
     }

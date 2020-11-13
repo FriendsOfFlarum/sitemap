@@ -31,7 +31,7 @@ class CacheSitemapCommand extends Command
 
         if ($this->option('write-xml-file')) {
             @file_put_contents(
-                $paths->public . DIRECTORY_SEPARATOR . 'sitemap.xml',
+                $paths->public.DIRECTORY_SEPARATOR.'sitemap.xml',
                 $view->make('fof-sitemap::sitemap')->with('urlset', $urlSet)->render()
             );
         }

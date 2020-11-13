@@ -39,5 +39,5 @@ return [
     (new Extend\Console())->command(Commands\MultiPageSitemapCommand::class),
 
     (new Extend\View())
-        ->namespace('fof-sitemap', __DIR__.'/views')
+        ->namespace('fof-sitemap', __DIR__.'/views'),
 ];
