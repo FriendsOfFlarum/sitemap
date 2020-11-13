@@ -1,8 +1,8 @@
 import SettingsModal from 'flarum/components/SettingsModal';
-import {settings} from '@fof-components';
+import { settings } from '@fof-components';
 
 const {
-    items: {SelectItem},
+    items: { SelectItem },
 } = settings;
 
 export default class AuthSettingsModal extends SettingsModal {
@@ -53,7 +53,7 @@ export default class AuthSettingsModal extends SettingsModal {
                 <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_multi_label')}</h3>
                 <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_multi')}</p>
             </div>,
-            <hr/>,
+            <hr />,
             <h3>{app.translator.trans('fof-sitemap.admin.settings.advanced_options_label')}</h3>,
             <div className="Form-group">
                 <label>{app.translator.trans('fof-sitemap.admin.settings.frequency_label')}</label>
