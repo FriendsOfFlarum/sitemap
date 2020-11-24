@@ -13,7 +13,7 @@ There are several modes to use the sitemap.
 
 ### Runtime mode
 
-After enabling the extension the sitemap will be automatically be available and generated on the fly. It contains
+After enabling the extension the sitemap will automatically be available and generated on the fly. It contains
 all Users, Discussions, Tags and Pages guests have access to.
 
 _Applicable to small forums, most likely on shared hosting environments, with discussions, users, tags and pages summed
