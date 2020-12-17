@@ -1,6 +1,6 @@
 import app from 'flarum/app';
-import SitemapSettingsModal from './components/SitemapSettingsModal';
+import SitemapSettingsPage from './components/SitemapSettingsPage';
 
 app.initializers.add('fof/sitemap', () => {
-    app.extensionSettings['fof-sitemap'] = () => app.modal.show(SitemapSettingsModal);
+    app.extensionData.for('fof-sitemap').registerPage(SitemapSettingsPage);
 });
