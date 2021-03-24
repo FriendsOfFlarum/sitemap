@@ -73,7 +73,7 @@ The initial version of this extension was sponsored by [profesionalreview.com](h
 
 ## Installation
 
-Use [Bazaar](https://discuss.flarum.org/d/5151) or install manually:
+Install manually with composer:
 
 ```bash
 composer require fof/sitemap

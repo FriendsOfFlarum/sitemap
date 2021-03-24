@@ -1,4 +1,4 @@
-import ExtensionPage from 'flarum/components/ExtensionPage';
+import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import { settings } from '@fof-components';
 
 const {

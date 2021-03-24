@@ -1,4 +1,4 @@
-import app from 'flarum/app';
+import app from 'flarum/admin/app';
 import SitemapSettingsPage from './components/SitemapSettingsPage';
 
 app.initializers.add('fof/sitemap', () => {
