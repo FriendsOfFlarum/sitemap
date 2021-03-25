@@ -16,8 +16,6 @@ use Flarum\Extend;
 use FoF\Sitemap\Controllers\SitemapController;
 
 return [
-    new \FoF\Components\Extend\AddFofComponents(),
-
     new \FoF\Console\Extend\EnableConsole(),
 
     (new Extend\Frontend('admin'))
