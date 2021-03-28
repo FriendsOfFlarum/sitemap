@@ -1,9 +1,4 @@
-import ExtensionPage from 'flarum/components/ExtensionPage';
-import { settings } from '@fof-components';
-
-const {
-    items: { SelectItem },
-} = settings;
+import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 
 export default class SitemapSettingsPage extends ExtensionPage {
     oninit(vnode) {
@@ -15,18 +10,16 @@ export default class SitemapSettingsPage extends ExtensionPage {
             <div className="container">
                 <div className="FoFSitemapSettingsPage">
                     <div className="Form-group">
-                        <label>{app.translator.trans('fof-sitemap.admin.settings.mode_label')}</label>
-
-                        {SelectItem.component({
+                        {this.buildSettingComponent({
+                            type: 'select',
+                            setting: 'fof-sitemap.mode',
                             options: {
                                 run: app.translator.trans('fof-sitemap.admin.settings.modes.runtime'),
                                 cache: app.translator.trans('fof-sitemap.admin.settings.modes.cache'),
                                 'cache-disk': app.translator.trans('fof-sitemap.admin.settings.modes.cache_disk'),
                                 'multi-file': app.translator.trans('fof-sitemap.admin.settings.modes.multi_file'),
                             },
-                            name: 'fof-sitemap.mode',
-                            setting: this.setting.bind(this),
-                            required: true,
+                            label: app.translator.trans('fof-sitemap.admin.settings.mode_label'),
                         })}
                     </div>
 
@@ -56,15 +49,15 @@ export default class SitemapSettingsPage extends ExtensionPage {
                     <div className="Form-group">
                         <label>{app.translator.trans('fof-sitemap.admin.settings.frequency_label')}</label>
 
-                        {SelectItem.component({
+                        {this.buildSettingComponent({
+                            type: 'select',
+                            setting: 'fof-sitemap.frequency',
                             options: {
                                 hourly: app.translator.trans('fof-sitemap.admin.settings.frequency.hourly'),
                                 'twice-daily': app.translator.trans('fof-sitemap.admin.settings.frequency.twice_daily'),
                                 daily: app.translator.trans('fof-sitemap.admin.settings.frequency.daily'),
                             },
-                            name: 'fof-sitemap.frequency',
-                            setting: this.setting.bind(this),
-                            required: true,
+                            label: app.translator.trans('fof-sitemap.admin.settings.frequency_label'),
                         })}
                     </div>
                     {this.submitButton()}

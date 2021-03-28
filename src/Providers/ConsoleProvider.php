@@ -24,7 +24,7 @@ class ConsoleProvider extends AbstractServiceProvider
             define('ARTISAN_BINARY', 'flarum');
         }
 
-        $settings = $this->app->make(SettingsRepositoryInterface::class);
+        $settings = $this->container->make(SettingsRepositoryInterface::class);
 
         $mode = $settings->get('fof-sitemap.mode');
         if (empty($mode) || $mode === 'run') {
@@ -33,7 +33,7 @@ class ConsoleProvider extends AbstractServiceProvider
 
         $frequency = $settings->get('fof-sitemap.frequency', 'daily');
 
-        $this->app->resolving(Schedule::class, function (Schedule $schedule) use ($mode, $frequency) {
+        $this->container->resolving(Schedule::class, function (Schedule $schedule) use ($mode, $frequency) {
             switch ($mode) {
                 case 'multi-file':
                     $command = 'fof:sitemap:multi';

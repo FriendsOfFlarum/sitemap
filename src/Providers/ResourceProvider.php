@@ -20,14 +20,14 @@ class ResourceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        $this->app->singleton('fof.sitemap.resources', function () {
+        $this->container->singleton('fof.sitemap.resources', function () {
             $resources = [
                 new Resources\User(),
                 new Resources\Discussion(),
             ];
 
             /** @var ExtensionManager $extensions */
-            $extensions = $this->app->make(ExtensionManager::class);
+            $extensions = $this->container->make(ExtensionManager::class);
 
             if ($extensions->isEnabled('flarum-tags')) {
                 $resources[] = new Resources\Tag();
