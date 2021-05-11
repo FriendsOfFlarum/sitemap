@@ -44,6 +44,6 @@ class Discussion extends Resource
 
     public function lastModifiedAt($model): Carbon
     {
-        return $model->last_posted_at;
+        return $model->last_posted_at ?? $model->created_at;
     }
 }
