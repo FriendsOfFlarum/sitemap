@@ -42,30 +42,30 @@ class BuildSitemapCommand extends Command
          * Possible values:
          * `run` -> Runtime mode, no action required here
          * `cache` -> in memory caching of sitemap.xml
-         * `disk` -> write sitemap.xml to disk
-         * `multi` -> write the sitemap as multi-part files on disk.
+         * `cache-disk` -> write sitemap.xml to disk
+         * `multi-file` -> write the sitemap as multi-part files on disk.
          *
          * @var string $mode
          */
         $mode = $this->settings->get('fof-sitemap.mode');
+        $this->info("FoF Sitemap: running in $mode mode");
 
         switch ($mode) {
             case 'cache':
                 $this->cache();
                 break;
-            case 'disk':
+            case 'cache-disk':
                 $this->cache(true);
                 break;
-            case 'multi':
+            case 'multi-file':
                 $this->multi();
                 break;
             default:
                 $this->info('FoF Sitemap: Nothing to do in this mode');
+                $this->info($mode);
 
                 return;
         }
-
-        $this->info("FoF Sitemap: running in $mode mode");
     }
 
     private function cache(bool $toDisk = false): void
