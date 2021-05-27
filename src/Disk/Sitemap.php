@@ -51,7 +51,7 @@ class Sitemap
      */
     public function write(): array
     {
-        $directory = $this->tmpDir ?? app(Paths::class)->public.DIRECTORY_SEPARATOR.'sitemaps';
+        $directory = $this->tmpDir ?? resolve(Paths::class)->public.DIRECTORY_SEPARATOR.'sitemaps';
 
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
@@ -96,7 +96,7 @@ class Sitemap
 
     protected function view(): Factory
     {
-        return app(Factory::class);
+        return resolve(Factory::class);
     }
 
     /**

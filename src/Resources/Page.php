@@ -33,7 +33,7 @@ class Page extends Resource
         $query = Model::whereVisibleTo(new Guest());
 
         /** @var SettingsRepositoryInterface $settings */
-        $settings = app(SettingsRepositoryInterface::class);
+        $settings = resolve(SettingsRepositoryInterface::class);
 
         // If one of the pages is the homepage, it's already listed by the generator and we don't want to add it twice
         if ($settings->get('default_route') === '/pages/home') {
