@@ -61,11 +61,50 @@ class BuildSitemapCommand extends Command
                 $this->multi();
                 break;
             default:
-                $this->info('FoF Sitemap: Nothing to do in this mode');
-                $this->info($mode);
-
+                $this->info('FoF Sitemap: Nothing to generate in this mode');
+                $this->forgetAll();
                 return;
         }
+    }
+
+    private function forgetAll(): void
+    {
+        $this->forgetCache();
+
+        $this->forgetDisk();
+
+        $this->forgetMulti();
+    }
+
+    private function forgetCache(): bool
+    {
+        /** @var Store */
+        $cache = resolve(Store::class);
+
+        return $cache->forget('fof-sitemap');
+    }
+
+    private function forgetDisk(): bool
+    {
+        if (file_exists($file = $this->paths->public . DIRECTORY_SEPARATOR . 'sitemap.xml')) {
+            return unlink($file);
+        }
+
+        return false;
+    }
+
+    private function forgetMulti(): bool
+    {
+        if (file_exists($dir = $this->paths->public . DIRECTORY_SEPARATOR . 'sitemaps')) {
+            foreach (glob($dir . "/*.*") as $filename) {
+                if (is_file($filename)) {
+                    unlink($filename);
+                }
+            }
+            return rmdir($dir);
+        }
+
+        return false;
     }
 
     private function cache(bool $toDisk = false): void
@@ -83,12 +122,17 @@ class BuildSitemapCommand extends Command
 
         if ($toDisk) {
             @file_put_contents(
-                $this->paths->public.DIRECTORY_SEPARATOR.'sitemap.xml',
+                $this->paths->public . DIRECTORY_SEPARATOR . 'sitemap.xml',
                 $view->make('fof-sitemap::sitemap')->with('urlset', $urlSet)->render()
             );
 
+            $this->forgetCache();
+            $this->forgetMulti();
+
             $this->info('FoF Sitemap: disk mode complete');
         } else {
+            $this->forgetDisk();
+            $this->forgetMulti();
             $this->info('FoF Sitemap: cache mode complete');
         }
     }
@@ -109,6 +153,9 @@ class BuildSitemapCommand extends Command
         $index->write();
 
         $index->publish();
+
+        $this->forgetCache();
+        $this->forgetDisk();
 
         $this->info('FoF Sitemap: multi mode complete');
     }
