@@ -33,7 +33,7 @@ class BuildSitemapCommand extends Command
     /** @var SettingsRepositoryInterface */
     protected $settings;
 
-    public function handle(Factory $view, Store $cache, SitemapGenerator $generator, Paths $paths, SettingsRepositoryInterface $settings)
+    public function handle(Paths $paths, SettingsRepositoryInterface $settings)
     {
         $this->paths = $paths;
         $this->settings = $settings;
@@ -47,7 +47,7 @@ class BuildSitemapCommand extends Command
          *
          * @var string $mode
          */
-        $mode = $this->settings->get('fof-sitemap.mode');
+        $mode = $this->settings->get('fof-sitemap.mode', 'run');
         $this->info("FoF Sitemap: running in $mode mode");
 
         switch ($mode) {
