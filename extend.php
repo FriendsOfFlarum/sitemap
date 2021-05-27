@@ -19,12 +19,12 @@ use Illuminate\Console\Scheduling\Event;
 
 return [
     (new Extend\Frontend('admin'))
-        ->js(__DIR__ . '/js/dist/admin.js'),
+        ->js(__DIR__.'/js/dist/admin.js'),
 
     (new Extend\Routes('forum'))
         ->get('/sitemap.xml', 'fof-sitemap-index', SitemapController::class),
 
-    new Extend\Locales(__DIR__ . '/resources/locale'),
+    new Extend\Locales(__DIR__.'/resources/locale'),
 
     (new Extend\ServiceProvider())
         ->register(Providers\ResourceProvider::class),
@@ -51,5 +51,5 @@ return [
         }),
 
     (new Extend\View())
-        ->namespace('fof-sitemap', __DIR__ . '/views'),
+        ->namespace('fof-sitemap', __DIR__.'/views'),
 ];

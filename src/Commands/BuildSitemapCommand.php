@@ -39,12 +39,12 @@ class BuildSitemapCommand extends Command
         $this->settings = $settings;
 
         /**
-         * Possible values: 
-         * `run` -> Runtime mode, no action required here 
+         * Possible values:
+         * `run` -> Runtime mode, no action required here
          * `cache` -> in memory caching of sitemap.xml
          * `disk` -> write sitemap.xml to disk
-         * `multi` -> write the sitemap as multi-part files on disk
-         * 
+         * `multi` -> write the sitemap as multi-part files on disk.
+         *
          * @var string $mode
          */
         $mode = $this->settings->get('fof-sitemap.mode');
@@ -61,6 +61,7 @@ class BuildSitemapCommand extends Command
                 break;
             default:
                 $this->info('FoF Sitemap: Nothing to do in this mode');
+
                 return;
         }
 
@@ -75,7 +76,7 @@ class BuildSitemapCommand extends Command
         $cache = resolve(Store::class);
         /** @var SitemapGenerator */
         $generator = resolve(SitemapGenerator::class);
-        
+
         $urlSet = $generator->getUrlSet();
 
         $cache->forever('fof-sitemap', $urlSet);
