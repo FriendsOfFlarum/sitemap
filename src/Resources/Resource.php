@@ -42,7 +42,7 @@ abstract class Resource
      */
     protected function generateUrl($path): string
     {
-        $url = app(Config::class)->url();
+        $url = resolve(Config::class)->url();
 
         return "$url/$path";
     }
@@ -60,7 +60,7 @@ abstract class Resource
         /**
          * @var $generator UrlGenerator
          */
-        $generator = app(UrlGenerator::class);
+        $generator = resolve(UrlGenerator::class);
 
         return $generator->to('forum')->route($name, $parameters);
     }

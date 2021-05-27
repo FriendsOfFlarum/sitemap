@@ -32,7 +32,7 @@ export default class SitemapSettingsPage extends ExtensionPage {
                     <h4>{app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule')}</h4>
                     <p>
                         {app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule_setup', {
-                            a: <a href="https://discuss.flarum.org/d/24118" target="_blank"></a>,
+                            a: <a href="https://docs.flarum.org/console.html#schedule-run" target="_blank"></a>,
                         })}
                     </p>
                     <div>
@@ -47,8 +47,6 @@ export default class SitemapSettingsPage extends ExtensionPage {
                     <hr />
                     <h3>{app.translator.trans('fof-sitemap.admin.settings.advanced_options_label')}</h3>
                     <div className="Form-group">
-                        <label>{app.translator.trans('fof-sitemap.admin.settings.frequency_label')}</label>
-
                         {this.buildSettingComponent({
                             type: 'select',
                             setting: 'fof-sitemap.frequency',
