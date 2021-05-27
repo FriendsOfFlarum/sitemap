@@ -63,6 +63,7 @@ class BuildSitemapCommand extends Command
             default:
                 $this->info('FoF Sitemap: Nothing to generate in this mode');
                 $this->forgetAll();
+
                 return;
         }
     }
@@ -86,7 +87,7 @@ class BuildSitemapCommand extends Command
 
     private function forgetDisk(): bool
     {
-        if (file_exists($file = $this->paths->public . DIRECTORY_SEPARATOR . 'sitemap.xml')) {
+        if (file_exists($file = $this->paths->public.DIRECTORY_SEPARATOR.'sitemap.xml')) {
             return unlink($file);
         }
 
@@ -95,12 +96,13 @@ class BuildSitemapCommand extends Command
 
     private function forgetMulti(): bool
     {
-        if (file_exists($dir = $this->paths->public . DIRECTORY_SEPARATOR . 'sitemaps')) {
-            foreach (glob($dir . "/*.*") as $filename) {
+        if (file_exists($dir = $this->paths->public.DIRECTORY_SEPARATOR.'sitemaps')) {
+            foreach (glob($dir.'/*.*') as $filename) {
                 if (is_file($filename)) {
                     unlink($filename);
                 }
             }
+
             return rmdir($dir);
         }
 
@@ -122,7 +124,7 @@ class BuildSitemapCommand extends Command
 
         if ($toDisk) {
             @file_put_contents(
-                $this->paths->public . DIRECTORY_SEPARATOR . 'sitemap.xml',
+                $this->paths->public.DIRECTORY_SEPARATOR.'sitemap.xml',
                 $view->make('fof-sitemap::sitemap')->with('urlset', $urlSet)->render()
             );
 
