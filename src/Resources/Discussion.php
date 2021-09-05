@@ -28,7 +28,7 @@ class Discussion extends Resource
     public function url($model): string
     {
         return $this->generateRouteUrl('discussion', [
-            'id' => $model->id.(trim($model->slug) ? '-'.$model->slug : ''),
+            'id' => $this->generateModelSlug(Model::class, $model),
         ]);
     }
 
