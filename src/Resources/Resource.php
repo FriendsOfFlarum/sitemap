@@ -13,7 +13,9 @@
 namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
+use Flarum\Database\AbstractModel;
 use Flarum\Foundation\Config;
+use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -63,5 +65,15 @@ abstract class Resource
         $generator = resolve(UrlGenerator::class);
 
         return $generator->to('forum')->route($name, $parameters);
+    }
+
+    protected function generateModelSlug(string $modelClass, AbstractModel $model): string
+    {
+        /**
+         * @var SlugManager
+         */
+        $slugManager = resolve(SlugManager::class);
+
+        return $slugManager->forResource($modelClass)->toSlug($model);
     }
 }
