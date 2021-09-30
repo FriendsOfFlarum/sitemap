@@ -36,7 +36,7 @@ class RemoveResource implements ExtenderInterface
             $resource = $container->make($this->resource);
 
             if ($resource instanceof Resource) {
-                $resources = array_filter($resources, function($res) {
+                $resources = array_filter($resources, function ($res) {
                     return get_class($res) !== $this->resource;
                 });
             } else {

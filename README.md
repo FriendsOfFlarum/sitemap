@@ -53,6 +53,8 @@ _Best for larger forums, starting at 50.000 items._
 
 ## Extending
 
+### Register a new Resource
+
 In order to register your own resource, create a class that implements `FoF\Sitemap\Resources\Resource`. Make sure
 to implement all abstract methods, check other implementations for examples. After this, register your 
 
@@ -62,6 +64,15 @@ return [
 ];
 ```
 That's it.
+
+### Remove a Resource
+
+In a very similar way, you can also remove resources from the sitemap:
+```php
+return [
+    new \FoF\Sitemap\Extend\RemoveResource(User::class)
+];
+```
 
 ## Scheduling
 
