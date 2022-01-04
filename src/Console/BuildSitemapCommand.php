@@ -10,7 +10,7 @@
  *
  */
 
-namespace FoF\Sitemap\Commands;
+namespace FoF\Sitemap\Console;
 
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;

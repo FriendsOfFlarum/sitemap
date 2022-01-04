@@ -25,6 +25,12 @@ class RegisterResource implements ExtenderInterface
      */
     private $resource;
 
+    /**
+     * Add a resource from the sitemap. Specify the ::class of the resource.
+     * Resource must extend FoF\Sitemap\Resources\Resource.
+     *
+     * @param string $resource
+     */
     public function __construct(string $resource)
     {
         $this->resource = $resource;

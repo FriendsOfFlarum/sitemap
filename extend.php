@@ -13,9 +13,7 @@
 namespace FoF\Sitemap;
 
 use Flarum\Extend;
-use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Controllers\SitemapController;
-use Illuminate\Console\Scheduling\Event;
 
 return [
     (new Extend\Frontend('admin'))
@@ -30,25 +28,8 @@ return [
         ->register(Providers\ResourceProvider::class),
 
     (new Extend\Console())
-        ->command(Commands\BuildSitemapCommand::class)
-        ->schedule(Commands\BuildSitemapCommand::class, function (Event $event) {
-            /** @var SettingsRepositoryInterface */
-            $settings = resolve(SettingsRepositoryInterface::class);
-            $frequency = $settings->get('fof-sitemap.frequency');
-
-            $event->withoutOverlapping();
-            switch ($frequency) {
-                case 'twice-daily':
-                    $event->twiceDaily();
-                    break;
-                case 'hourly':
-                    $event->hourly();
-                    break;
-                default:
-                    $event->daily();
-                    break;
-            }
-        }),
+        ->command(Console\BuildSitemapCommand::class)
+        ->schedule(Console\BuildSitemapCommand::class, new Console\BuildSitemapSchedule()),
 
     (new Extend\View())
         ->namespace('fof-sitemap', __DIR__.'/views'),

@@ -60,7 +60,7 @@ to implement all abstract methods, check other implementations for examples. Aft
 
 ```php
 return [
-    new \FoF\Sitemap\Extend\RegisterResource(YourResource::class)
+    new \FoF\Sitemap\Extend\RegisterResource(YourResource::class),
 ];
 ```
 That's it.
@@ -70,7 +70,7 @@ That's it.
 In a very similar way, you can also remove resources from the sitemap:
 ```php
 return [
-    new \FoF\Sitemap\Extend\RemoveResource(User::class)
+    (new \FoF\Sitemap\Extend\RemoveResource(\FoF\Sitemap\Resources\User::class)),
 ];
 ```
 

@@ -23,12 +23,23 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SitemapController implements RequestHandlerInterface
 {
+    /**
+     * @var SitemapGenerator
+     */
     protected $sitemap;
+
+    /**
+     * @var Factory
+     */
     protected $view;
     /**
      * @var Repository
      */
     private $cache;
+
+    /**
+     * @var SettingsRepositoryInterface
+     */
     private $settings;
 
     public function __construct(SitemapGenerator $sitemap, Factory $view, Repository $cache, SettingsRepositoryInterface $settings)
@@ -39,7 +50,7 @@ class SitemapController implements RequestHandlerInterface
         $this->settings = $settings;
     }
 
-    protected function render(ServerRequestInterface $request)
+    protected function render(ServerRequestInterface $request): string
     {
         if ($this->settings->get('fof-sitemap.mode') === 'run') {
             $this->cache->forget('fof-sitemap');
