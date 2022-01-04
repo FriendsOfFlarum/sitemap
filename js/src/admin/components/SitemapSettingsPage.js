@@ -1,3 +1,4 @@
+import app from 'flarum/admin/app';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 
 export default class SitemapSettingsPage extends ExtensionPage {
