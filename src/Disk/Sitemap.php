@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of fof/sitemap.
  *
@@ -16,6 +18,7 @@ use Carbon\Carbon;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Filesystem\FilesystemAdapter;
 
 class Sitemap
 {
@@ -51,7 +54,7 @@ class Sitemap
      */
     public function write(): array
     {
-        $directory = $this->tmpDir ?? resolve(Paths::class)->public.DIRECTORY_SEPARATOR.'sitemaps';
+        $directory = $this->tmpDir ?? resolve(Paths::class)->public . DIRECTORY_SEPARATOR . 'sitemaps';
 
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
@@ -71,8 +74,8 @@ class Sitemap
 
     protected function gzCompressFile($source, $level = 9)
     {
-        $dest = $source.'.gz';
-        $mode = 'wb'.$level;
+        $dest = $source . '.gz';
+        $mode = 'wb' . $level;
         $error = false;
         if ($fp_out = gzopen($dest, $mode)) {
             if ($fp_in = fopen($source, 'rb')) {
@@ -89,9 +92,9 @@ class Sitemap
         }
         if ($error) {
             return false;
-        } else {
-            return $dest;
         }
+
+        return $dest;
     }
 
     protected function view(): Factory
@@ -109,7 +112,7 @@ class Sitemap
         $index = 0;
         $filesWritten = [];
 
-        $this->query->chunk(50000, function ($query) use (&$index, &$filesWritten, $directory) {
+        $this->query->chunk(50000, function ($query) use (&$index, &$filesWritten, $directory): void {
             $filename = "sitemap-{$this->filename}-{$index}.xml";
             $lastModified = Carbon::now()->subYear();
 
@@ -123,7 +126,7 @@ class Sitemap
 EOM
             );
 
-            $query->each(function ($item) use (&$stream, &$lastModified) {
+            $query->each(function ($item) use (&$stream, &$lastModified): void {
                 $url = $this->each($item);
 
                 if ($url->lastModified->isAfter($lastModified)) {
@@ -153,9 +156,16 @@ EOM
 
             $path = str_replace($directory, null, $gzipped ?? $path);
 
+            $this->resolveFilesystem()->put("$filename", fopen("$directory/$path", 'r'));
+
             $filesWritten[$path] = $lastModified;
         });
 
         return $filesWritten;
+    }
+
+    public function resolveFilesystem(): FilesystemAdapter
+    {
+        return resolve('filesystem')->disk('flarum-assets');
     }
 }
