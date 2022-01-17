@@ -157,7 +157,6 @@ class BuildSitemapCommand extends Command
         $index->publish();
 
         $this->forgetCache();
-        $this->forgetDisk();
 
         $this->info('FoF Sitemap: multi mode complete');
     }
