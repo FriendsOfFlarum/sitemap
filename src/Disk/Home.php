@@ -28,22 +28,23 @@ class Home extends Sitemap
         $this->url = $url;
     }
 
-    protected function chunk(string $directory): array
+    protected function chunk(): array
     {
+        $fs = static::$temporaryFilesystem;
+
         $filename = 'sitemap-home.xml';
+        $path = "sitemaps/$filename";
 
-        $stream = fopen($path = "$directory/$filename", 'w+');
-
-        fwrite(
-            $stream,
+        $fs->put(
+            $path,
             <<<'EOM'
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 EOM
         );
 
-        fwrite(
-            $stream,
+        $fs->append(
+            $path,
             $this->view()->make('fof-sitemap::url')->with('url', (object) [
                 'location'        => $this->url,
                 'lastModified'    => $now = Carbon::now(),
@@ -52,14 +53,12 @@ EOM
             ])->render()
         );
 
-        fwrite(
-            $stream,
+        $fs->append(
+            $path,
             <<<'EOM'
 </urlset>
 EOM
         );
-
-        fclose($stream);
 
         if ($gzipped = $this->gzCompressFile($path)) {
             unlink($path);

@@ -13,12 +13,13 @@
 namespace FoF\Sitemap\Disk;
 
 use Carbon\Carbon;
-use Flarum\Foundation\Paths;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
 
 class Sitemap
 {
+    protected static Filesystem $temporaryFilesystem;
     /**
      * @var string
      */
@@ -51,13 +52,7 @@ class Sitemap
      */
     public function write(): array
     {
-        $directory = $this->tmpDir ?? resolve(Paths::class)->public.DIRECTORY_SEPARATOR.'sitemaps';
-
-        if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
-        }
-
-        return $this->chunk($directory);
+        return $this->chunk();
     }
 
     public function each($item)
@@ -69,93 +64,69 @@ class Sitemap
         return $item;
     }
 
-    protected function gzCompressFile($source, $level = 9)
-    {
-        $dest = $source.'.gz';
-        $mode = 'wb'.$level;
-        $error = false;
-        if ($fp_out = gzopen($dest, $mode)) {
-            if ($fp_in = fopen($source, 'rb')) {
-                while (!feof($fp_in)) {
-                    gzwrite($fp_out, fread($fp_in, 1024 * 512));
-                }
-                fclose($fp_in);
-            } else {
-                $error = true;
-            }
-            gzclose($fp_out);
-        } else {
-            $error = true;
-        }
-        if ($error) {
-            return false;
-        } else {
-            return $dest;
-        }
-    }
-
     protected function view(): Factory
     {
         return resolve(Factory::class);
     }
 
-    /**
-     * @param string $directory
-     *
-     * @return array
-     */
-    protected function chunk(string $directory): array
+    protected function chunk(): array
     {
         $index = 0;
         $filesWritten = [];
 
-        $this->query->chunk(50000, function ($query) use (&$index, &$filesWritten, $directory) {
+        $this->query->chunk(50000, function ($query) use (&$index, &$filesWritten) {
+            $fs = static::$temporaryFilesystem;
+
             $filename = "sitemap-{$this->filename}-{$index}.xml";
             $lastModified = Carbon::now()->subYear();
+            $path = "sitemaps/$filename";
 
-            $stream = fopen($path = "$directory/$filename", 'w+');
-
-            fwrite(
-                $stream,
+            $fs->put(
+                $path,
                 <<<'EOM'
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 EOM
             );
 
-            $query->each(function ($item) use (&$stream, &$lastModified) {
+            $query->each(function ($item) use (&$lastModified, $fs, $path) {
                 $url = $this->each($item);
 
                 if ($url->lastModified->isAfter($lastModified)) {
                     $lastModified = $url->lastModified;
                 }
 
-                fwrite(
-                    $stream,
+                $fs->append(
+                    $path,
                     $this->view()->make('fof-sitemap::url')->with('url', $url)->render()
                 );
             });
 
-            fwrite(
-                $stream,
+            $fs->append(
+                $path,
                 <<<'EOM'
 </urlset>
 EOM
             );
 
-            $index++;
-
-            fclose($stream);
-
-            if ($gzipped = $this->gzCompressFile($path)) {
-                unlink($path);
+            // Check gzip
+            if (function_exists('gzencode')) {
+                $fs->put(
+                    $path,
+                    gzencode($fs->get($path))
+                );
             }
 
-            $path = str_replace($directory, null, $gzipped ?? $path);
+            $index++;
 
             $filesWritten[$path] = $lastModified;
         });
 
         return $filesWritten;
+    }
+
+    public static function setTemporaryFilesystem(Filesystem $filesystem): void
+    {
+        static::$temporaryFilesystem = $filesystem;
     }
 }

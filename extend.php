@@ -25,7 +25,8 @@ return [
     new Extend\Locales(__DIR__.'/resources/locale'),
 
     (new Extend\ServiceProvider())
-        ->register(Providers\ResourceProvider::class),
+        ->register(Providers\ResourceProvider::class)
+        ->register(Providers\StorageProvider::class),
 
     (new Extend\Console())
         ->command(Console\BuildSitemapCommand::class)
