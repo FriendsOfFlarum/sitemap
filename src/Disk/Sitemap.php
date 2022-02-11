@@ -109,13 +109,7 @@ EOM
 EOM
             );
 
-            // Check gzip
-            if (function_exists('gzencode')) {
-                $fs->put(
-                    $path,
-                    gzencode($fs->get($path))
-                );
-            }
+
 
             $index++;
 
@@ -123,6 +117,19 @@ EOM
         });
 
         return $filesWritten;
+    }
+
+    protected function gzip(string $path)
+    {
+        $fs = static::$temporaryFilesystem;
+        
+        // Check gzip
+        if (function_exists('gzencode')) {
+            $fs->put(
+                $path,
+                gzencode($fs->get($path))
+            );
+        }
     }
 
     public static function setTemporaryFilesystem(Filesystem $filesystem): void
