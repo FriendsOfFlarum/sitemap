@@ -109,8 +109,6 @@ EOM
 EOM
             );
 
-
-
             $index++;
 
             $filesWritten[$path] = $lastModified;
@@ -122,7 +120,7 @@ EOM
     protected function gzip(string $path)
     {
         $fs = static::$temporaryFilesystem;
-        
+
         // Check gzip
         if (function_exists('gzencode')) {
             $fs->put(

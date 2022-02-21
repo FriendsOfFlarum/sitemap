@@ -22,18 +22,18 @@ class ResourceProvider extends AbstractServiceProvider
     {
         $this->container->singleton('fof.sitemap.resources', function () {
             $resources = [
-                new Resources\User(),
-                new Resources\Discussion(),
+                new Resources\User,
+                new Resources\Discussion,
             ];
 
             /** @var ExtensionManager $extensions */
             $extensions = $this->container->make(ExtensionManager::class);
 
             if ($extensions->isEnabled('flarum-tags')) {
-                $resources[] = new Resources\Tag();
+                $resources[] = new Resources\Tag;
             }
             if ($extensions->isEnabled('fof-pages')) {
-                $resources[] = new Resources\Page();
+                $resources[] = new Resources\Page;
             }
 
             return $resources;
