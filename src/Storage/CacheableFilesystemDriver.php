@@ -10,7 +10,7 @@ use RuntimeException;
 
 class CacheableFilesystemDriver implements StorageInterface
 {
-    private static Filesystem $temporaryFilesystem;
+    private static ?Filesystem $temporaryFilesystem = null;
     /**
      * @var Filesystem|Cloud
      */
@@ -44,10 +44,10 @@ class CacheableFilesystemDriver implements StorageInterface
     {
         $publish = [];
 
-        foreach ($sitemaps as $sitemap) {
+        foreach ($sitemaps as $sitemap => $lastModified) {
             $this->filesystem->put(
                 basename($sitemap),
-                static::$temporaryFilesystem->readStream($sitemap)
+                static::getTemporaryFilesystem()->readStream($sitemap)
             );
 
             try {
@@ -75,5 +75,15 @@ class CacheableFilesystemDriver implements StorageInterface
     public static function setTemporaryFilesystem(Filesystem $filesystem): void
     {
         static::$temporaryFilesystem = $filesystem;
+    }
+
+    public static function getTemporaryFilesystem(): Filesystem
+    {
+        return static::$temporaryFilesystem ?? resolve('fof.sitemap.tmp-disk');
+    }
+
+    public function url(string $path): string
+    {
+        return $this->filesystem->url($path);
     }
 }

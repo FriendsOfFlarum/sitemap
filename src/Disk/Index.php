@@ -14,8 +14,9 @@ namespace FoF\Sitemap\Disk;
 
 use Flarum\Foundation\Paths;
 use FoF\Sitemap\Resources\Resource;
+use FoF\Sitemap\Storage\StorageInterface;
 
-class Index
+class Index extends Disk
 {
     /**
      * @var array|resource[]
@@ -37,7 +38,7 @@ class Index
         $this->paths = $paths;
     }
 
-    public function write()
+    public function write(): array
     {
         $this->saveHomepage();
 
@@ -54,22 +55,23 @@ class Index
                         'lastModified'    => $resource->lastModifiedAt($model),
                         'priority'        => $resource->priority(),
                     ];
-                },
-                $this->paths->storage.DIRECTORY_SEPARATOR.'sitemaps-processing/sitemaps'
+                }
             );
 
             $this->sitemaps = array_merge($this->sitemaps, $sitemap->write());
         }
 
-        $this->saveIndexFile();
+        return $this->sitemaps;
     }
 
-    protected function saveIndexFile()
+    protected function getIndex()
     {
-        $stream = fopen($this->paths->storage.DIRECTORY_SEPARATOR.'sitemaps-processing/sitemap.xml', 'w+');
+        $fs = static::getTemporaryFilesystem();
 
-        fwrite(
-            $stream,
+        $path = "sitemap.xml";
+
+        $fs->put(
+            $path,
             <<<'EOM'
 <?xml version="1.0" encoding="UTF-8"?>
    <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -77,49 +79,38 @@ EOM
         );
 
         foreach ($this->sitemaps as $sitemap => $lastModified) {
-            fwrite(
-                $stream,
+            $url = static::getTargetFilesystem()->url($sitemap);
+
+            $fs->append(
+                $path,
                 <<<EOM
   <sitemap>
-      <loc>{$this->url}/sitemaps{$sitemap}</loc>
+      <loc>$url</loc>
       <lastmod>{$lastModified->toW3cString()}</lastmod>
    </sitemap>
 EOM
             );
         }
 
-        fwrite(
-            $stream,
+        $fs->append(
+            $path,
             <<<'EOM'
 </sitemapindex>
 EOM
         );
-
-        fclose($stream);
     }
 
     public function publish()
     {
-        if (!is_dir($this->paths->public.DIRECTORY_SEPARATOR.'sitemaps')) {
-            mkdir($this->paths->public.DIRECTORY_SEPARATOR.'sitemaps');
-        }
+        /** @var StorageInterface $storage */
+        $storage = resolve('fof.sitemap.storage');
 
-        foreach ($this->sitemaps as $sitemap => $_) {
-            copy(
-                $this->paths->storage.DIRECTORY_SEPARATOR."sitemaps-processing/sitemaps$sitemap",
-                $this->paths->public.DIRECTORY_SEPARATOR."sitemaps$sitemap"
-            );
-        }
-
-        copy(
-            $this->paths->storage.DIRECTORY_SEPARATOR.'sitemaps-processing/sitemap.xml',
-            $this->paths->public.DIRECTORY_SEPARATOR.'sitemap.xml'
-        );
+        $storage->publish($this->sitemaps);
     }
 
     protected function saveHomepage()
     {
-        $home = new Home($this->url, $this->paths->storage.DIRECTORY_SEPARATOR.'sitemaps-processing/sitemaps');
+        $home = new Home($this->url);
 
         $this->sitemaps = array_merge($this->sitemaps, $home->write());
     }

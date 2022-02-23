@@ -15,25 +15,23 @@ namespace FoF\Sitemap\Disk;
 use Carbon\Carbon;
 use FoF\Sitemap\Sitemap\Frequency;
 
-class Home extends Sitemap
+class Home extends Disk
 {
     /**
      * @var string
      */
     private $url;
 
-    public function __construct(string $url, string $tmpDir = null)
+    public function __construct(string $url)
     {
-        $this->tmpDir = $tmpDir;
         $this->url = $url;
     }
 
     protected function chunk(): array
     {
-        $fs = static::$temporaryFilesystem;
+        $fs = static::getTemporaryFilesystem();
 
-        $filename = 'sitemap-home.xml';
-        $path = "sitemaps/$filename";
+        $path = 'sitemap-home.xml';
 
         $fs->put(
             $path,
@@ -60,11 +58,7 @@ EOM
 EOM
         );
 
-        if ($gzipped = $this->gzCompressFile($path)) {
-            unlink($path);
-        }
-
-        $path = str_replace($directory, null, $gzipped ?? $path);
+        $this->gzip($path);
 
         return [$path => $now];
     }

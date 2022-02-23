@@ -12,5 +12,7 @@ interface StorageInterface
 
     public function flush(): void;
 
+    public function url(string $path): string;
+
     public static function setTemporaryFilesystem(Filesystem $filesystem): void;
 }
