@@ -13,20 +13,19 @@
 namespace FoF\Sitemap;
 
 use Flarum\Extend;
-use FoF\Sitemap\Controllers\SitemapController;
 
 return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
-    (new Extend\Routes('forum'))
-        ->get('/sitemap.xml', 'fof-sitemap-index', SitemapController::class),
+//    (new Extend\Routes('forum'))
+//        ->get('/sitemap.xml', 'fof-sitemap-index', SitemapController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
     (new Extend\ServiceProvider())
         ->register(Providers\ResourceProvider::class)
-        ->register(Providers\StorageProvider::class),
+        ->register(Providers\ModeProvider::class),
 
     (new Extend\Console())
         ->command(Console\BuildSitemapCommand::class)

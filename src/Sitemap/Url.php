@@ -13,22 +13,19 @@
 namespace FoF\Sitemap\Sitemap;
 
 use Carbon\Carbon;
+use Illuminate\View\Factory;
 
 class Url
 {
-    public $location;
-    /**
-     * @var Carbon
-     */
-    public $lastModified;
-    public $changeFrequency;
-    public $priority;
+    public function __construct(
+        public string $location,
+        public ?Carbon $lastModified = null,
+        public ?string $changeFrequency = null,
+        public ?float $priority = null)
+    {}
 
-    public function __construct($location, $lastModified = null, $changeFrequency = null, $priority = null)
+    public function toXML(Factory $view): string
     {
-        $this->location = $location;
-        $this->lastModified = $lastModified;
-        $this->changeFrequency = $changeFrequency;
-        $this->priority = $priority;
+        return $view->make('fof-sitemap::url')->with('url', $this)->render();
     }
 }

@@ -12,6 +12,8 @@
 
 namespace FoF\Sitemap\Sitemap;
 
+use Illuminate\View\Factory;
+
 class UrlSet
 {
     /**
@@ -27,5 +29,10 @@ class UrlSet
     public function addUrl($location, $lastModified = null, $changeFrequency = null, $priority = null)
     {
         $this->add(new Url($location, $lastModified, $changeFrequency, $priority));
+    }
+
+    public function toXml(Factory $view): string
+    {
+        return $view->make('fof-sitemap::urlset')->with('set', $this)->make();
     }
 }
