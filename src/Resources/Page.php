@@ -64,4 +64,9 @@ class Page extends Resource
     {
         return $model->edit_time ?? $model->time;
     }
+
+    public function enabled(): bool
+    {
+        return class_exists(Model::class);
+    }
 }

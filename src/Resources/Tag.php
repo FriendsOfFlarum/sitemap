@@ -40,4 +40,9 @@ class Tag extends Resource
     {
         return Frequency::DAILY;
     }
+
+    public function enabled(): bool
+    {
+        return class_exists(Model::class);
+    }
 }

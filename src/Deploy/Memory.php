@@ -1,10 +1,10 @@
 <?php
 
-namespace FoF\Sitemap\Modes;
+namespace FoF\Sitemap\Deploy;
 
-use FoF\Sitemap\Generator;
+use FoF\Sitemap\Generate\Generator;
 
-class Memory implements ModeInterface
+class Memory implements DeployInterface
 {
     public function store(Generator $generator): void
     {

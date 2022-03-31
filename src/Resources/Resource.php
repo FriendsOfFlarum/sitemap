@@ -48,4 +48,9 @@ abstract class Resource
 
         return $slugManager->forResource($modelClass)->toSlug($model);
     }
+
+    public function enabled(): bool
+    {
+        return true;
+    }
 }

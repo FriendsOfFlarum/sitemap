@@ -1,18 +1,18 @@
 <?php
 
-namespace FoF\Sitemap\Modes;
+namespace FoF\Sitemap\Deploy;
 
-use FoF\Sitemap\Generator;
+use FoF\Sitemap\Sitemap\UrlSet;
 
-interface ModeInterface
+interface DeployInterface
 {
     /**
      * Stores the sitemap.
      *
-     * @param Generator $generator
-     * @return void
+     * @param UrlSet $set
+     * @return string|null
      */
-    public function store(Generator $generator): void;
+    public function store(UrlSet $set): ?string;
 
     /**
      * The base URL where files are remotely stored. Leave null for local.

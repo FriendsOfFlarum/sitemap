@@ -3,7 +3,7 @@
 namespace FoF\Sitemap\Sitemap;
 
 use Carbon\Carbon;
-use FoF\Sitemap\Modes\ModeInterface;
+use FoF\Sitemap\Deploy\DeployInterface;
 use Illuminate\View\Factory;
 
 class Sitemap
@@ -15,7 +15,7 @@ class Sitemap
 
     public function toXML(Factory $view): string
     {
-        /** @var ModeInterface $mode */
+        /** @var DeployInterface $mode */
         $mode = resolve('fof-sitemap.mode');
 
         return $view->make('fof-sitemap::sitemap')->with('sitemap', $this)->render();

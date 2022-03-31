@@ -18,19 +18,19 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
-//    (new Extend\Routes('forum'))
-//        ->get('/sitemap.xml', 'fof-sitemap-index', SitemapController::class),
+    (new Extend\Routes('forum'))
+        ->get('/sitemap.xml', 'fof-sitemap-index', Controllers\SitemapController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
-    (new Extend\ServiceProvider())
-        ->register(Providers\ResourceProvider::class)
+    (new Extend\ServiceProvider)
+        ->register(Providers\Provider::class)
         ->register(Providers\ModeProvider::class),
 
-    (new Extend\Console())
+    (new Extend\Console)
         ->command(Console\BuildSitemapCommand::class)
         ->schedule(Console\BuildSitemapCommand::class, new Console\BuildSitemapSchedule()),
 
-    (new Extend\View())
+    (new Extend\View)
         ->namespace('fof-sitemap', __DIR__.'/views'),
 ];
