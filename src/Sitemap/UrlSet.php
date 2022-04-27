@@ -40,8 +40,11 @@ class UrlSet
 
     public function toXml(): string
     {
+        /** @var Factory $view */
         $view = resolve(Factory::class);
 
-        return $view->make('fof-sitemap::urlset')->with('set', $this)->make();
+        return $view->make('fof-sitemap::urlset')
+            ->with('set', $this)
+            ->render();
     }
 }

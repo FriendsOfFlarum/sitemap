@@ -2,11 +2,13 @@
 
 namespace FoF\Sitemap\Generate;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
 use FoF\Sitemap\Exceptions\SetLimitReachedException;
 use FoF\Sitemap\Resources\Resource;
+use FoF\Sitemap\Sitemap\Sitemap;
 use FoF\Sitemap\Sitemap\Url;
 use FoF\Sitemap\Sitemap\UrlSet;
 
@@ -18,22 +20,30 @@ class Generator
         protected SettingsRepositoryInterface $settings
     ) {}
 
-    public function generate()
+    public function generate(): ?string
     {
+        $now = Carbon::now();
+
+        return $this->deploy->storeIndex(
+            (new Sitemap($this->loop(), $now))->toXML()
+        );
     }
 
-    public function loop()
+    public function loop(): array
     {
         $set = new UrlSet;
         $remotes = [];
+        $i = 0;
 
         foreach ($this->resources as $res) {
             /** @var Resource $resource */
             $resource = resolve($res);
 
+            if (! $resource->enabled()) continue;
+
             $resource
                 ->query()
-                ->each(function(AbstractModel $item) use (&$set, $resource, &$remotes) {
+                ->each(function(AbstractModel $item) use (&$set, $resource, &$remotes, &$i) {
                     $url = new Url(
                         $resource->url($item),
                         $resource->lastModifiedAt($item),
@@ -44,14 +54,18 @@ class Generator
                     try {
                         $set->add($url);
                     } catch (SetLimitReachedException $e) {
-                        $remotes[] = $this->deploy->store($set);
+                        $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
 
                         $set = new UrlSet;
                         $set->add($url);
                     }
                 });
 
-            $remotes[] = $this->deploy->store($set);
+            $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
+
+            $i++;
         }
+
+        return $remotes;
     }
 }

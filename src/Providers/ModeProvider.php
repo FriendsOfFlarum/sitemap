@@ -46,13 +46,6 @@ class ModeProvider extends AbstractServiceProvider
 
     public function localIndexStorage(Container $container): Cloud
     {
-        /** @var Paths $paths */
-        $paths = $container->make(Paths::class);
-
-        $local = new Local($paths->storage . '/sitemaps/');
-
-        return new FilesystemAdapter(
-            new Filesystem($local)
-        );
+        return $this->localSitemapStorage($container);
     }
 }

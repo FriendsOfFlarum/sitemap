@@ -2,11 +2,9 @@
 
 namespace FoF\Sitemap\Deploy;
 
-use Flarum\Database\AbstractModel;
-use FoF\Sitemap\Generate\Generator;
-use FoF\Sitemap\Resources\Resource;
+use Carbon\Carbon;
+use FoF\Sitemap\Sitemap\UrlSet;
 use Illuminate\Contracts\Filesystem\Cloud;
-use Illuminate\Database\Eloquent\Builder;
 
 class Disk implements DeployInterface
 {
@@ -15,13 +13,27 @@ class Disk implements DeployInterface
         public Cloud $indexStorage
     ) {}
 
-    public function store(Generator $generator): ?array
+    public function storeSet($setIndex, string $set): ?StoredSet
     {
+        $path = "sitemap-$setIndex.xml";
 
+        $this->sitemapStorage->put($path, $set);
+
+        return new StoredSet(
+            $this->sitemapStorage->url($path),
+            Carbon::now()
+        );
     }
 
-    public function url(): ?string
+    public function storeIndex(string $index): ?string
     {
-        return $this->sitemapStorage->url('/');
+        $this->indexStorage->put('sitemap.xml', $index);
+
+        return $this->indexStorage->url('sitemap.xml');
+    }
+
+    public function getIndex(): ?string
+    {
+        return $this->indexStorage->url('sitemap.xml');
     }
 }

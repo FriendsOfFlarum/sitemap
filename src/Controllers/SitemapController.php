@@ -12,7 +12,7 @@
 
 namespace FoF\Sitemap\Controllers;
 
-use FoF\Sitemap\Generate\Generator;
+use FoF\Sitemap\Deploy\DeployInterface;
 use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,15 +21,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 class SitemapController implements RequestHandlerInterface
 {
     public function __construct(
-        protected Generator $generator
+        protected DeployInterface $deploy
     ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $response = new Response;
-
-//        $response->getBody()->write($this->render($request));
-
-        return $response->withHeader('Content-Type', 'text/xml');
+        return new Response\RedirectResponse(
+            $this->deploy->getIndex()
+        );
     }
 }
