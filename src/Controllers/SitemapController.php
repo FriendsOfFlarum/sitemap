@@ -14,6 +14,7 @@ namespace FoF\Sitemap\Controllers;
 
 use FoF\Sitemap\Deploy\DeployInterface;
 use Laminas\Diactoros\Response;
+use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -26,8 +27,16 @@ class SitemapController implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        return new Response\RedirectResponse(
-            $this->deploy->getIndex()
-        );
+        $index = $this->deploy->getIndex();
+
+        if ($index instanceof Uri) {
+            return new Response\RedirectResponse($index);
+        }
+
+        if (is_string($index)) {
+            return new Response\XmlResponse($index);
+        }
+
+        return new Response\EmptyResponse(404);
     }
 }

@@ -25,7 +25,7 @@ return [
 
     (new Extend\ServiceProvider)
         ->register(Providers\Provider::class)
-        ->register(Providers\ModeProvider::class),
+        ->register(Providers\DeployProvider::class),
 
     (new Extend\Console)
         ->command(Console\BuildSitemapCommand::class)

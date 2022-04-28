@@ -13,20 +13,22 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 
-class ModeProvider extends AbstractServiceProvider
+class DeployProvider extends AbstractServiceProvider
 {
     public function register()
     {
         // Create a sane default for storing sitemap files.
         $this->container->singleton(DeployInterface::class, function (Container $container) {
+            $storage = $this->localStorage($container);
+
             return new Disk(
-                $this->localSitemapStorage($container),
-                $this->localIndexStorage($container)
+                $storage,
+                $storage
             );
         });
     }
 
-    public function localSitemapStorage(Container $container): Cloud
+    public function localStorage(Container $container): Cloud
     {
         /** @var Paths $paths */
         $paths = $container->make(Paths::class);
@@ -42,10 +44,5 @@ class ModeProvider extends AbstractServiceProvider
                 'url' => $config->url() . '/sitemaps/'
             ])
         );
-    }
-
-    public function localIndexStorage(Container $container): Cloud
-    {
-        return $this->localSitemapStorage($container);
     }
 }

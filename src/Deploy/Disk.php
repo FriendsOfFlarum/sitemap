@@ -3,8 +3,8 @@
 namespace FoF\Sitemap\Deploy;
 
 use Carbon\Carbon;
-use FoF\Sitemap\Sitemap\UrlSet;
 use Illuminate\Contracts\Filesystem\Cloud;
+use Laminas\Diactoros\Uri;
 
 class Disk implements DeployInterface
 {
@@ -32,8 +32,12 @@ class Disk implements DeployInterface
         return $this->indexStorage->url('sitemap.xml');
     }
 
-    public function getIndex(): ?string
+    public function getIndex(): ?Uri
     {
-        return $this->indexStorage->url('sitemap.xml');
+        $uri = $this->indexStorage->url('sitemap.xml');
+
+        return $uri
+            ? new Uri($uri)
+            : null;
     }
 }
