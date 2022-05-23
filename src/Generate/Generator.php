@@ -4,7 +4,6 @@ namespace FoF\Sitemap\Generate;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
-use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
 use FoF\Sitemap\Exceptions\SetLimitReachedException;
 use FoF\Sitemap\Resources\Resource;
@@ -16,8 +15,7 @@ class Generator
 {
     public function __construct(
         protected DeployInterface $deploy,
-        protected array $resources,
-        protected SettingsRepositoryInterface $settings
+        protected array $resources
     ) {}
 
     public function generate(): ?string

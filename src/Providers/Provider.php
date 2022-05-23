@@ -3,7 +3,6 @@
 namespace FoF\Sitemap\Providers;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Generate\Generator;
 use FoF\Sitemap\Deploy\DeployInterface;
 use FoF\Sitemap\Resources\Discussion;
@@ -29,8 +28,7 @@ class Provider extends AbstractServiceProvider
         $this->container->singleton(Generator::class, function (Container $container) {
             return new Generator(
                 $container->make(DeployInterface::class),
-                $container->make('fof-sitemaps.resources'),
-                $container->make(SettingsRepositoryInterface::class)
+                $container->make('fof-sitemaps.resources')
             );
         });
     }
