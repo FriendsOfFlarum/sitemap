@@ -5,8 +5,10 @@ namespace FoF\Sitemap\Providers;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
+use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\Disk;
 use FoF\Sitemap\Deploy\DeployInterface;
+use FoF\Sitemap\Deploy\Memory;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -19,6 +21,17 @@ class DeployProvider extends AbstractServiceProvider
     {
         // Create a sane default for storing sitemap files.
         $this->container->singleton(DeployInterface::class, function (Container $container) {
+            /** @var SettingsRepositoryInterface $settings */
+            $settings = $this->container->make(SettingsRepositoryInterface::class);
+
+            $mode = $settings->get('fof-sitemap.mode', 'run');
+
+            if ($mode === 'run') {
+                return $this->container->make(Memory::class);
+            }
+
+            // For legacy reasons, if the $mode check is ever updated, it needs to handle `cache`, `cache-disk` and `multi-file` with Disk
+
             $storage = $this->localStorage($container);
 
             return new Disk(

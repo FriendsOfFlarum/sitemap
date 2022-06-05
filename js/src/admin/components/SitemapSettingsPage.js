@@ -7,6 +7,13 @@ export default class SitemapSettingsPage extends ExtensionPage {
   }
 
   content() {
+      const currentMode = this.setting('fof-sitemap.mode')();
+
+      // Change setting value client-side so the Select reflects which option is effectively used
+      if (currentMode === 'cache' || currentMode === 'cache-disk') {
+          this.setting('fof-sitemap.mode')('multi-file');
+      }
+
     return [
       <div className="container">
         <div className="FoFSitemapSettingsPage">
@@ -16,8 +23,6 @@ export default class SitemapSettingsPage extends ExtensionPage {
               setting: 'fof-sitemap.mode',
               options: {
                 run: app.translator.trans('fof-sitemap.admin.settings.modes.runtime'),
-                cache: app.translator.trans('fof-sitemap.admin.settings.modes.cache'),
-                'cache-disk': app.translator.trans('fof-sitemap.admin.settings.modes.cache_disk'),
                 'multi-file': app.translator.trans('fof-sitemap.admin.settings.modes.multi_file'),
               },
               label: app.translator.trans('fof-sitemap.admin.settings.mode_label'),
@@ -33,14 +38,9 @@ export default class SitemapSettingsPage extends ExtensionPage {
           <h4>{app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule')}</h4>
           <p>
             {app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule_setup', {
-              a: <a href="https://docs.flarum.org/console.html#schedule-run" target="_blank"></a>,
+              a: <a href="https://docs.flarum.org/console/#schedulerun" target="_blank" rel="noopener"></a>,
             })}
           </p>
-          <div>
-            <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_cache_disk_label')}</h3>
-            <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_cache_disk')}</p>
-          </div>
-          <h4>{app.translator.trans('fof-sitemap.admin.settings.mode_help_large')}</h4>
           <div>
             <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_multi_label')}</h3>
             <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_multi')}</p>
