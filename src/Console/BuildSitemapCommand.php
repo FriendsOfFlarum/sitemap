@@ -12,8 +12,6 @@
 
 namespace FoF\Sitemap\Console;
 
-use Flarum\Foundation\Paths;
-use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Generate\Generator;
 use Illuminate\Console\Command;
 
@@ -21,12 +19,6 @@ class BuildSitemapCommand extends Command
 {
     protected $signature = 'fof:sitemap:build';
     protected $description = 'Persists sitemap to cache or disk.';
-
-    /** @var Paths */
-    protected $paths;
-
-    /** @var SettingsRepositoryInterface */
-    protected $settings;
 
     public function handle(Generator $generator)
     {

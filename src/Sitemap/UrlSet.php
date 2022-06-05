@@ -26,7 +26,7 @@ class UrlSet
 
     public function add(Url $url)
     {
-        if (count($this->urls) > static::AMOUNT_LIMIT) {
+        if (count($this->urls) >= static::AMOUNT_LIMIT) {
             throw new SetLimitReachedException;
         }
 

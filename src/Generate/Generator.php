@@ -54,6 +54,8 @@ class Generator
                     } catch (SetLimitReachedException $e) {
                         $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
 
+                        $i++;
+
                         $set = new UrlSet;
                         $set->add($url);
                     }
@@ -62,6 +64,8 @@ class Generator
             $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
 
             $i++;
+
+            $set = new UrlSet;
         }
 
         return $remotes;
