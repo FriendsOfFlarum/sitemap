@@ -14,6 +14,7 @@ namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
 use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Guest;
 use FoF\Pages\Page as Model;
@@ -67,6 +68,6 @@ class Page extends Resource
 
     public function enabled(): bool
     {
-        return class_exists(Model::class);
+        return resolve(ExtensionManager::class)->isEnabled('fof-pages');
     }
 }

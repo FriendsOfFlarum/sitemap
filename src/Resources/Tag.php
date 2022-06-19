@@ -12,6 +12,7 @@
 
 namespace FoF\Sitemap\Resources;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Tags\Tag as Model;
 use Flarum\User\Guest;
 use FoF\Sitemap\Sitemap\Frequency;
@@ -43,6 +44,6 @@ class Tag extends Resource
 
     public function enabled(): bool
     {
-        return class_exists(Model::class);
+        return resolve(ExtensionManager::class)->isEnabled('flarum-tags');
     }
 }

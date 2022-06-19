@@ -6,28 +6,33 @@ export default class SitemapSettingsPage extends ExtensionPage {
     super.oninit(vnode);
   }
 
-  content() {
-      const currentMode = this.setting('fof-sitemap.mode')();
+  content(vnode) {
+    const currentMode = this.setting('fof-sitemap.mode')();
 
-      // Change setting value client-side so the Select reflects which option is effectively used
-      if (currentMode === 'cache' || currentMode === 'cache-disk') {
-          this.setting('fof-sitemap.mode')('multi-file');
-      }
+    // Change setting value client-side so the Select reflects which option is effectively used
+    if (currentMode === 'cache' || currentMode === 'cache-disk') {
+      this.setting('fof-sitemap.mode')('multi-file');
+    }
 
     return [
-      <div className="container">
-        <div className="FoFSitemapSettingsPage">
-          <div className="Form-group">
-            {this.buildSettingComponent({
-              type: 'select',
-              setting: 'fof-sitemap.mode',
-              options: {
-                run: app.translator.trans('fof-sitemap.admin.settings.modes.runtime'),
-                'multi-file': app.translator.trans('fof-sitemap.admin.settings.modes.multi_file'),
-              },
-              label: app.translator.trans('fof-sitemap.admin.settings.mode_label'),
-            })}
-          </div>
+      <div className="ExtensionPage-settings FoFSitemapSettingsPage">
+        <div className="container">
+          {this.buildSettingComponent({
+            type: 'switch',
+            setting: 'fof-sitemap.excludeUsers',
+            label: app.translator.trans('fof-sitemap.admin.settings.exclude_users'),
+            help: app.translator.trans('fof-sitemap.admin.settings.exclude_users_help'),
+          })}
+
+          {this.buildSettingComponent({
+            type: 'select',
+            setting: 'fof-sitemap.mode',
+            options: {
+              run: app.translator.trans('fof-sitemap.admin.settings.modes.runtime'),
+              'multi-file': app.translator.trans('fof-sitemap.admin.settings.modes.multi_file'),
+            },
+            label: app.translator.trans('fof-sitemap.admin.settings.mode_label'),
+          })}
 
           <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help')}</p>
 
@@ -59,7 +64,7 @@ export default class SitemapSettingsPage extends ExtensionPage {
               label: app.translator.trans('fof-sitemap.admin.settings.frequency_label'),
             })}
           </div>
-          {this.submitButton()}
+          {this.submitButton(vnode)}
         </div>
       </div>,
     ];
