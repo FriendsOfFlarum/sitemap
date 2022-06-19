@@ -26,7 +26,7 @@ class DeployProvider extends AbstractServiceProvider
 
             $mode = $settings->get('fof-sitemap.mode', 'run');
 
-            if ($mode === 'run') {
+            if ($mode === 'run' && !$this->container->bound('fof-sitemaps.forceCached')) {
                 return $this->container->make(Memory::class);
             }
 

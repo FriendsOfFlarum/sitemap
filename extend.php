@@ -12,6 +12,7 @@
 
 namespace FoF\Sitemap;
 
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
 
 return [
@@ -23,6 +24,9 @@ return [
         ->get('/sitemap.xml', 'fof-sitemap-index', Controllers\SitemapController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
+
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attributes(ForumAttributes::class),
 
     (new Extend\ServiceProvider)
         ->register(Providers\Provider::class)
