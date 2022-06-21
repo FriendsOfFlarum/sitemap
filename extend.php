@@ -48,4 +48,7 @@ return [
                 'url'    => $url->to('forum')->path('sitemaps'),
             ];
         }),
+
+    (new Extend\Settings())
+        ->default('fof-sitemap.mode', 'run'),
 ];
