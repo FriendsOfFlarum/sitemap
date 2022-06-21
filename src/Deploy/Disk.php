@@ -13,6 +13,7 @@
 namespace FoF\Sitemap\Deploy;
 
 use Carbon\Carbon;
+use FoF\Sitemap\Jobs\TriggerBuildJob;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Laminas\Diactoros\Uri;
 
@@ -45,6 +46,11 @@ class Disk implements DeployInterface
 
     public function getIndex(): ?Uri
     {
+        if (!$this->indexStorage->exists('sitemap.xml')) {
+            // build the index for the first time
+            resolve('flarum.queue.connection')->push(new TriggerBuildJob());
+        }
+        
         $uri = $this->indexStorage->url('sitemap.xml');
 
         return $uri
