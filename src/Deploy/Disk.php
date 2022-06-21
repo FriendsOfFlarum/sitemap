@@ -1,0 +1,43 @@
+<?php
+
+namespace FoF\Sitemap\Deploy;
+
+use Carbon\Carbon;
+use Illuminate\Contracts\Filesystem\Cloud;
+use Laminas\Diactoros\Uri;
+
+class Disk implements DeployInterface
+{
+    public function __construct(
+        public Cloud $sitemapStorage,
+        public Cloud $indexStorage
+    ) {}
+
+    public function storeSet($setIndex, string $set): ?StoredSet
+    {
+        $path = "sitemap-$setIndex.xml";
+
+        $this->sitemapStorage->put($path, $set);
+
+        return new StoredSet(
+            $this->sitemapStorage->url($path),
+            Carbon::now()
+        );
+    }
+
+    public function storeIndex(string $index): ?string
+    {
+        $this->indexStorage->put('sitemap.xml', $index);
+
+        return $this->indexStorage->url('sitemap.xml');
+    }
+
+    public function getIndex(): ?Uri
+    {
+        $uri = $this->indexStorage->url('sitemap.xml');
+
+        return $uri
+            ? new Uri($uri)
+            : null;
+    }
+}

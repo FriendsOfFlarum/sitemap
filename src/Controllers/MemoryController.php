@@ -12,29 +12,35 @@
 
 namespace FoF\Sitemap\Controllers;
 
+use Flarum\Http\Exception\RouteNotFoundException;
 use FoF\Sitemap\Deploy\DeployInterface;
+use FoF\Sitemap\Deploy\Memory;
+use FoF\Sitemap\Generate\Generator;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response;
-use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class SitemapController implements RequestHandlerInterface
+class MemoryController implements RequestHandlerInterface
 {
     public function __construct(
-        protected DeployInterface $deploy
+        protected DeployInterface $deploy,
+        protected Generator $generator
     ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $index = $this->deploy->getIndex();
-
-        if ($index instanceof Uri) {
-            return new Response\RedirectResponse($index);
+        if (!($this->deploy instanceof Memory)) {
+            throw new RouteNotFoundException();
         }
 
-        if (is_string($index)) {
-            return new Response\XmlResponse($index);
+        $this->generator->generate();
+
+        $content = $this->deploy->getSet(Arr::get($request->getQueryParams(), 'id') ?? '');
+
+        if (is_string($content)) {
+            return new Response\XmlResponse($content);
         }
 
         return new Response\EmptyResponse(404);

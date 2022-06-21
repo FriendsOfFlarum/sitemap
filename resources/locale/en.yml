@@ -1,7 +1,8 @@
 fof-sitemap:
     admin:
       settings:
-        title: FoF Sitemap
+        exclude_users: Exclude all user profiles from sitemap
+        exclude_users_help: By default any user visible to guests will be indexed
         mode_label: Operation mode
         mode_help: Selecting the correct mode for your size of forum is vitally important.
         mode_help_runtime_label: Runtime Mode

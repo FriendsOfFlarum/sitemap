@@ -14,6 +14,7 @@ namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
 use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Guest;
 use FoF\Pages\Page as Model;
@@ -63,5 +64,10 @@ class Page extends Resource
     public function lastModifiedAt($model): Carbon
     {
         return $model->edit_time ?? $model->time;
+    }
+
+    public function enabled(): bool
+    {
+        return resolve(ExtensionManager::class)->isEnabled('fof-pages');
     }
 }

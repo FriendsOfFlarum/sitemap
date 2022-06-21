@@ -6,45 +6,28 @@ export default class SitemapSettingsPage extends ExtensionPage {
     super.oninit(vnode);
   }
 
-  content() {
+  content(vnode) {
+    const currentMode = this.setting('fof-sitemap.mode')();
+
+    // Change setting value client-side so the Select reflects which option is effectively used
+    if (currentMode === 'cache' || currentMode === 'cache-disk') {
+      this.setting('fof-sitemap.mode')('multi-file');
+    }
+
     return [
-      <div className="container">
-        <div className="FoFSitemapSettingsPage">
-          <div className="Form-group">
-            {this.buildSettingComponent({
-              type: 'select',
-              setting: 'fof-sitemap.mode',
-              options: {
-                run: app.translator.trans('fof-sitemap.admin.settings.modes.runtime'),
-                cache: app.translator.trans('fof-sitemap.admin.settings.modes.cache'),
-                'cache-disk': app.translator.trans('fof-sitemap.admin.settings.modes.cache_disk'),
-                'multi-file': app.translator.trans('fof-sitemap.admin.settings.modes.multi_file'),
-              },
-              label: app.translator.trans('fof-sitemap.admin.settings.mode_label'),
-            })}
-          </div>
+      <div className="ExtensionPage-settings FoFSitemapSettingsPage">
+        <div className="container">
+          {app.forum.attribute('fof-sitemap.usersIndexAvailable')
+            ? this.buildSettingComponent({
+                type: 'switch',
+                setting: 'fof-sitemap.excludeUsers',
+                label: app.translator.trans('fof-sitemap.admin.settings.exclude_users'),
+                help: app.translator.trans('fof-sitemap.admin.settings.exclude_users_help'),
+              })
+            : null}
 
-          <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help')}</p>
+          {this.modeChoice()}
 
-          <div>
-            <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_runtime_label')}</h3>
-            <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_runtime')}</p>
-          </div>
-          <h4>{app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule')}</h4>
-          <p>
-            {app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule_setup', {
-              a: <a href="https://docs.flarum.org/console.html#schedule-run" target="_blank"></a>,
-            })}
-          </p>
-          <div>
-            <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_cache_disk_label')}</h3>
-            <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_cache_disk')}</p>
-          </div>
-          <h4>{app.translator.trans('fof-sitemap.admin.settings.mode_help_large')}</h4>
-          <div>
-            <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_multi_label')}</h3>
-            <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_multi')}</p>
-          </div>
           <hr />
           <h3>{app.translator.trans('fof-sitemap.admin.settings.advanced_options_label')}</h3>
           <div className="Form-group">
@@ -59,9 +42,46 @@ export default class SitemapSettingsPage extends ExtensionPage {
               label: app.translator.trans('fof-sitemap.admin.settings.frequency_label'),
             })}
           </div>
-          {this.submitButton()}
+          {this.submitButton(vnode)}
         </div>
       </div>,
     ];
+  }
+
+  modeChoice() {
+    if (!app.forum.attribute('fof-sitemap.modeChoice')) {
+      return null;
+    }
+
+    return (
+      <div>
+        {this.buildSettingComponent({
+          type: 'select',
+          setting: 'fof-sitemap.mode',
+          options: {
+            run: app.translator.trans('fof-sitemap.admin.settings.modes.runtime'),
+            'multi-file': app.translator.trans('fof-sitemap.admin.settings.modes.multi_file'),
+          },
+          label: app.translator.trans('fof-sitemap.admin.settings.mode_label'),
+        })}
+
+        <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help')}</p>
+
+        <div>
+          <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_runtime_label')}</h3>
+          <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_runtime')}</p>
+        </div>
+        <h4>{app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule')}</h4>
+        <p>
+          {app.translator.trans('fof-sitemap.admin.settings.mode_help_schedule_setup', {
+            a: <a href="https://docs.flarum.org/console/#schedulerun" target="_blank" rel="noopener"></a>,
+          })}
+        </p>
+        <div>
+          <h3>{app.translator.trans('fof-sitemap.admin.settings.mode_help_multi_label')}</h3>
+          <p>{app.translator.trans('fof-sitemap.admin.settings.mode_help_multi')}</p>
+        </div>
+      </div>
+    );
   }
 }

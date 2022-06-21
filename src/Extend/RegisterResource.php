@@ -21,33 +21,34 @@ use InvalidArgumentException;
 class RegisterResource implements ExtenderInterface
 {
     /**
-     * @var string
-     */
-    private $resource;
-
-    /**
      * Add a resource from the sitemap. Specify the ::class of the resource.
      * Resource must extend FoF\Sitemap\Resources\Resource.
      *
      * @param string $resource
      */
-    public function __construct(string $resource)
-    {
-        $this->resource = $resource;
-    }
+    public function __construct(
+        private string $resource
+    ) {}
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('fof.sitemap.resources', function (array $resources) use ($container) {
-            $resource = $container->make($this->resource);
+        $container->extend('fof-sitemaps.resources', function (array $resources) use ($container) {
+            $this->validateResource();
 
-            if ($resource instanceof Resource) {
-                $resources[] = $resource;
-            } else {
-                throw new InvalidArgumentException("{$this->resource} has to extend ".Resource::class);
-            }
+            $resources[] = $this->resource;
 
             return $resources;
         });
+    }
+
+    private function validateResource(): void
+    {
+        foreach (class_parents($this->resource) as $class) {
+            if ($class === Resource::class) {
+                return;
+            }
+        }
+
+        throw new InvalidArgumentException("{$this->resource} has to extend ".Resource::class);
     }
 }

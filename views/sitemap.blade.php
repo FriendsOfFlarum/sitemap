@@ -1,12 +1,11 @@
-<?php
-
-// Using echo statement because we can't use <? without causing issues with PHP templates
-echo '<?xml version="1.0" encoding="UTF-8"?>';
-
-?>
-
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-@foreach($urlset->urls as $url)
-    @include('fof-sitemap::url', ['url' => $url])
-@endforeach
-</urlset>
+@php
+    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+@endphp
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    @foreach($sitemap->sets as $set)
+        <sitemap>
+            <loc>{{ $set->url }}</loc>
+            <lastmod>{{ $set->lastModifiedAt->toW3cString() }}</lastmod>
+        </sitemap>
+    @endforeach
+</sitemapindex>

@@ -14,7 +14,6 @@ namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
-use Flarum\Foundation\Config;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,34 +33,9 @@ abstract class Resource
         return Carbon::now();
     }
 
-    /**
-     * Generates an absolute URL to an arbitrary path
-     * Not actually used by the extension anymore but kept for compatibility with third-party code extending this class.
-     *
-     * @param $path
-     *
-     * @return string
-     */
-    protected function generateUrl($path): string
+    protected function generateRouteUrl(string $name, array $parameters = []): string
     {
-        $url = resolve(Config::class)->url();
-
-        return "$url/$path";
-    }
-
-    /**
-     * Generates an absolute URL to a named route.
-     *
-     * @param $name
-     * @param array $parameters
-     *
-     * @return string
-     */
-    protected function generateRouteUrl($name, $parameters = []): string
-    {
-        /**
-         * @var $generator UrlGenerator
-         */
+        /** @var UrlGenerator $generator */
         $generator = resolve(UrlGenerator::class);
 
         return $generator->to('forum')->route($name, $parameters);
@@ -69,11 +43,14 @@ abstract class Resource
 
     protected function generateModelSlug(string $modelClass, AbstractModel $model): string
     {
-        /**
-         * @var SlugManager
-         */
+        /** @var SlugManager $slugManager */
         $slugManager = resolve(SlugManager::class);
 
         return $slugManager->forResource($modelClass)->toSlug($model);
+    }
+
+    public function enabled(): bool
+    {
+        return true;
     }
 }

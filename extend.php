@@ -12,25 +12,30 @@
 
 namespace FoF\Sitemap;
 
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
-use FoF\Sitemap\Controllers\SitemapController;
 
 return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
     (new Extend\Routes('forum'))
-        ->get('/sitemap.xml', 'fof-sitemap-index', SitemapController::class),
+        ->get('/sitemap-live/{id}', 'fof-sitemap-live', Controllers\MemoryController::class)
+        ->get('/sitemap.xml', 'fof-sitemap-index', Controllers\SitemapController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
-    (new Extend\ServiceProvider())
-        ->register(Providers\ResourceProvider::class),
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attributes(ForumAttributes::class),
 
-    (new Extend\Console())
+    (new Extend\ServiceProvider)
+        ->register(Providers\Provider::class)
+        ->register(Providers\DeployProvider::class),
+
+    (new Extend\Console)
         ->command(Console\BuildSitemapCommand::class)
         ->schedule(Console\BuildSitemapCommand::class, new Console\BuildSitemapSchedule()),
 
-    (new Extend\View())
+    (new Extend\View)
         ->namespace('fof-sitemap', __DIR__.'/views'),
 ];

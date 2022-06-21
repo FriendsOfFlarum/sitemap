@@ -12,6 +12,7 @@
 
 namespace FoF\Sitemap\Resources;
 
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Guest;
 use Flarum\User\User as Model;
 use FoF\Sitemap\Sitemap\Frequency;
@@ -39,5 +40,10 @@ class User extends Resource
     public function frequency(): string
     {
         return Frequency::DAILY;
+    }
+
+    public function enabled(): bool
+    {
+        return !resolve(SettingsRepositoryInterface::class)->get('fof-sitemap.excludeUsers');
     }
 }
