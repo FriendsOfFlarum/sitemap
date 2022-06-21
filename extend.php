@@ -14,6 +14,8 @@ namespace FoF\Sitemap;
 
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
+use Flarum\Foundation\Paths;
+use Flarum\Http\UrlGenerator;
 
 return [
     (new Extend\Frontend('admin'))
@@ -38,4 +40,12 @@ return [
 
     (new Extend\View())
         ->namespace('fof-sitemap', __DIR__.'/views'),
+
+    (new Extend\Filesystem())
+        ->disk('flarum-sitemaps', function (Paths $paths, UrlGenerator $url) {
+            return [
+                'root'   => "$paths->public/sitemaps",
+                'url'    => $url->to('forum')->path('sitemaps')
+            ];
+    }),
 ];
