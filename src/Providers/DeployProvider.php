@@ -1,13 +1,23 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Providers;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\Sitemap\Deploy\Disk;
 use FoF\Sitemap\Deploy\DeployInterface;
+use FoF\Sitemap\Deploy\Disk;
 use FoF\Sitemap\Deploy\Memory;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\Cloud;
@@ -49,12 +59,12 @@ class DeployProvider extends AbstractServiceProvider
         /** @var Config $config */
         $config = $container->make(Config::class);
 
-        $local = new Local($paths->public . '/sitemaps/');
+        $local = new Local($paths->public.'/sitemaps/');
 
         return new FilesystemAdapter(
             new Filesystem($local, [
                 // We set this in options, because the wrapper uses this to resolve its url() method.
-                'url' => $config->url() . '/sitemaps/'
+                'url' => $config->url().'/sitemaps/',
             ])
         );
     }

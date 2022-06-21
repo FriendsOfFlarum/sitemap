@@ -28,14 +28,14 @@ return [
     (new Extend\ApiSerializer(ForumSerializer::class))
         ->attributes(ForumAttributes::class),
 
-    (new Extend\ServiceProvider)
+    (new Extend\ServiceProvider())
         ->register(Providers\Provider::class)
         ->register(Providers\DeployProvider::class),
 
-    (new Extend\Console)
+    (new Extend\Console())
         ->command(Console\BuildSitemapCommand::class)
         ->schedule(Console\BuildSitemapCommand::class, new Console\BuildSitemapSchedule()),
 
-    (new Extend\View)
+    (new Extend\View())
         ->namespace('fof-sitemap', __DIR__.'/views'),
 ];

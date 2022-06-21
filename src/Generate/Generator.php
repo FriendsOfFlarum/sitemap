@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Generate;
 
 use Carbon\Carbon;
@@ -16,7 +26,8 @@ class Generator
     public function __construct(
         protected DeployInterface $deploy,
         protected array $resources
-    ) {}
+    ) {
+    }
 
     public function generate(): ?string
     {
@@ -29,19 +40,21 @@ class Generator
 
     public function loop(): array
     {
-        $set = new UrlSet;
+        $set = new UrlSet();
         $remotes = [];
         $i = 0;
 
         foreach ($this->resources as $res) {
-            /** @var Resource $resource */
+            /** @var resource $resource */
             $resource = resolve($res);
 
-            if (! $resource->enabled()) continue;
+            if (!$resource->enabled()) {
+                continue;
+            }
 
             $resource
                 ->query()
-                ->each(function(AbstractModel $item) use (&$set, $resource, &$remotes, &$i) {
+                ->each(function (AbstractModel $item) use (&$set, $resource, &$remotes, &$i) {
                     $url = new Url(
                         $resource->url($item),
                         $resource->lastModifiedAt($item),
@@ -56,7 +69,7 @@ class Generator
 
                         $i++;
 
-                        $set = new UrlSet;
+                        $set = new UrlSet();
                         $set->add($url);
                     }
                 });
@@ -65,7 +78,7 @@ class Generator
 
             $i++;
 
-            $set = new UrlSet;
+            $set = new UrlSet();
         }
 
         return $remotes;

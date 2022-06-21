@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Deploy;
 
 use Carbon\Carbon;
@@ -12,7 +22,8 @@ class Memory implements DeployInterface
 
     public function __construct(
         public UrlGenerator $urlGenerator
-    ) {}
+    ) {
+    }
 
     public function storeSet($setIndex, string $set): ?StoredSet
     {
@@ -28,11 +39,13 @@ class Memory implements DeployInterface
 
     /**
      * Additional method that isn't part of the interface to retrieve in-memory cache
-     * This method is also used to retrieve the index which will be cached with string index "index"
+     * This method is also used to retrieve the index which will be cached with string index "index".
+     *
      * @param string|int $setIndex
+     *
      * @return string|null
      */
-    public function getSet($setIndex):? string
+    public function getSet($setIndex): ?string
     {
         return $this->cache[$setIndex] ?? null;
     }

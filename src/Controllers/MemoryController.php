@@ -27,7 +27,8 @@ class MemoryController implements RequestHandlerInterface
     public function __construct(
         protected DeployInterface $deploy,
         protected Generator $generator
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

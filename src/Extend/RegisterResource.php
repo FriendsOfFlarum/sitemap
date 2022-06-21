@@ -28,11 +28,12 @@ class RegisterResource implements ExtenderInterface
      */
     public function __construct(
         private string $resource
-    ) {}
+    ) {
+    }
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->extend('fof-sitemaps.resources', function (array $resources) use ($container) {
+        $container->extend('fof-sitemaps.resources', function (array $resources) {
             $this->validateResource();
 
             $resources[] = $this->resource;

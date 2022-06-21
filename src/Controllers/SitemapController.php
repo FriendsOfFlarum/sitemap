@@ -23,7 +23,8 @@ class SitemapController implements RequestHandlerInterface
 {
     public function __construct(
         protected DeployInterface $deploy
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
