@@ -45,7 +45,7 @@ return [
         ->disk('flarum-sitemaps', function (Paths $paths, UrlGenerator $url) {
             return [
                 'root'   => "$paths->public/sitemaps",
-                'url'    => $url->to('forum')->path('sitemaps')
+                'url'    => $url->to('forum')->path('sitemaps'),
             ];
-    }),
+        }),
 ];
