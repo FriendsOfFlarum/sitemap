@@ -23,7 +23,9 @@ class BuildSitemapSchedule
         $settings = resolve(SettingsRepositoryInterface::class);
         $frequency = $settings->get('fof-sitemap.frequency');
 
-        $event->withoutOverlapping();
+        $event->onOneServer()
+            ->withoutOverlapping();
+
         switch ($frequency) {
             case 'twice-daily':
                 $event->twiceDaily();
