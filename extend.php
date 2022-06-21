@@ -50,7 +50,9 @@ return [
         }),
 
     (new Extend\Settings())
-        ->default('fof-sitemap.mode', 'run'),
+        ->default('fof-sitemap.mode', 'run')
+        ->default('fof-sitemap.frequency', 'daily')
+        ->default('fof-sitemap.excludeUsers', false),
 
     (new Extend\Event())
         ->subscribe(Listeners\SettingsListener::class),

@@ -9,7 +9,7 @@ can easily inject their own Resource information, check Extending below.
 
 ## Modes
 
-There are several modes to use the sitemap.
+There are two modes to use the sitemap.
 
 ### Runtime mode
 
@@ -19,31 +19,14 @@ all Users, Discussions, Tags and Pages guests have access to.
 _Applicable to small forums, most likely on shared hosting environments, with discussions, users, tags and pages summed
 up being less than **10.000 items**._
 
-### Cache or disk mode
+### Cached mode
 
-You can set up a cron job that stores the sitemap into cache or onto disk. You need to run:
+For larger forums you can set up a cron job that generates a sitemap index and compressed sitemap files. Remember that after first enabling cache mode, you must either wait for the sitemaps to build.
 
-```
-php flarum fof:sitemap:cache
-```
-
-To store the sitemap into cache. If you want to save the sitemap directly to your public folder, use the flag:
+A rebuild can be triggered at any time by using:
 
 ```
-php flarum fof:sitemap:cache --write-xml-file
-```
-
-_Best for small forums, most likely on hosting environments allowing cronjobs and with discussions, users, tags and pages summed
-up being less than **50.000 items**._
-
-> 50.000 is the technical limit for sitemap files. If you have more entries to store, use the following option!
-
-### Multi file mode
-
-For larger forums you can set up a cron job that generates a sitemap index and compressed sitemap files.
-
-```
-php flarum fof:sitemap:multi
+php flarum fof:sitemap:build
 ```
 
 This command creates temporary files in your storage folder and if successful moves them over to the public
@@ -70,13 +53,21 @@ That's it.
 In a very similar way, you can also remove resources from the sitemap:
 ```php
 return [
-    (new \FoF\Sitemap\Extend\RemoveResource(\FoF\Sitemap\Resources\User::class)),
+    (new \FoF\Sitemap\Extend\RemoveResource(\FoF\Sitemap\Resources\Tag::class)),
 ];
 ```
 
+### Force cache mode
+
+If you wish to force the use of cache mode, for example in complex hosted environments, this can be done by calling the extender:
+```php
+return [
+    (new \FoF\Sitemap\Extend\ForceCached()),
+]
+```
 ## Scheduling
 
-If the size of your forum requires one of the cache modes - either in-memory or disk, consider setting up the Flarum scheduler. Read more information about this [here](https://discuss.flarum.org/d/24118)
+Consider setting up the Flarum scheduler, which removes the requirement to setup a cron job as advised above. Read more information about this [here](https://discuss.flarum.org/d/24118)
 
 ## Commissioned
 

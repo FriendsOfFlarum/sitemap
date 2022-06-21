@@ -10,9 +10,15 @@
  *
  */
 
-use Flarum\Database\Migration;
+use Illuminate\Database\Schema\Builder;
 
-return Migration::addSettings([
-    'fof-sitemap.mode'      => 'run',
-    'fof-sitemap.frequency' => 'daily',
-]);
+// This file needs to remain in order to maintain backwards compatibility when running down migrations.
+// The default settings that were once added here are now handled by the default settings extender.
+return [
+    'up' => function (Builder $schema) {
+        // do nothing
+    },
+    'down' => function (Builder $schema) {
+        // do nothing
+    },
+];
