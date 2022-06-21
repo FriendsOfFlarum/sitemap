@@ -16,7 +16,6 @@ use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
-use Flarum\Settings\Event\Saving;
 
 return [
     (new Extend\Frontend('admin'))

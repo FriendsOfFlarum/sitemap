@@ -45,7 +45,7 @@ class Generator
         $i = 0;
 
         foreach ($this->resources as $res) {
-            /** @var Resource $resource */
+            /** @var resource $resource */
             $resource = resolve($res);
 
             if (!$resource->enabled()) {

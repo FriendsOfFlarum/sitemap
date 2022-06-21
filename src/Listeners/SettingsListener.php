@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Listeners;
 
 use Flarum\Settings\Event\Saved;
@@ -12,19 +22,21 @@ use Illuminate\Support\Arr;
 
 class SettingsListener
 {
-    public function __construct(protected SettingsRepositoryInterface $settings, protected Factory $filesystem){}
+    public function __construct(protected SettingsRepositoryInterface $settings, protected Factory $filesystem)
+    {
+    }
 
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Saving::class, [$this, 'whenSaving']);
         $events->listen(Saved::class, [$this, 'whenSaved']);
     }
-    
+
     public function whenSaving(Saving $event): void
     {
         $mode = Arr::get($event->settings, 'fof-sitemap.mode');
         $setting = $this->settings->get('fof-sitemap.mode');
-        
+
         if ($mode === 'run' && $setting === 'multi-file') {
             $this->removeCachedSitemaps();
         }
@@ -44,7 +56,7 @@ class SettingsListener
         $sitemapsDir = $this->filesystem->disk('flarum-sitemaps');
 
         $files = $sitemapsDir->allFiles();
-        
+
         foreach ($files as $file) {
             $sitemapsDir->delete($file);
         }

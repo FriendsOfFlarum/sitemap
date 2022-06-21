@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Jobs;
 
 use Flarum\Queue\AbstractJob;
@@ -19,7 +29,7 @@ class TriggerBuildJob extends AbstractJob
         $command = resolve(BuildSitemapCommand::class);
 
         $command->setLaravel($container);
-        
+
         $command->run(new ArrayInput([]), new NullOutput());
     }
 }

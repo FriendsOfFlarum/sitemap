@@ -50,7 +50,7 @@ class Disk implements DeployInterface
             // build the index for the first time
             resolve('flarum.queue.connection')->push(new TriggerBuildJob());
         }
-        
+
         $uri = $this->indexStorage->url('sitemap.xml');
 
         return $uri
