@@ -20,6 +20,7 @@ use FoF\Sitemap\Resources\Resource;
 use FoF\Sitemap\Sitemap\Sitemap;
 use FoF\Sitemap\Sitemap\Url;
 use FoF\Sitemap\Sitemap\UrlSet;
+use Illuminate\Support\Collection;
 
 class Generator
 {
@@ -38,6 +39,14 @@ class Generator
         );
     }
 
+    public function resources(): Collection
+    {
+        return Collection::make($this->resources)
+            ->map(fn(string $class) => resolve($class))
+            ->filter(fn(Resource $resource) => $resource->enabled())
+            ->keyBy(fn(Resource $resource) => $resource->slug());
+    }
+
     public function loop(): array
     {
         $set = new UrlSet();
@@ -45,7 +54,7 @@ class Generator
         $i = 0;
 
         foreach ($this->resources as $res) {
-            /** @var resource $resource */
+            /** @var Resource $resource */
             $resource = resolve($res);
 
             if (!$resource->enabled()) {

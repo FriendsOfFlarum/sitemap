@@ -20,6 +20,18 @@ use Illuminate\Database\Eloquent\Builder;
 
 abstract class Resource
 {
+    public function maxId(): int
+    {
+        $model = $this->query()->getModel();
+
+        return $model->withoutGlobalScopes()->max($model->getKeyName());
+    }
+
+    public function slug(): string
+    {
+        return $this->query()->getModel()->getTable();
+    }
+
     abstract public function url($model): string;
 
     abstract public function query(): Builder;

@@ -63,4 +63,14 @@ class Memory implements DeployInterface
             'id' => 'index',
         ]));
     }
+
+    public function indexIsStale(Carbon $mustBeNewerThan): bool
+    {
+        return true;
+    }
+
+    public function setIsStale($setIndex, Carbon $mustBeNewerThan): bool
+    {
+        return true;
+    }
 }

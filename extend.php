@@ -23,7 +23,8 @@ return [
 
     (new Extend\Routes('forum'))
         ->get('/sitemap-live/{id}', 'fof-sitemap-live', Controllers\MemoryController::class)
-        ->get('/sitemap.xml', 'fof-sitemap-index', Controllers\SitemapController::class),
+        ->get('/sitemap.xml', 'fof-sitemap-index', Controllers\SitemapController::class)
+        ->get('/sitemap/{resource}-{begin}-{end}.xml', 'fof-sitemap-subset', Controllers\SitemapSubsetController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 

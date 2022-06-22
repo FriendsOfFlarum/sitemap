@@ -13,7 +13,6 @@
 namespace FoF\Sitemap\Deploy;
 
 use Carbon\Carbon;
-use FoF\Sitemap\Jobs\TriggerBuildJob;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Laminas\Diactoros\Uri;
 
@@ -37,6 +36,15 @@ class Disk implements DeployInterface
         );
     }
 
+    public function getSet($setIndex): ?Uri
+    {
+        $uri = $this->indexStorage->url("sitemap-$setIndex.xml");
+
+        return $uri
+            ? new Uri($uri)
+            : null;
+    }
+
     public function storeIndex(string $index): ?string
     {
         $this->indexStorage->put('sitemap.xml', $index);
@@ -46,15 +54,24 @@ class Disk implements DeployInterface
 
     public function getIndex(): ?Uri
     {
-        if (!$this->indexStorage->exists('sitemap.xml')) {
-            // build the index for the first time
-            resolve('flarum.queue.connection')->push(new TriggerBuildJob());
-        }
-
         $uri = $this->indexStorage->url('sitemap.xml');
 
         return $uri
             ? new Uri($uri)
             : null;
+    }
+
+    public function indexIsStale(Carbon $mustBeNewerThan): bool
+    {
+        $mtime = $this->indexStorage->lastModified('sitemap.xml');
+
+        return Carbon::createFromTimestamp($mtime)->isBefore($mustBeNewerThan);
+    }
+
+    public function setIsStale($setIndex, Carbon $mustBeNewerThan): bool
+    {
+        $mtime = $this->indexStorage->lastModified("sitemap-$setIndex.xml");
+
+        return Carbon::createFromTimestamp($mtime)->isBefore($mustBeNewerThan);
     }
 }

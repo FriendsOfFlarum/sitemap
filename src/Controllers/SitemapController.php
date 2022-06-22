@@ -12,7 +12,13 @@
 
 namespace FoF\Sitemap\Controllers;
 
+use Flarum\Http\UrlGenerator;
 use FoF\Sitemap\Deploy\DeployInterface;
+use FoF\Sitemap\Generate\Generator;
+use FoF\Sitemap\Resources\Resource;
+use FoF\Sitemap\Sitemap\Url;
+use FoF\Sitemap\Sitemap\UrlSet;
+use Illuminate\Support\Carbon;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
@@ -22,13 +28,21 @@ use Psr\Http\Server\RequestHandlerInterface;
 class SitemapController implements RequestHandlerInterface
 {
     public function __construct(
-        protected DeployInterface $deploy
+        protected Generator $generator,
+        protected DeployInterface $deploy,
+        protected UrlGenerator $url
     ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $index = $this->deploy->getIndex();
+        if ($this->deploy->indexIsStale(Carbon::now()->subDay())) {
+            $index = $this->generateIndex();
+
+            $this->deploy->storeIndex($index);
+        } else {
+            $index = $this->deploy->getIndex();
+        }
 
         if ($index instanceof Uri) {
             return new Response\RedirectResponse($index);
@@ -39,5 +53,41 @@ class SitemapController implements RequestHandlerInterface
         }
 
         return new Response\EmptyResponse(404);
+    }
+
+    private function generateIndex(): string
+    {
+        $set = new UrlSet;
+
+        $this->generator
+            ->resources()
+            ->map(function (Resource $resource) {
+                $files = [];
+
+                $max = $resource->maxId();
+
+                if ($max === 0) return $files;
+
+                $i = 0;
+
+                while($i < $max) {
+
+                    $files[] = $this->url
+                        ->to('forum')
+                        ->route('fof-sitemap-subset', [
+                            'resource' => $resource->slug(),
+                            'begin' => $i + 1,
+                            'end' => $i += 50000
+                        ]);
+                }
+
+                return $files;
+            })
+            ->flatten()
+            ->each(function (string $url) use ($set) {
+                $set->add(new Url($url));
+            });
+
+        return $set->toXml();
     }
 }

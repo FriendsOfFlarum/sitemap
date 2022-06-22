@@ -68,6 +68,6 @@ class Page extends Resource
 
     public function enabled(): bool
     {
-        return resolve(ExtensionManager::class)->isEnabled('fof-pages');
+        return class_exists(Page::class) && resolve(ExtensionManager::class)->isEnabled('fof-pages');
     }
 }
