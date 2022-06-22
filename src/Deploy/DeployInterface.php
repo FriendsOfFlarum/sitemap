@@ -20,15 +20,18 @@ interface DeployInterface
     public function storeSet($setIndex, string $set): ?StoredSet;
 
     public function storeIndex(string $index): ?string;
+
     /**
      * @return string|Uri|null
      */
     public function getIndex(): mixed;
+
     /**
      * @return string|Uri|null
      */
     public function getSet($setIndex): mixed;
 
     public function indexIsStale(Carbon $mustBeNewerThan): bool;
+
     public function setIsStale($setIndex, Carbon $mustBeNewerThan): bool;
 }

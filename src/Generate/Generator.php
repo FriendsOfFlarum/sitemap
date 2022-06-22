@@ -42,9 +42,9 @@ class Generator
     public function resources(): Collection
     {
         return Collection::make($this->resources)
-            ->map(fn(string $class) => resolve($class))
-            ->filter(fn(Resource $resource) => $resource->enabled())
-            ->keyBy(fn(Resource $resource) => $resource->slug());
+            ->map(fn (string $class) => resolve($class))
+            ->filter(fn (Resource $resource) => $resource->enabled())
+            ->keyBy(fn (Resource $resource) => $resource->slug());
     }
 
     public function loop(): array
@@ -54,7 +54,7 @@ class Generator
         $i = 0;
 
         foreach ($this->resources as $res) {
-            /** @var Resource $resource */
+            /** @var resource $resource */
             $resource = resolve($res);
 
             if (!$resource->enabled()) {

@@ -57,7 +57,7 @@ class SitemapController implements RequestHandlerInterface
 
     private function generateIndex(): string
     {
-        $set = new UrlSet;
+        $set = new UrlSet();
 
         $this->generator
             ->resources()
@@ -66,18 +66,19 @@ class SitemapController implements RequestHandlerInterface
 
                 $max = $resource->maxId();
 
-                if ($max === 0) return $files;
+                if ($max === 0) {
+                    return $files;
+                }
 
                 $i = 0;
 
-                while($i < $max) {
-
+                while ($i < $max) {
                     $files[] = $this->url
                         ->to('forum')
                         ->route('fof-sitemap-subset', [
                             'resource' => $resource->slug(),
-                            'begin' => $i + 1,
-                            'end' => $i += 50000
+                            'begin'    => $i + 1,
+                            'end'      => $i += 50000,
                         ]);
                 }
 

@@ -48,7 +48,7 @@ class SitemapSubsetController implements RequestHandlerInterface
         if ($resource && $this->deploy->indexIsStale(Carbon::now()->subDay())) {
             $set = $this->generateSubset($resource, $begin, $end);
             $this->deploy->storeSet($index, $set);
-        } elseif($resource) {
+        } elseif ($resource) {
             $set = $this->deploy->getSet($index);
         }
 
@@ -65,7 +65,7 @@ class SitemapSubsetController implements RequestHandlerInterface
 
     private function generateSubset(Resource $resource, int $begin, int $end): string
     {
-        $set = new UrlSet;
+        $set = new UrlSet();
 
         $resource
             ->query()

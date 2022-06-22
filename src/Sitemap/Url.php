@@ -22,8 +22,7 @@ class Url
         public ?Carbon $lastModified = null,
         public ?string $changeFrequency = null,
         public ?float $priority = null
-    )
-    {
+    ) {
     }
 
     public function toXML(Factory $view): string
