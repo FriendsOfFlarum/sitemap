@@ -39,7 +39,7 @@ abstract class Resource
 
     protected function generateRouteUrl(string $name, array $parameters = []): string
     {
-        if (! $this->generator) {
+        if (!$this->generator) {
             $this->generator = resolve(UrlGenerator::class);
         }
 
@@ -48,7 +48,7 @@ abstract class Resource
 
     protected function generateModelSlug(string $modelClass, AbstractModel $model): string
     {
-        if (! $this->slugManager) {
+        if (!$this->slugManager) {
             $this->slugManager = resolve(SlugManager::class);
         }
 

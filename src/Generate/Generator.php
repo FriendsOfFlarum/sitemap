@@ -48,13 +48,14 @@ class Generator
             (new Sitemap($this->loop($output), $now))->toXML()
         );
 
-        $output->writeln('Completed in ' . $startTime->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE, true, 2));
+        $output->writeln('Completed in '.$startTime->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE, true, 2));
 
         return $url;
     }
 
     /**
      * @param OutputInterface|null $output Parameter is null for backward-compatibility. Might be removed in future version
+     *
      * @return StoredSet[]
      */
     public function loop(OutputInterface $output = null): array
