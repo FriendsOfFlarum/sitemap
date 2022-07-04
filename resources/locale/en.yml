@@ -16,6 +16,8 @@ fof-sitemap:
         mode_help_multi: Best for larger forums, starting at 50.000 items. Mult part, compressed sitemap files will be generated and stored in the /public folder
         advanced_options_label: Advanced options
         frequency_label: How often should the scheduler re-build the cache or disk based sitemap?
+        risky_performance_improvements: Enable risky performance improvements
+        risky_performance_improvements_help: These improvements make the CRON job run faster on million-rows datasets but might break compatibility with some extensions.
         modes:
             runtime: Runtime
             cache: Cache

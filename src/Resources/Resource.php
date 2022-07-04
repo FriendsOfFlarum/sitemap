@@ -20,6 +20,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 abstract class Resource
 {
+    // Cached copies of the generator and slug manager for performance
+    protected ?UrlGenerator $generator = null;
+    protected ?SlugManager $slugManager = null;
+
     abstract public function url($model): string;
 
     abstract public function query(): Builder;
@@ -35,18 +39,20 @@ abstract class Resource
 
     protected function generateRouteUrl(string $name, array $parameters = []): string
     {
-        /** @var UrlGenerator $generator */
-        $generator = resolve(UrlGenerator::class);
+        if (! $this->generator) {
+            $this->generator = resolve(UrlGenerator::class);
+        }
 
-        return $generator->to('forum')->route($name, $parameters);
+        return $this->generator->to('forum')->route($name, $parameters);
     }
 
     protected function generateModelSlug(string $modelClass, AbstractModel $model): string
     {
-        /** @var SlugManager $slugManager */
-        $slugManager = resolve(SlugManager::class);
+        if (! $this->slugManager) {
+            $this->slugManager = resolve(SlugManager::class);
+        }
 
-        return $slugManager->forResource($modelClass)->toSlug($model);
+        return $this->slugManager->forResource($modelClass)->toSlug($model);
     }
 
     public function enabled(): bool

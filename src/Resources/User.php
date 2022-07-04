@@ -22,7 +22,17 @@ class User extends Resource
 {
     public function query(): Builder
     {
-        return Model::whereVisibleTo(new Guest());
+        $query = Model::whereVisibleTo(new Guest());
+
+        if (resolve(SettingsRepositoryInterface::class)->get('fof-sitemap.riskyPerformanceImprovements')) {
+            // This is a risky statement for the same reasons as the Discussion resource
+            $query->select([
+                'id',
+                'username',
+            ]);
+        }
+
+        return $query;
     }
 
     public function url($model): string

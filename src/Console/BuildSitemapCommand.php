@@ -22,6 +22,6 @@ class BuildSitemapCommand extends Command
 
     public function handle(Generator $generator)
     {
-        $generator->generate();
+        $generator->generate($this->getOutput()->getOutput());
     }
 }

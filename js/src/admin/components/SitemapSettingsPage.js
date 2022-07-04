@@ -42,6 +42,14 @@ export default class SitemapSettingsPage extends ExtensionPage {
               label: app.translator.trans('fof-sitemap.admin.settings.frequency_label'),
             })}
           </div>
+
+          {this.buildSettingComponent({
+            type: 'switch',
+            setting: 'fof-sitemap.riskyPerformanceImprovements',
+            label: app.translator.trans('fof-sitemap.admin.settings.risky_performance_improvements'),
+            help: app.translator.trans('fof-sitemap.admin.settings.risky_performance_improvements_help'),
+          })}
+
           {this.submitButton(vnode)}
         </div>
       </div>,
