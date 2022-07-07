@@ -12,7 +12,6 @@
 
 namespace FoF\Sitemap\Resources;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Guest;
 use Flarum\User\User as Model;
 use FoF\Sitemap\Sitemap\Frequency;
@@ -24,7 +23,7 @@ class User extends Resource
     {
         $query = Model::whereVisibleTo(new Guest());
 
-        if (resolve(SettingsRepositoryInterface::class)->get('fof-sitemap.riskyPerformanceImprovements')) {
+        if (static::$settings->get('fof-sitemap.riskyPerformanceImprovements')) {
             // This is a risky statement for the same reasons as the Discussion resource
             $query->select([
                 'id',
@@ -54,6 +53,6 @@ class User extends Resource
 
     public function enabled(): bool
     {
-        return !resolve(SettingsRepositoryInterface::class)->get('fof-sitemap.excludeUsers');
+        return !static::$settings->get('fof-sitemap.excludeUsers');
     }
 }

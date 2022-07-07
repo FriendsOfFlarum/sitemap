@@ -14,8 +14,6 @@ namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
 use Flarum\Database\ScopeVisibilityTrait;
-use Flarum\Extension\ExtensionManager;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Guest;
 use FoF\Pages\Page as Model;
 use FoF\Sitemap\Sitemap\Frequency;
@@ -33,12 +31,9 @@ class Page extends Resource
 
         $query = Model::whereVisibleTo(new Guest());
 
-        /** @var SettingsRepositoryInterface $settings */
-        $settings = resolve(SettingsRepositoryInterface::class);
-
         // If one of the pages is the homepage, it's already listed by the generator and we don't want to add it twice
-        if ($settings->get('default_route') === '/pages/home') {
-            $query->where('id', '!=', $settings->get('pages_home'));
+        if (static::$settings->get('default_route') === '/pages/home') {
+            $query->where('id', '!=', static::$settings->get('pages_home'));
         }
 
         return $query;
@@ -68,6 +63,6 @@ class Page extends Resource
 
     public function enabled(): bool
     {
-        return resolve(ExtensionManager::class)->isEnabled('fof-pages');
+        return static::$extensionManager->isEnabled('fof-pages');
     }
 }

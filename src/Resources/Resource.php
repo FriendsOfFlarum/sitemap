@@ -14,15 +14,39 @@ namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 
 abstract class Resource
 {
     // Cached copies of the generator and slug manager for performance
-    protected ?UrlGenerator $generator = null;
-    protected ?SlugManager $slugManager = null;
+    protected static ?UrlGenerator $generator = null;
+    protected static ?SlugManager $slugManager = null;
+    protected static ?SettingsRepositoryInterface $settings = null;
+    protected static ?ExtensionManager $extensionManager = null;
+
+    public static function setUrlGenerator(UrlGenerator $generator)
+    {
+        static::$generator = $generator;
+    }
+
+    public static function setSlugManager(SlugManager $slugManager)
+    {
+        static::$slugManager = $slugManager;
+    }
+
+    public static function setSettings(SettingsRepositoryInterface $settings)
+    {
+        static::$settings = $settings;
+    }
+
+    public static function setExtensionManager(ExtensionManager $extensionManager)
+    {
+        static::$extensionManager = $extensionManager;
+    }
 
     abstract public function url($model): string;
 
@@ -39,20 +63,12 @@ abstract class Resource
 
     protected function generateRouteUrl(string $name, array $parameters = []): string
     {
-        if (!$this->generator) {
-            $this->generator = resolve(UrlGenerator::class);
-        }
-
-        return $this->generator->to('forum')->route($name, $parameters);
+        return static::$generator->to('forum')->route($name, $parameters);
     }
 
     protected function generateModelSlug(string $modelClass, AbstractModel $model): string
     {
-        if (!$this->slugManager) {
-            $this->slugManager = resolve(SlugManager::class);
-        }
-
-        return $this->slugManager->forResource($modelClass)->toSlug($model);
+        return static::$slugManager->forResource($modelClass)->toSlug($model);
     }
 
     public function enabled(): bool
