@@ -22,7 +22,22 @@ class Discussion extends Resource
 {
     public function query(): Builder
     {
-        return Model::whereVisibleTo(new Guest());
+        $query = Model::whereVisibleTo(new Guest());
+
+        if (static::$settings->get('fof-sitemap.riskyPerformanceImprovements')) {
+            // Limiting the number of columns to fetch improves query time
+            // This is a risky optimization because of 2 reasons:
+            // A custom slug driver might need a column not included in this list
+            // A custom visibility scope might depend on a column or alias being part of the SELECT statement
+            $query->select([
+                'id',
+                'slug',
+                'created_at',
+                'last_posted_at',
+            ]);
+        }
+
+        return $query;
     }
 
     public function url($model): string
