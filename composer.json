@@ -35,7 +35,6 @@
     ],
     "require": {
         "php": "8.*",
-        "ext-zlib": "*",
         "flarum/core": "^1.3.1"
     },
     "extra": {
@@ -46,7 +45,11 @@
                 "name": "fas fa-sitemap",
                 "backgroundColor": "#e74c3c",
                 "color": "#fff"
-            }
+            },
+            "optional-dependencies": [
+                "flarum/tags",
+                "fof/pages"
+            ]
         },
         "flagrow": {
             "discuss": "https://discuss.flarum.org/d/14941"
