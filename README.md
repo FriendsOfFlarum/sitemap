@@ -13,67 +13,36 @@ There are two modes to use the sitemap.
 
 ### Runtime mode
 
-After enabling the extension the sitemap will automatically be available and generated on the fly. It contains
-all Users, Discussions, Tags and Pages guests have access to.
+After enabling the extension the sitemap will automatically be available and generated on the fly.
+It contains all Users, Discussions, Tags and Pages guests have access to.
 
 _Applicable to small forums, most likely on shared hosting environments, with discussions, users, tags and pages summed
-up being less than **10.000 items**._
+up being less than **10.000 items**.
+This is not a hard limit, but performance will be degraded as the number of items increase._
 
-### Cached mode
+### Cached multi-file mode
 
-For larger forums you can set up a cron job that generates a sitemap index and compressed sitemap files. Remember that after first enabling cache mode, you must either wait for the sitemaps to build.
+For larger forums you can set up a cron job that generates a sitemap index and compressed sitemap files.
+A first sitemap will be automatically generated after the setting is changed, but subsequent updates will have to be triggered either manually or through the scheduler (see below).
 
-A rebuild can be triggered at any time by using:
+A rebuild can be manually triggered at any time by using:
 
 ```
 php flarum fof:sitemap:build
 ```
 
-This command creates temporary files in your storage folder and if successful moves them over to the public
-directory automatically.
+_Best for larger forums, starting at 10.000 items._
 
-_Best for larger forums, starting at 50.000 items._
-
-## Extending
-
-### Register a new Resource
-
-In order to register your own resource, create a class that implements `FoF\Sitemap\Resources\Resource`. Make sure
-to implement all abstract methods, check other implementations for examples. After this, register your 
-
-```php
-return [
-    new \FoF\Sitemap\Extend\RegisterResource(YourResource::class),
-];
-```
-That's it.
-
-### Remove a Resource
-
-In a very similar way, you can also remove resources from the sitemap:
-```php
-return [
-    (new \FoF\Sitemap\Extend\RemoveResource(\FoF\Sitemap\Resources\Tag::class)),
-];
-```
-
-### Force cache mode
-
-If you wish to force the use of cache mode, for example in complex hosted environments, this can be done by calling the extender:
-```php
-return [
-    (new \FoF\Sitemap\Extend\ForceCached()),
-]
-```
 ## Scheduling
 
-Consider setting up the Flarum scheduler, which removes the requirement to setup a cron job as advised above. Read more information about this [here](https://discuss.flarum.org/d/24118)
+Consider setting up the Flarum scheduler, which removes the requirement to setup a cron job as advised above.
+Read more information about this [here](https://discuss.flarum.org/d/24118)
 
-## Commissioned
-
-The initial version of this extension was sponsored by [profesionalreview.com](https://www.profesionalreview.com/).
+The frequency setting for the scheduler can be customized via the extension settings page.
 
 ## Installation
+
+This extension requires PHP 8.0 or greater.
 
 Install manually with composer:
 
@@ -100,6 +69,42 @@ location = /sitemap.xml {
 ```
 
 This rule makes sure that Flarum will answer the request for `/sitemap.xml` when no file exists with that name.
+
+## Extending
+
+### Register a new Resource
+
+In order to register your own resource, create a class that implements `FoF\Sitemap\Resources\Resource`. Make sure
+to implement all abstract methods, check other implementations for examples. After this, register your
+
+```php
+return [
+    new \FoF\Sitemap\Extend\RegisterResource(YourResource::class),
+];
+```
+That's it.
+
+### Remove a Resource
+
+In a very similar way, you can also remove resources from the sitemap:
+```php
+return [
+    (new \FoF\Sitemap\Extend\RemoveResource(\FoF\Sitemap\Resources\Tag::class)),
+];
+```
+
+### Force cache mode
+
+If you wish to force the use of cache mode, for example in complex hosted environments, this can be done by calling the extender:
+```php
+return [
+    (new \FoF\Sitemap\Extend\ForceCached()),
+]
+```
+
+## Commissioned
+
+The initial version of this extension was sponsored by [profesionalreview.com](https://www.profesionalreview.com/).
 
 ## Links
 
