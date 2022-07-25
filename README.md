@@ -33,6 +33,16 @@ php flarum fof:sitemap:build
 
 _Best for larger forums, starting at 10.000 items._
 
+### Risky Performance Improvements
+
+_This setting is meant for large enterprise customers._
+
+The optional "Enable risky performance improvements" option modifies the discussion and user SQL queries to limit the number of columns returned.
+By removing those columns, it significantly reduces the size of the database response but might break custom visibility scopes or slug drivers added by extensions.
+
+This setting only brings noticeable improvements if you have millions of discussions or users.
+We recommend not enabling it unless the CRON job takes more than an hour to run or that the SQL connection gets saturated by the amount of data.
+
 ## Scheduling
 
 Consider setting up the Flarum scheduler, which removes the requirement to setup a cron job as advised above.
