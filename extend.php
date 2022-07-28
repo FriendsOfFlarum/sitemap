@@ -22,7 +22,8 @@ return [
         ->js(__DIR__.'/js/dist/admin.js'),
 
     (new Extend\Routes('forum'))
-        ->get('/sitemap-live/{id}', 'fof-sitemap-live', Controllers\MemoryController::class)
+        // It seems like some search engines add xml to the end of our extension-less URLs. So we'll allow it as well
+        ->get('/sitemap-live/{id:\d+|index}[.xml]', 'fof-sitemap-live', Controllers\MemoryController::class)
         ->get('/sitemap.xml', 'fof-sitemap-index', Controllers\SitemapController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
