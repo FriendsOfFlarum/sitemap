@@ -19,7 +19,7 @@ use Illuminate\Support\Collection;
 class StaticUrls extends Resource
 {
     public static array $routes = [
-        'index'
+        'index',
     ];
 
     public static function addRoute(string $routeName)

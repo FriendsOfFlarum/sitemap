@@ -19,18 +19,18 @@ use Illuminate\Contracts\Container\Container;
 
 class RegisterStaticUrl implements ExtenderInterface
 {
-	/**
-	 * Add a static url to the sitemap. Specify the route name.
-	 *
-	 * @param string $routeName
-	 */
-	public function __construct(
-		private string $routeName
-	) {
-	}
+    /**
+     * Add a static url to the sitemap. Specify the route name.
+     *
+     * @param string $routeName
+     */
+    public function __construct(
+        private string $routeName
+    ) {
+    }
 
-	public function extend(Container $container, Extension $extension = null)
-	{
-		StaticUrls::addRoute($this->routeName);
-	}
+    public function extend(Container $container, Extension $extension = null)
+    {
+        StaticUrls::addRoute($this->routeName);
+    }
 }

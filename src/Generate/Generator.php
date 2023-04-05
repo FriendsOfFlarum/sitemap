@@ -19,7 +19,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
 use FoF\Sitemap\Deploy\StoredSet;
 use FoF\Sitemap\Exceptions\SetLimitReachedException;
-use FoF\Sitemap\Resources\Resource;
+use FoF\Sitemap\Resources\Resource as AbstractResource;
 use FoF\Sitemap\Sitemap\Sitemap;
 use FoF\Sitemap\Sitemap\Url;
 use FoF\Sitemap\Sitemap\UrlSet;
@@ -69,7 +69,7 @@ class Generator
         $i = 0;
 
         foreach ($this->resources as $res) {
-            /** @var Resource $resource */
+            /** @var AbstractResource $resource */
             $resource = resolve($res);
 
             if (!$resource->enabled()) {
