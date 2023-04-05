@@ -19,6 +19,7 @@ use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 abstract class Resource
 {
@@ -50,7 +51,7 @@ abstract class Resource
 
     abstract public function url($model): string;
 
-    abstract public function query(): Builder;
+    abstract public function query(): Builder|Collection;
 
     abstract public function priority(): float;
 
