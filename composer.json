@@ -66,5 +66,9 @@
         "psr-4": {
             "FoF\\Sitemap\\": "src/"
         }
+    },
+    "require-dev": {
+        "flarum/tags": "*",
+        "fof/pages": "*"
     }
 }
