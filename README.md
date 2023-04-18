@@ -103,6 +103,17 @@ return [
 ];
 ```
 
+### Register a static URL
+
+Some pages of your forum might not be covered by the default resources. To add those urls to the sitemap there is a
+pseudo resource called `StaticUrls`. You can use the `RegisterStaticUrl` extender to add your own urls. The extender
+takes a route name as parameter, which will be resolved to a url using the `Flarum\Http\UrlGenerator` class.
+```php
+return [
+    (new \FoF\Sitemap\Extend\RegisterStaticUrl('reviews.index')),
+];
+```
+
 ### Force cache mode
 
 If you wish to force the use of cache mode, for example in complex hosted environments, this can be done by calling the extender:
