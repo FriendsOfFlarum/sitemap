@@ -22,6 +22,7 @@ use FoF\Sitemap\Generate\Generator;
 use FoF\Sitemap\Resources\Discussion;
 use FoF\Sitemap\Resources\Page;
 use FoF\Sitemap\Resources\Resource;
+use FoF\Sitemap\Resources\StaticUrls;
 use FoF\Sitemap\Resources\Tag;
 use FoF\Sitemap\Resources\User;
 use Illuminate\Contracts\Container\Container;
@@ -32,6 +33,7 @@ class Provider extends AbstractServiceProvider
     {
         $this->container->singleton('fof-sitemaps.resources', function () {
             return [
+                StaticUrls::class,
                 Discussion::class,
                 Page::class,
                 Tag::class,
