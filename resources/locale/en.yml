@@ -23,3 +23,14 @@ fof-sitemap:
                 hourly: Hourly
                 twice_daily: Twice daily
                 daily: Daily
+            soft_404:
+                heading: Soft 404 prevention
+                help: When a model has no or little relevant content, Google and other crawlers may flag these as "soft 404" pages. To eliminate this, set a minimum number of items required for each qualifying item here.
+                user:
+                    comments:
+                        minimum_item_threshold_label: "User: Minimum number of comments/posts"
+                        minimum_item_threshold_help: The minimum number of comments/posts a user must have for their profile to be included in the sitemap.
+                tags:
+                    discussion:
+                        minimum_item_threshold_label: "Tag: Minimum number of discussions"
+                        minimum_item_threshold_help: The minimum number of discussions a tag must have for it to be included in the sitemap.

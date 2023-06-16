@@ -21,7 +21,8 @@ class Tag extends Resource
 {
     public function query(): Builder
     {
-        return Model::whereVisibleTo(new Guest());
+        return Model::whereVisibleTo(new Guest())
+            ->where('discussion_count', '>', static::$settings->get('fof-sitemap.model.tags.discussion.minimum_item_threshold'));
     }
 
     public function url($model): string
@@ -33,7 +34,7 @@ class Tag extends Resource
 
     public function priority(): float
     {
-        return 0.9;
+        return 0.5;
     }
 
     public function frequency(): string

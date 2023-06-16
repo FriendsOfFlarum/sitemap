@@ -49,7 +49,7 @@ class Discussion extends Resource
 
     public function priority(): float
     {
-        return 0.7;
+        return 0.9;
     }
 
     public function frequency(): string

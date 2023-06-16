@@ -48,7 +48,7 @@ class StaticUrls extends Resource
 
     public function priority(): float
     {
-        return 0.5;
+        return 0.3;
     }
 
     public function frequency(): string
