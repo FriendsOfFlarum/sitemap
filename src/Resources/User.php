@@ -21,7 +21,8 @@ class User extends Resource
 {
     public function query(): Builder
     {
-        $query = Model::whereVisibleTo(new Guest());
+        $query = Model::whereVisibleTo(new Guest())
+            ->where('comment_count', '>', static::$settings->get('fof-sitemap.model.user.comments.minimum_item_threshold'));
 
         if (static::$settings->get('fof-sitemap.riskyPerformanceImprovements')) {
             // This is a risky statement for the same reasons as the Discussion resource

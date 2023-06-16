@@ -26,6 +26,31 @@ export default class SitemapSettingsPage extends ExtensionPage {
               })
             : null}
 
+          <div className="Form-group">
+            <h3>{app.translator.trans('fof-sitemap.admin.settings.soft_404.heading')}</h3>
+            <p className="helpText">{app.translator.trans('fof-sitemap.admin.settings.soft_404.help')}</p>
+            {app.forum.attribute('fof-sitemap.usersIndexAvailable')
+              ? this.buildSettingComponent({
+                  type: 'number',
+                  setting: 'fof-sitemap.model.user.comments.minimum_item_threshold',
+                  label: app.translator.trans('fof-sitemap.admin.settings.soft_404.user.comments.minimum_item_threshold_label'),
+                  help: app.translator.trans('fof-sitemap.admin.settings.soft_404.user.comments.minimum_item_threshold_help'),
+                  min: 0,
+                  required: true,
+                })
+              : null}
+            {app.initializers.has('flarum-tags')
+              ? this.buildSettingComponent({
+                  type: 'number',
+                  setting: 'fof-sitemap.model.tags.discussion.minimum_item_threshold',
+                  label: app.translator.trans('fof-sitemap.admin.settings.soft_404.tags.discussion.minimum_item_threshold_label'),
+                  help: app.translator.trans('fof-sitemap.admin.settings.soft_404.tags.discussion.minimum_item_threshold_help'),
+                  min: 0,
+                  required: true,
+                })
+              : null}
+          </div>
+
           {this.modeChoice()}
 
           <hr />

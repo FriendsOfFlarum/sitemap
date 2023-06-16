@@ -53,7 +53,9 @@ return [
     (new Extend\Settings())
         ->default('fof-sitemap.mode', 'run')
         ->default('fof-sitemap.frequency', 'daily')
-        ->default('fof-sitemap.excludeUsers', false),
+        ->default('fof-sitemap.excludeUsers', false)
+        ->default('fof-sitemap.model.user.comments.minimum_item_threshold', 5)
+        ->default('fof-sitemap.model.tags.discussion.minimum_item_threshold', 5),
 
     (new Extend\Event())
         ->subscribe(Listeners\SettingsListener::class),
