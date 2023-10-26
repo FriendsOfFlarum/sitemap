@@ -59,4 +59,7 @@ return [
 
     (new Extend\Event())
         ->subscribe(Listeners\SettingsListener::class),
+
+    (new Extend\Frontend('forum'))
+        ->content(Listeners\NoIndexListener::class),
 ];

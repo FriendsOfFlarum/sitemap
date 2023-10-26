@@ -24,6 +24,12 @@ class Discussion extends Resource
     {
         $query = Model::whereVisibleTo(new Guest());
 
+        if(static::$extensionManager->isEnabled('flarum-tags')){
+            $query->whereDoesntHave('tags', function($query){
+                $query->whereIn('id', [38, 33, 35, 36]); // Add tags here so their discussions aren't included in sitemap
+            });
+        }
+
         if (static::$settings->get('fof-sitemap.riskyPerformanceImprovements')) {
             // Limiting the number of columns to fetch improves query time
             // This is a risky optimization because of 2 reasons:
