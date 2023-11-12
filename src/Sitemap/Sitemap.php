@@ -19,7 +19,7 @@ class Sitemap
 {
     public function __construct(
         public array $sets,
-        Carbon $lastModified
+        public Carbon $lastModified
     ) {
     }
 
