@@ -1,12 +1,13 @@
 import app from 'flarum/admin/app';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import type Mithril from 'mithril';
 
 export default class SitemapSettingsPage extends ExtensionPage {
-  oninit(vnode) {
+  oninit(vnode: Mithril.Vnode) {
     super.oninit(vnode);
   }
 
-  content(vnode) {
+  content() {
     const currentMode = this.setting('fof-sitemap.mode')();
 
     // Change setting value client-side so the Select reflects which option is effectively used
@@ -14,7 +15,7 @@ export default class SitemapSettingsPage extends ExtensionPage {
       this.setting('fof-sitemap.mode')('multi-file');
     }
 
-    return [
+    return (
       <div className="ExtensionPage-settings FoFSitemapSettingsPage">
         <div className="container">
           {app.forum.attribute('fof-sitemap.usersIndexAvailable')
@@ -75,10 +76,10 @@ export default class SitemapSettingsPage extends ExtensionPage {
             help: app.translator.trans('fof-sitemap.admin.settings.risky_performance_improvements_help'),
           })}
 
-          {this.submitButton(vnode)}
+          {this.submitButton()}
         </div>
-      </div>,
-    ];
+      </div>
+    );
   }
 
   modeChoice() {
