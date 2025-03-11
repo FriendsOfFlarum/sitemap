@@ -12,6 +12,7 @@
 
 namespace FoF\Sitemap\Controllers;
 
+use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Uri;
@@ -22,7 +23,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 class SitemapController implements RequestHandlerInterface
 {
     public function __construct(
-        protected DeployInterface $deploy
+        protected DeployInterface $deploy,
+        protected SettingsRepositoryInterface $settings
     ) {
     }
 
@@ -31,7 +33,10 @@ class SitemapController implements RequestHandlerInterface
         $index = $this->deploy->getIndex();
 
         if ($index instanceof Uri) {
-            return new Response\RedirectResponse($index);
+            // We fetch the contents of the file here, as we must return a non-redirect reposnse.
+            // This is required as when Flarum is configured to use S3 or other CDN, the actual file
+            // lives off of the Flarum domain, and this index must be hosted under the Flarum domain.
+            $index = $this->fetchContentsFromUri($index);
         }
 
         if (is_string($index)) {
@@ -39,5 +44,12 @@ class SitemapController implements RequestHandlerInterface
         }
 
         return new Response\EmptyResponse(404);
+    }
+
+    protected function fetchContentsFromUri(Uri $uri): string
+    {
+        $client = new \GuzzleHttp\Client();
+
+        return $client->get($uri)->getBody()->getContents();
     }
 }

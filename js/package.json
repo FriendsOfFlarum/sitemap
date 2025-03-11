@@ -2,13 +2,6 @@
     "private": true,
     "name": "@fof/sitemap",
     "prettier": "@flarum/prettier-config",
-    "dependencies": {
-        "@flarum/prettier-config": "^1.0.0",
-        "flarum-tsconfig": "^1.0.2",
-        "flarum-webpack-config": "^2.0.0",
-        "webpack": "^5.94.0",
-        "webpack-cli": "^5.1.4"
-    },
     "scripts": {
         "dev": "webpack --mode development --watch",
         "build": "webpack --mode production",
@@ -16,6 +9,11 @@
         "format-check": "prettier --check src"
     },
     "devDependencies": {
-        "prettier": "^3.0.3"
+        "@flarum/prettier-config": "^1.0.0",
+        "flarum-tsconfig": "^1.0.2",
+        "flarum-webpack-config": "^2.0.0",
+        "prettier": "^3.0.3",
+        "webpack": "^5.94.0",
+        "webpack-cli": "^5.1.4"
     }
 }
