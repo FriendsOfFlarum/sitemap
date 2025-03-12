@@ -14,6 +14,7 @@ namespace FoF\Sitemap\Controllers;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
+use GuzzleHttp\Client;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
@@ -24,7 +25,8 @@ class SitemapController implements RequestHandlerInterface
 {
     public function __construct(
         protected DeployInterface $deploy,
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected Client $client
     ) {
     }
 
@@ -48,8 +50,6 @@ class SitemapController implements RequestHandlerInterface
 
     protected function fetchContentsFromUri(Uri $uri): string
     {
-        $client = new \GuzzleHttp\Client();
-
-        return $client->get($uri)->getBody()->getContents();
+        return $this->client->get($uri)->getBody()->getContents();
     }
 }
