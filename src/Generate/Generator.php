@@ -92,8 +92,8 @@ class Generator
                     $url = new Url(
                         $resource->url($item),
                         $resource->lastModifiedAt($item),
-                        $resource->frequency(),
-                        $resource->priority()
+                        $resource->dynamicFrequency($item) ?? $resource->frequency(),
+                        $resource->dynamicPriority($item) ?? $resource->priority()
                     );
 
                     try {

@@ -42,9 +42,11 @@ class UrlSet
     {
         /** @var Factory $view */
         $view = resolve(Factory::class);
-
+        
         return $view->make('fof-sitemap::urlset')
-            ->with('set', $this)
+            ->with([
+                'set' => $this,
+            ])
             ->render();
     }
 }

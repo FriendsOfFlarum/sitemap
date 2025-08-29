@@ -111,6 +111,47 @@ return [
     new \FoF\Sitemap\Extend\RegisterResource(YourResource::class),
 ];
 ```
+
+#### Dynamic Priority and Frequency (Optional)
+
+Your custom resource can optionally implement dynamic priority and frequency values based on the actual model data:
+
+```php
+class YourResource extends Resource
+{
+    // Required abstract methods...
+    
+    /**
+     * Optional: Dynamic frequency based on model activity
+     */
+    public function dynamicFrequency($model): ?string
+    {
+        $lastActivity = $model->updated_at ?? $model->created_at;
+        $daysSinceActivity = $lastActivity->diffInDays(now());
+        
+        if ($daysSinceActivity < 1) return Frequency::HOURLY;
+        if ($daysSinceActivity < 7) return Frequency::DAILY;
+        if ($daysSinceActivity < 30) return Frequency::WEEKLY;
+        return Frequency::MONTHLY;
+    }
+    
+    /**
+     * Optional: Dynamic priority based on model importance
+     */
+    public function dynamicPriority($model): ?float
+    {
+        // Example: Higher priority for more popular content
+        $popularity = $model->view_count ?? 0;
+        
+        if ($popularity > 1000) return 1.0;
+        if ($popularity > 100) return 0.8;
+        return 0.5;
+    }
+}
+```
+
+If these methods return `null` or are not implemented, the static `frequency()` and `priority()` methods will be used instead. This ensures full backward compatibility with existing extensions.
+
 That's it.
 
 ### Remove a Resource
@@ -141,6 +182,27 @@ return [
     (new \FoF\Sitemap\Extend\ForceCached()),
 ]
 ```
+
+## Optional Sitemap Elements
+
+The extension allows you to control whether `<priority>` and `<changefreq>` elements are included in your sitemap:
+
+### Admin Settings
+
+- **Include priority values**: Priority values are ignored by Google but may be used by other search engines like Bing and Yandex
+- **Include change frequency values**: Change frequency values are ignored by Google but may be used by other search engines for crawl scheduling
+
+Both settings are enabled by default for backward compatibility.
+
+### Dynamic Values
+
+When enabled, the extension uses intelligent frequency calculation based on actual content activity:
+
+- **Discussions**: Frequency based on last post date (hourly for active discussions, monthly for older ones)
+- **Users**: Frequency based on last seen date (weekly for active users, yearly for inactive ones)
+- **Static content**: Uses predefined frequency values
+
+This provides more meaningful information to search engines compared to static values.
 
 ## Troubleshooting
 

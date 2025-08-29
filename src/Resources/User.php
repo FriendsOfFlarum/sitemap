@@ -12,6 +12,7 @@
 
 namespace FoF\Sitemap\Resources;
 
+use Carbon\Carbon;
 use Flarum\User\Guest;
 use Flarum\User\User as Model;
 use FoF\Sitemap\Sitemap\Frequency;
@@ -29,6 +30,8 @@ class User extends Resource
             $query->select([
                 'id',
                 'username',
+                'last_seen_at',
+                'joined_at',
             ]);
         }
 
@@ -55,5 +58,15 @@ class User extends Resource
     public function enabled(): bool
     {
         return !static::$settings->get('fof-sitemap.excludeUsers');
+    }
+
+    public function dynamicFrequency($model): string
+    {
+        $lastSeen = $model->last_seen_at ?? $model->joined_at;
+        $daysSinceActivity = $lastSeen->diffInDays(Carbon::now());
+        
+        if ($daysSinceActivity < 7) return Frequency::WEEKLY;
+        if ($daysSinceActivity < 30) return Frequency::MONTHLY;
+        return Frequency::YEARLY;
     }
 }
