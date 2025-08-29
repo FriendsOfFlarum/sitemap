@@ -64,9 +64,14 @@ class User extends Resource
     {
         $lastSeen = $model->last_seen_at ?? $model->joined_at;
         $daysSinceActivity = $lastSeen->diffInDays(Carbon::now());
-        
-        if ($daysSinceActivity < 7) return Frequency::WEEKLY;
-        if ($daysSinceActivity < 30) return Frequency::MONTHLY;
+
+        if ($daysSinceActivity < 7) {
+            return Frequency::WEEKLY;
+        }
+        if ($daysSinceActivity < 30) {
+            return Frequency::MONTHLY;
+        }
+
         return Frequency::YEARLY;
     }
 }

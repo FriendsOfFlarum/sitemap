@@ -66,10 +66,17 @@ class Discussion extends Resource
     {
         $lastActivity = $this->lastModifiedAt($model);
         $daysSinceActivity = $lastActivity->diffInDays(Carbon::now());
-        
-        if ($daysSinceActivity < 1) return Frequency::HOURLY;
-        if ($daysSinceActivity < 7) return Frequency::DAILY;
-        if ($daysSinceActivity < 30) return Frequency::WEEKLY;
+
+        if ($daysSinceActivity < 1) {
+            return Frequency::HOURLY;
+        }
+        if ($daysSinceActivity < 7) {
+            return Frequency::DAILY;
+        }
+        if ($daysSinceActivity < 30) {
+            return Frequency::WEEKLY;
+        }
+
         return Frequency::MONTHLY;
     }
 }
