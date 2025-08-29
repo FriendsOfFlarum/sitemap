@@ -76,4 +76,20 @@ abstract class Resource
     {
         return true;
     }
+
+    /**
+     * Dynamic frequency based on model data (optional override).
+     */
+    public function dynamicFrequency($model): ?string
+    {
+        return null; // Default: use static frequency()
+    }
+
+    /**
+     * Dynamic priority based on model data (optional override).
+     */
+    public function dynamicPriority($model): ?float
+    {
+        return null; // Default: use static priority()
+    }
 }
