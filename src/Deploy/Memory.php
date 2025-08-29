@@ -14,7 +14,6 @@ namespace FoF\Sitemap\Deploy;
 
 use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
-use Laminas\Diactoros\Uri;
 
 class Memory implements DeployInterface
 {
@@ -61,7 +60,7 @@ class Memory implements DeployInterface
     {
         $logger = resolve('log');
         $logger->debug('[FoF Sitemap] Memory: Serving index from in-memory cache');
-        
+
         return $this->getSet('index');
     }
 }

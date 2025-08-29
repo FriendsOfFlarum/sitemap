@@ -50,14 +50,16 @@ class ProxyDisk implements DeployInterface
     public function getIndex(): ?string
     {
         $logger = resolve('log');
-        
+
         if (!$this->indexStorage->exists('sitemap.xml')) {
             $logger->debug('[FoF Sitemap] ProxyDisk: Index not found in remote storage, triggering build job');
             resolve('flarum.queue.connection')->push(new TriggerBuildJob());
+
             return null;
         }
 
         $logger->debug('[FoF Sitemap] ProxyDisk: Serving index from remote storage');
+
         return $this->indexStorage->get('sitemap.xml');
     }
 
@@ -65,13 +67,15 @@ class ProxyDisk implements DeployInterface
     {
         $logger = resolve('log');
         $path = "sitemap-$setIndex.xml";
-        
+
         if (!$this->sitemapStorage->exists($path)) {
             $logger->debug("[FoF Sitemap] ProxyDisk: Set $setIndex not found in remote storage");
+
             return null;
         }
 
         $logger->debug("[FoF Sitemap] ProxyDisk: Serving set $setIndex from remote storage");
+
         return $this->sitemapStorage->get($path);
     }
 }

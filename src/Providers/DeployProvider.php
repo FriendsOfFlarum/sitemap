@@ -67,11 +67,11 @@ class DeployProvider extends AbstractServiceProvider
         /** @var Config $config */
         $config = $container->make(Config::class);
         $baseUrl = parse_url($config->url(), PHP_URL_HOST);
-        
+
         // Get a sample URL from the storage disk
         $storageUrl = $disk->url('test.xml');
         $storageHost = parse_url($storageUrl, PHP_URL_HOST);
-        
+
         // If hosts don't match, we need to proxy
         return $baseUrl !== $storageHost;
     }

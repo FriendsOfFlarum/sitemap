@@ -47,14 +47,16 @@ class Disk implements DeployInterface
     public function getIndex(): ?string
     {
         $logger = resolve('log');
-        
+
         if (!$this->indexStorage->exists('sitemap.xml')) {
             $logger->debug('[FoF Sitemap] Disk: Index not found, triggering build job');
             resolve('flarum.queue.connection')->push(new TriggerBuildJob());
+
             return null;
         }
 
         $logger->debug('[FoF Sitemap] Disk: Serving index from local storage');
+
         return $this->indexStorage->get('sitemap.xml');
     }
 
@@ -62,13 +64,15 @@ class Disk implements DeployInterface
     {
         $logger = resolve('log');
         $path = "sitemap-$setIndex.xml";
-        
+
         if (!$this->sitemapStorage->exists($path)) {
             $logger->debug("[FoF Sitemap] Disk: Set $setIndex not found in local storage");
+
             return null;
         }
 
         $logger->debug("[FoF Sitemap] Disk: Serving set $setIndex from local storage");
+
         return $this->sitemapStorage->get($path);
     }
 }
