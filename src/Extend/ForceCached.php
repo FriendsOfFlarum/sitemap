@@ -22,7 +22,7 @@ use Illuminate\Contracts\Container\Container;
  */
 class ForceCached implements ExtenderInterface
 {
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->instance('fof-sitemaps.forceCached', true);
     }

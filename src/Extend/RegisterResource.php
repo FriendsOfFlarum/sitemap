@@ -31,7 +31,7 @@ class RegisterResource implements ExtenderInterface
     ) {
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->extend('fof-sitemaps.resources', function (array $resources) {
             $this->validateResource();

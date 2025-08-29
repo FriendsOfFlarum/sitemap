@@ -24,4 +24,6 @@ interface DeployInterface
      * @return string|Uri|null
      */
     public function getIndex(): mixed;
+
+    public function getSet($setIndex): ?string;
 }

@@ -29,7 +29,7 @@ class RemoveResource implements ExtenderInterface
     ) {
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         $container->extend('fof-sitemaps.resources', function (array $resources) {
             return array_filter($resources, function ($res) {
