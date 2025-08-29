@@ -16,6 +16,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
 use FoF\Sitemap\Deploy\Memory;
 use FoF\Sitemap\Generate\Generator;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -36,7 +37,8 @@ class SitemapController implements RequestHandlerInterface
     {
         // Get route parameters from the request attributes
         $routeParams = $request->getAttribute('routeParameters', []);
-        $id = $routeParams['id'] ?? null;
+        /** @var string|null $id */
+        $id = Arr::get($routeParams, 'id');
 
         $this->logger->debug('[FoF Sitemap] Route parameters: '.json_encode($routeParams));
         $this->logger->debug('[FoF Sitemap] Extracted ID: '.($id ?? 'null'));
@@ -71,6 +73,6 @@ class SitemapController implements RequestHandlerInterface
 
         $this->logger->debug('[FoF Sitemap] No sitemap content found, returning 404');
 
-        return new Response\EmptyResponse(404);
+        return new Response\XmlResponse('', 404);
     }
 }
