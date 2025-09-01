@@ -269,7 +269,9 @@ class SitemapTagsTest extends TestCase
             $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
             $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
 
-            if ($sitemapResponse->getStatusCode() !== 200) continue;
+            if ($sitemapResponse->getStatusCode() !== 200) {
+                continue;
+            }
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
             $urls = $this->getUrlsFromSitemap($sitemapBody);
