@@ -226,4 +226,225 @@ class BasicTest extends TestCase
 
         $this->assertFalse($foundUserUrl, 'Should not include user URLs when threshold is too high');
     }
+
+    /**
+     * @test
+     */
+    public function sitemap_includes_priority_and_changefreq_by_default()
+    {
+        // Default settings should include priority and changefreq
+        $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
+        $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
+        
+        $foundPriority = false;
+        $foundChangefreq = false;
+        
+        foreach ($sitemapUrls as $sitemapUrl) {
+            $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
+            $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
+            
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
+            
+            $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $urls = $this->getUrlsFromSitemap($sitemapBody);
+            
+            if (count($urls) > 0) {
+                $this->assertValidSitemapXml($sitemapBody);
+                
+                // Check if priority and changefreq elements exist
+                $xpath = $this->parseXmlWithNamespace($sitemapBody);
+                $priorities = $xpath->query('//sm:url/sm:priority');
+                $changefreqs = $xpath->query('//sm:url/sm:changefreq');
+                
+                if ($priorities->length > 0) {
+                    $foundPriority = true;
+                }
+                if ($changefreqs->length > 0) {
+                    $foundChangefreq = true;
+                }
+                
+                // Break early if we found both
+                if ($foundPriority && $foundChangefreq) {
+                    break;
+                }
+            }
+        }
+        
+        $this->assertTrue($foundPriority, 'Should include priority elements by default');
+        $this->assertTrue($foundChangefreq, 'Should include changefreq elements by default');
+    }
+
+    /**
+     * @test
+     */
+    public function sitemap_excludes_priority_when_disabled()
+    {
+        // Disable priority inclusion
+        $this->setting('fof-sitemap.include_priority', false);
+        
+        $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
+        $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
+        
+        $foundPriority = false;
+        $foundChangefreq = false;
+        
+        foreach ($sitemapUrls as $sitemapUrl) {
+            $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
+            $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
+            
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
+            
+            $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $urls = $this->getUrlsFromSitemap($sitemapBody);
+            
+            if (count($urls) > 0) {
+                $this->assertValidSitemapXml($sitemapBody);
+                
+                // Check if priority and changefreq elements exist
+                $xpath = $this->parseXmlWithNamespace($sitemapBody);
+                $priorities = $xpath->query('//sm:url/sm:priority');
+                $changefreqs = $xpath->query('//sm:url/sm:changefreq');
+                
+                if ($priorities->length > 0) {
+                    $foundPriority = true;
+                }
+                if ($changefreqs->length > 0) {
+                    $foundChangefreq = true;
+                }
+            }
+        }
+        
+        $this->assertFalse($foundPriority, 'Should not include priority elements when disabled');
+        $this->assertTrue($foundChangefreq, 'Should still include changefreq elements when only priority is disabled');
+    }
+
+    /**
+     * @test
+     */
+    public function sitemap_excludes_changefreq_when_disabled()
+    {
+        // Disable changefreq inclusion
+        $this->setting('fof-sitemap.include_changefreq', false);
+        
+        $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
+        $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
+        
+        $foundPriority = false;
+        $foundChangefreq = false;
+        
+        foreach ($sitemapUrls as $sitemapUrl) {
+            $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
+            $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
+            
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
+            
+            $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $urls = $this->getUrlsFromSitemap($sitemapBody);
+            
+            if (count($urls) > 0) {
+                $this->assertValidSitemapXml($sitemapBody);
+                
+                // Check if priority and changefreq elements exist
+                $xpath = $this->parseXmlWithNamespace($sitemapBody);
+                $priorities = $xpath->query('//sm:url/sm:priority');
+                $changefreqs = $xpath->query('//sm:url/sm:changefreq');
+                
+                if ($priorities->length > 0) {
+                    $foundPriority = true;
+                }
+                if ($changefreqs->length > 0) {
+                    $foundChangefreq = true;
+                }
+            }
+        }
+        
+        $this->assertTrue($foundPriority, 'Should still include priority elements when only changefreq is disabled');
+        $this->assertFalse($foundChangefreq, 'Should not include changefreq elements when disabled');
+    }
+
+    /**
+     * @test
+     */
+    public function sitemap_excludes_both_priority_and_changefreq_when_disabled()
+    {
+        // Disable both priority and changefreq inclusion
+        $this->setting('fof-sitemap.include_priority', false);
+        $this->setting('fof-sitemap.include_changefreq', false);
+        
+        $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
+        $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
+        
+        $foundPriority = false;
+        $foundChangefreq = false;
+        
+        foreach ($sitemapUrls as $sitemapUrl) {
+            $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
+            $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
+            
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
+            
+            $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $urls = $this->getUrlsFromSitemap($sitemapBody);
+            
+            if (count($urls) > 0) {
+                $this->assertValidSitemapXml($sitemapBody);
+                
+                // Check if priority and changefreq elements exist
+                $xpath = $this->parseXmlWithNamespace($sitemapBody);
+                $priorities = $xpath->query('//sm:url/sm:priority');
+                $changefreqs = $xpath->query('//sm:url/sm:changefreq');
+                
+                if ($priorities->length > 0) {
+                    $foundPriority = true;
+                }
+                if ($changefreqs->length > 0) {
+                    $foundChangefreq = true;
+                }
+            }
+        }
+        
+        $this->assertFalse($foundPriority, 'Should not include priority elements when disabled');
+        $this->assertFalse($foundChangefreq, 'Should not include changefreq elements when disabled');
+    }
+
+    /**
+     * @test
+     */
+    public function sitemap_excludes_all_users_when_setting_enabled()
+    {
+        // Enable user exclusion
+        $this->setting('fof-sitemap.excludeUsers', true);
+        
+        $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
+        $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
+        
+        $foundUserUrl = false;
+        $foundDiscussionUrl = false;
+        
+        foreach ($sitemapUrls as $sitemapUrl) {
+            $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
+            $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
+            
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
+            
+            $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $urls = $this->getUrlsFromSitemap($sitemapBody);
+            
+            if (count($urls) > 0) {
+                $this->assertValidSitemapXml($sitemapBody);
+                
+                foreach ($urls as $url) {
+                    if (preg_match('/\/u\/\w+/', $url)) {
+                        $foundUserUrl = true;
+                    }
+                    if (preg_match('/\/d\/\d+/', $url)) {
+                        $foundDiscussionUrl = true;
+                    }
+                }
+            }
+        }
+        
+        $this->assertFalse($foundUserUrl, 'Should not include any user URLs when users are excluded');
+        $this->assertTrue($foundDiscussionUrl, 'Should still include discussion URLs when only users are excluded');
+    }
 }
