@@ -31,7 +31,7 @@ class StaticUrls extends Resource
     {
         if (
             // If the tags extension is enabled...
-            static::$extensionManager->isEnabled('flarum-tags')
+            static::$extensionManager->isEnabled('flarum-tags') && !static::$settings->get('fof-sitemap.excludeTags')
             // ...and route is not already added
             && !in_array('tags', static::$routes)
         ) {

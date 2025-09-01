@@ -250,4 +250,47 @@ class SitemapTagsTest extends TestCase
 
         $this->assertTrue($foundTagSitemap, 'Should find at least one sitemap containing tag URLs');
     }
+
+    /**
+     * @test
+     */
+    public function sitemap_excludes_tags_route_from_static_urls_when_tags_excluded()
+    {
+        // Enable tag exclusion
+        $this->setting('fof-sitemap.excludeTags', true);
+
+        $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
+        $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
+
+        $foundTagsRoute = false;
+        $foundAllRoute = false;
+
+        foreach ($sitemapUrls as $sitemapUrl) {
+            $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
+            $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
+
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
+
+            $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $urls = $this->getUrlsFromSitemap($sitemapBody);
+
+            if (count($urls) > 0) {
+                $this->assertValidSitemapXml($sitemapBody);
+
+                foreach ($urls as $url) {
+                    // Check for /tags route in static URLs
+                    if (preg_match('/\/tags$/', $url)) {
+                        $foundTagsRoute = true;
+                    }
+                    // Check for /all route (should still be present)
+                    if (preg_match('/\/all$/', $url)) {
+                        $foundAllRoute = true;
+                    }
+                }
+            }
+        }
+
+        $this->assertFalse($foundTagsRoute, 'Should not include /tags route when tags are excluded');
+        $this->assertTrue($foundAllRoute, 'Should still include /all route when only tags are excluded');
+    }
 }
