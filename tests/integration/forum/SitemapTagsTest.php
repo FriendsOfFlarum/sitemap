@@ -155,43 +155,43 @@ class SitemapTagsTest extends TestCase
     // /**
     //  * @test
     //  */
-    // public function sitemap_excludes_all_tags_when_setting_enabled()
-    // {
-    //     // Enable tag exclusion (setting doesn't exist yet)
-    //     $this->setting('fof-sitemap.excludeTags', true);
+    public function sitemap_excludes_all_tags_when_setting_enabled()
+    {
+        // Enable tag exclusion (setting doesn't exist yet)
+        $this->setting('fof-sitemap.excludeTags', true);
 
-    //     $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
-    //     $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
+        $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
+        $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
 
-    //     $foundTagUrl = false;
-    //     $foundDiscussionUrl = false;
+        $foundTagUrl = false;
+        $foundDiscussionUrl = false;
 
-    //     foreach ($sitemapUrls as $sitemapUrl) {
-    //         $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
-    //         $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
+        foreach ($sitemapUrls as $sitemapUrl) {
+            $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
+            $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
 
-    //         if ($sitemapResponse->getStatusCode() !== 200) continue;
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
 
-    //         $sitemapBody = $sitemapResponse->getBody()->getContents();
-    //         $urls = $this->getUrlsFromSitemap($sitemapBody);
+            $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $urls = $this->getUrlsFromSitemap($sitemapBody);
 
-    //         if (count($urls) > 0) {
-    //             $this->assertValidSitemapXml($sitemapBody);
+            if (count($urls) > 0) {
+                $this->assertValidSitemapXml($sitemapBody);
 
-    //             foreach ($urls as $url) {
-    //                 if (preg_match('/\/t\/\w+/', $url)) {
-    //                     $foundTagUrl = true;
-    //                 }
-    //                 if (preg_match('/\/d\/\d+/', $url)) {
-    //                     $foundDiscussionUrl = true;
-    //                 }
-    //             }
-    //         }
-    //     }
+                foreach ($urls as $url) {
+                    if (preg_match('/\/t\/\w+/', $url)) {
+                        $foundTagUrl = true;
+                    }
+                    if (preg_match('/\/d\/\d+/', $url)) {
+                        $foundDiscussionUrl = true;
+                    }
+                }
+            }
+        }
 
-    //     $this->assertFalse($foundTagUrl, 'Should not include any tag URLs when tags are excluded');
-    //     $this->assertTrue($foundDiscussionUrl, 'Should still include discussion URLs when only tags are excluded');
-    // }
+        $this->assertFalse($foundTagUrl, 'Should not include any tag URLs when tags are excluded');
+        $this->assertTrue($foundDiscussionUrl, 'Should still include discussion URLs when only tags are excluded');
+    }
 
     /**
      * @test

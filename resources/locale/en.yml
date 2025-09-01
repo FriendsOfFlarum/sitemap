@@ -3,6 +3,8 @@ fof-sitemap:
         settings:
             exclude_users: Exclude all user profiles from sitemap
             exclude_users_help: By default any user visible to guests will be indexed
+            exclude_tags: Exclude all tag pages from sitemap
+            exclude_tags_help: By default any tag visible to guests will be indexed
             mode_label: Operation mode
             mode_help: Selecting the correct mode for your size of forum is vitally important.
             mode_help_runtime_label: Runtime Mode
