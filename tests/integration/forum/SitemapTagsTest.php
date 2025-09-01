@@ -76,21 +76,17 @@ class SitemapTagsTest extends TestCase
             if ($sitemapResponse->getStatusCode() !== 200) continue;
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $this->assertValidSitemapXml($sitemapBody);
+
             $urls = $this->getUrlsFromSitemap($sitemapBody);
-            
-            
-            if (count($urls) > 0) {
-                $this->assertValidSitemapXml($sitemapBody);
-                
-                foreach ($urls as $url) {
-                    // Check for tag URLs (typically contain /t/)
-                    if (preg_match('/\/t\/(\w+)/', $url, $matches)) {
-                        $foundTagUrls[] = $matches[1];
-                    }
-                    // Check for discussion URLs
-                    if (preg_match('/\/d\/\d+/', $url)) {
-                        $foundDiscussionUrl = true;
-                    }
+            foreach ($urls as $url) {
+                // Check for tag URLs (typically contain /t/)
+                if (preg_match('/\/t\/(\w+)/', $url, $matches)) {
+                    $foundTagUrls[] = $matches[1];
+                }
+                // Check for discussion URLs
+                if (preg_match('/\/d\/\d+/', $url)) {
+                    $foundDiscussionUrl = true;
                 }
             }
         }
@@ -134,15 +130,12 @@ class SitemapTagsTest extends TestCase
             if ($sitemapResponse->getStatusCode() !== 200) continue;
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $this->assertValidSitemapXml($sitemapBody);
+
             $urls = $this->getUrlsFromSitemap($sitemapBody);
-            
-            if (count($urls) > 0) {
-                $this->assertValidSitemapXml($sitemapBody);
-                
-                foreach ($urls as $url) {
-                    if (preg_match('/\/t\/(\w+)/', $url, $matches)) {
-                        $foundTagUrls[] = $matches[1];
-                    }
+            foreach ($urls as $url) {
+                if (preg_match('/\/t\/(\w+)/', $url, $matches)) {
+                    $foundTagUrls[] = $matches[1];
                 }
             }
         }

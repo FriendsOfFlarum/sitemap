@@ -23,6 +23,8 @@ use FoF\Sitemap\Resources\Resource as AbstractResource;
 use FoF\Sitemap\Sitemap\Sitemap;
 use FoF\Sitemap\Sitemap\Url;
 use FoF\Sitemap\Sitemap\UrlSet;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -75,6 +77,16 @@ class Generator
             if (!$resource->enabled()) {
                 $output->writeln("Skipping resource $res");
 
+                continue;
+            }
+
+            // Check if query has any results before processing
+            $query = $resource->query();
+            if ($query instanceof Builder && $query->count() === 0) {
+                $output->writeln("Skipping resource $res (no results)");
+                continue;
+            } elseif ($query instanceof Collection && $query->isEmpty()) {
+                $output->writeln("Skipping resource $res (no results)");
                 continue;
             }
 
