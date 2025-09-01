@@ -19,10 +19,10 @@ trait XmlSitemapTestTrait
         $dom = new \DOMDocument();
         $result = $dom->loadXML($xml);
         $this->assertTrue($result, 'XML should be well-formed');
-        
+
         $xpath = new \DOMXPath($dom);
         $xpath->registerNamespace('sm', 'http://www.sitemaps.org/schemas/sitemap/0.9');
-        
+
         return $xpath;
     }
 
@@ -30,12 +30,12 @@ trait XmlSitemapTestTrait
     {
         $xpath = $this->parseXmlWithNamespace($sitemapIndexXml);
         $sitemaps = $xpath->query('//sm:sitemap/sm:loc');
-        
+
         $urls = [];
         foreach ($sitemaps as $sitemap) {
             $urls[] = $sitemap->textContent;
         }
-        
+
         return $urls;
     }
 
@@ -43,12 +43,12 @@ trait XmlSitemapTestTrait
     {
         $xpath = $this->parseXmlWithNamespace($sitemapXml);
         $urlNodes = $xpath->query('//sm:url/sm:loc');
-        
+
         $urls = [];
         foreach ($urlNodes as $urlNode) {
             $urls[] = $urlNode->textContent;
         }
-        
+
         return $urls;
     }
 
@@ -60,13 +60,13 @@ trait XmlSitemapTestTrait
         $this->assertTrue($result, 'XML should be well-formed');
 
         // Validate against official sitemap index schema
-        $schemaPath = __DIR__ . '/../fixtures/siteindex.xsd';
+        $schemaPath = __DIR__.'/../fixtures/siteindex.xsd';
         libxml_use_internal_errors(true);
         $isValid = $dom->schemaValidate($schemaPath);
         if (!$isValid) {
             $errors = libxml_get_errors();
-            $errorMessages = array_map(fn($error) => trim($error->message), $errors);
-            $this->fail('XML does not validate against sitemap index schema: ' . implode(', ', $errorMessages));
+            $errorMessages = array_map(fn ($error) => trim($error->message), $errors);
+            $this->fail('XML does not validate against sitemap index schema: '.implode(', ', $errorMessages));
         }
         $this->assertTrue($isValid, 'XML should validate against sitemap index schema');
         libxml_clear_errors();
@@ -80,13 +80,13 @@ trait XmlSitemapTestTrait
         $this->assertTrue($result, 'XML should be well-formed');
 
         // Validate against official sitemap schema
-        $schemaPath = __DIR__ . '/../fixtures/sitemap.xsd';
+        $schemaPath = __DIR__.'/../fixtures/sitemap.xsd';
         libxml_use_internal_errors(true);
         $isValid = $dom->schemaValidate($schemaPath);
         if (!$isValid) {
             $errors = libxml_get_errors();
-            $errorMessages = array_map(fn($error) => trim($error->message), $errors);
-            $this->fail('XML does not validate against sitemap schema: ' . implode(', ', $errorMessages));
+            $errorMessages = array_map(fn ($error) => trim($error->message), $errors);
+            $this->fail('XML does not validate against sitemap schema: '.implode(', ', $errorMessages));
         }
         $this->assertTrue($isValid, 'XML should validate against sitemap schema');
         libxml_clear_errors();

@@ -19,6 +19,7 @@ use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
 class BasicTest extends TestCase
 {
     use XmlSitemapTestTrait;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -40,12 +41,12 @@ class BasicTest extends TestCase
                 ['id' => 10, 'discussion_id' => 4, 'created_at' => Carbon::createFromDate(2023, 4, 1)->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>User 2 post 4</p></t>'],
                 ['id' => 11, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(2023, 2, 5)->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>User 2 post 5</p></t>'],
                 ['id' => 12, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(2023, 3, 5)->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>User 2 post 6</p></t>'],
-                
+
                 // User 3 posts (3 total - below default threshold of 5)
                 ['id' => 4, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(2023, 2, 1)->toDateTimeString(), 'user_id' => 3, 'type' => 'comment', 'content' => '<t><p>User 3 post 1</p></t>'],
                 ['id' => 5, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(2023, 2, 2)->toDateTimeString(), 'user_id' => 3, 'type' => 'comment', 'content' => '<t><p>User 3 post 2</p></t>'],
                 ['id' => 13, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(2023, 3, 6)->toDateTimeString(), 'user_id' => 3, 'type' => 'comment', 'content' => '<t><p>User 3 post 3</p></t>'],
-                
+
                 // User 4 posts (8 total - well above default threshold)
                 ['id' => 6, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(2023, 3, 1)->toDateTimeString(), 'user_id' => 4, 'type' => 'comment', 'content' => '<t><p>User 4 post 1</p></t>'],
                 ['id' => 7, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(2023, 3, 2)->toDateTimeString(), 'user_id' => 4, 'type' => 'comment', 'content' => '<t><p>User 4 post 2</p></t>'],
@@ -55,7 +56,7 @@ class BasicTest extends TestCase
                 ['id' => 15, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 7)->toDateTimeString(), 'user_id' => 4, 'type' => 'comment', 'content' => '<t><p>User 4 post 6</p></t>'],
                 ['id' => 16, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(2023, 2, 6)->toDateTimeString(), 'user_id' => 4, 'type' => 'comment', 'content' => '<t><p>User 4 post 7</p></t>'],
                 ['id' => 17, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(2023, 2, 7)->toDateTimeString(), 'user_id' => 4, 'type' => 'comment', 'content' => '<t><p>User 4 post 8</p></t>'],
-                
+
                 // User 5 posts (1 total - well below threshold)
                 ['id' => 18, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 8)->toDateTimeString(), 'user_id' => 5, 'type' => 'comment', 'content' => '<t><p>User 5 only post</p></t>'],
             ],
@@ -80,7 +81,7 @@ class BasicTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = $response->getBody()->getContents();
-        
+
         // Validate XML structure comprehensively
         $this->assertValidSitemapIndexXml($body);
     }
@@ -96,10 +97,10 @@ class BasicTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $body = $response->getBody()->getContents();
-        
+
         // Validate the sitemap index structure
         $this->assertValidSitemapIndexXml($body);
-        
+
         // Check that we have sitemap entries
         $sitemapUrls = $this->getSitemapUrls($body);
         $this->assertGreaterThan(0, count($sitemapUrls), 'Should contain sitemap entries');
@@ -114,22 +115,22 @@ class BasicTest extends TestCase
         $indexResponse = $this->send(
             $this->request('GET', '/sitemap.xml')
         );
-        
+
         $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
         $this->assertGreaterThan(0, count($sitemapUrls), 'Should have at least one sitemap listed');
-        
+
         // Get the first sitemap URL and fetch it
         $firstSitemapUrl = parse_url($sitemapUrls[0], PHP_URL_PATH);
         $sitemapResponse = $this->send(
             $this->request('GET', $firstSitemapUrl)
         );
-        
+
         $this->assertEquals(200, $sitemapResponse->getStatusCode());
         $sitemapBody = $sitemapResponse->getBody()->getContents();
-        
+
         // Validate against sitemap schema
         $this->assertValidSitemapXml($sitemapBody);
-        
+
         // Check that URLs are present
         $urls = $this->getUrlsFromSitemap($sitemapBody);
         $this->assertGreaterThan(0, count($urls), 'Should contain URLs');
@@ -142,22 +143,24 @@ class BasicTest extends TestCase
     {
         // With default threshold of 5, users 2 (6 posts) and 4 (8 posts) should be included
         // Users 3 (3 posts) and 5 (1 post) should be excluded
-        
+
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
         $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
-        
+
         $foundUsers = [];
         $foundDiscussionUrl = false;
-        
+
         foreach ($sitemapUrls as $sitemapUrl) {
             $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
             $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
-            
-            if ($sitemapResponse->getStatusCode() !== 200) continue;
-            
+
+            if ($sitemapResponse->getStatusCode() !== 200) {
+                continue;
+            }
+
             $sitemapBody = $sitemapResponse->getBody()->getContents();
             $this->assertValidSitemapXml($sitemapBody);
-            
+
             $urls = $this->getUrlsFromSitemap($sitemapBody);
             foreach ($urls as $url) {
                 if (preg_match('/\/u\/(\w+)/', $url, $matches)) {
@@ -168,7 +171,7 @@ class BasicTest extends TestCase
                 }
             }
         }
-        
+
         $this->assertContains('user_6_posts', $foundUsers, 'Should include user with 6 posts');
         $this->assertContains('user_8_posts', $foundUsers, 'Should include user with 8 posts');
         $this->assertNotContains('user_3_posts', $foundUsers, 'Should not include user with 3 posts');
@@ -183,35 +186,35 @@ class BasicTest extends TestCase
     {
         // Set a high threshold that our test users won't meet
         $this->setting('fof-sitemap.model.user.comments.minimum_item_threshold', 10);
-        
+
         // First get the sitemap index
         $indexResponse = $this->send(
             $this->request('GET', '/sitemap.xml')
         );
-        
+
         $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
         $this->assertGreaterThan(0, count($sitemapUrls), 'Should have at least one sitemap listed');
-        
+
         // Check all sitemaps - should not find user URLs due to high threshold
         $foundUserUrl = false;
-        
+
         foreach ($sitemapUrls as $sitemapUrl) {
             $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
             $sitemapResponse = $this->send(
                 $this->request('GET', $sitemapPath)
             );
-            
+
             if ($sitemapResponse->getStatusCode() !== 200) {
                 continue;
             }
-            
+
             $sitemapBody = $sitemapResponse->getBody()->getContents();
-            
+
             // Skip validation if sitemap is empty (which is expected)
             $urls = $this->getUrlsFromSitemap($sitemapBody);
             if (count($urls) > 0) {
                 $this->assertValidSitemapXml($sitemapBody);
-                
+
                 foreach ($urls as $url) {
                     if (preg_match('/\/u\/\w+/', $url)) {
                         $foundUserUrl = true;
@@ -220,7 +223,7 @@ class BasicTest extends TestCase
                 }
             }
         }
-        
+
         $this->assertFalse($foundUserUrl, 'Should not include user URLs when threshold is too high');
     }
 }
