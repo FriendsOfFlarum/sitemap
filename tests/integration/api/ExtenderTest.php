@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Tests\integration\api;
 
 use Carbon\Carbon;
@@ -12,7 +22,7 @@ use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
 class ExtenderTest extends TestCase
 {
     use XmlSitemapTestTrait;
-    
+
     public function setUp(): void
     {
         parent::setUp();
@@ -22,19 +32,18 @@ class ExtenderTest extends TestCase
         $this->prepareDatabase([
             'discussions' => [
                 [
-                    'id' => 1,
-                    'title' => 'Test Discussion',
-                    'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(),
+                    'id'             => 1,
+                    'title'          => 'Test Discussion',
+                    'created_at'     => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(),
                     'last_posted_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(),
-                    'user_id' => 1,
-                    'first_post_id' => 1,
-                    'comment_count' => 1,
-                    'is_private' => 0
+                    'user_id'        => 1,
+                    'first_post_id'  => 1,
+                    'comment_count'  => 1,
+                    'is_private'     => 0,
                 ],
             ],
             'posts' => [
-                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 1, 'type'
-                => 'comment', 'content' => '<t><p>Test content</p></t>'],
+                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Test content</p></t>'],
             ],
             'users' => [
                 ['id' => 2, 'username' => 'testuser', 'email' => 'test@example.com', 'joined_at' => Carbon::createFromDate(
@@ -103,9 +112,9 @@ class ExtenderTest extends TestCase
 
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
         $indexBody = $indexResponse->getBody()->getContents();
-        
+
         $this->assertNotEmpty($indexBody, 'Sitemap index should not be empty');
-        
+
         $sitemapUrls = $this->getSitemapUrls($indexBody);
 
         $foundCustomUrl = false;
@@ -120,7 +129,7 @@ class ExtenderTest extends TestCase
             }
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
-            
+
             if (empty($sitemapBody)) {
                 continue;
             }
@@ -168,9 +177,9 @@ class ExtenderTest extends TestCase
 
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
         $indexBody = $indexResponse->getBody()->getContents();
-        
+
         $this->assertNotEmpty($indexBody, 'Sitemap index should not be empty');
-        
+
         $sitemapUrls = $this->getSitemapUrls($indexBody);
 
         $foundCustomDiscussionUrl = false;
@@ -186,7 +195,7 @@ class ExtenderTest extends TestCase
             }
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
-            
+
             if (empty($sitemapBody)) {
                 continue;
             }
@@ -235,9 +244,9 @@ class ExtenderTest extends TestCase
 
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
         $indexBody = $indexResponse->getBody()->getContents();
-        
+
         $this->assertNotEmpty($indexBody, 'Sitemap index should not be empty');
-        
+
         $sitemapUrls = $this->getSitemapUrls($indexBody);
 
         $foundStaticUrl = false;
@@ -252,7 +261,7 @@ class ExtenderTest extends TestCase
             }
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
-            
+
             if (empty($sitemapBody)) {
                 continue;
             }

@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Tests\integration;
 
 use Carbon\Carbon;
@@ -21,7 +31,7 @@ class TestResource extends Resource
     public function url($model): string
     {
         // $model will be a User instance, so we can access its properties
-        return '/test-resource/user-' . $model->id;
+        return '/test-resource/user-'.$model->id;
     }
 
     public function priority(): float

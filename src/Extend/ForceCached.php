@@ -19,7 +19,7 @@ use Illuminate\Contracts\Container\Container;
 /**
  * Disables the runtime mode and any other mode other extensions might have added.
  * Intended for use in managed hosting.
- * 
+ *
  * @deprecated Use FoF\Sitemap\Extend\Sitemap::forceCached() instead. Will be removed in Flarum 2.0.
  */
 class ForceCached implements ExtenderInterface

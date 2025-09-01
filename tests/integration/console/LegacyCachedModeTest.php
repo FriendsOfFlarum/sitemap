@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Tests\integration\console;
 
 use Carbon\Carbon;
@@ -19,14 +29,14 @@ class LegacyCachedModeTest extends ConsoleTestCase
         $this->prepareDatabase([
             'discussions' => [
                 [
-                    'id' => 1,
-                    'title' => 'Test Discussion',
-                    'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(),
+                    'id'             => 1,
+                    'title'          => 'Test Discussion',
+                    'created_at'     => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(),
                     'last_posted_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(),
-                    'user_id' => 1,
-                    'first_post_id' => 1,
-                    'comment_count' => 1,
-                    'is_private' => 0
+                    'user_id'        => 1,
+                    'first_post_id'  => 1,
+                    'comment_count'  => 1,
+                    'is_private'     => 0,
                 ],
             ],
             'posts' => [
@@ -49,11 +59,11 @@ class LegacyCachedModeTest extends ConsoleTestCase
 
         // Run the sitemap build command
         $input = [
-            'command' => 'fof:sitemap:build'
+            'command' => 'fof:sitemap:build',
         ];
-        
+
         $output = $this->runCommand($input);
-        
+
         // The command should complete successfully
         $this->assertStringNotContainsString('error', strtolower($output));
         $this->assertStringNotContainsString('exception', strtolower($output));
@@ -62,13 +72,13 @@ class LegacyCachedModeTest extends ConsoleTestCase
         // Now test that the sitemap is served from cache
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
         $indexBody = $indexResponse->getBody()->getContents();
-        
+
         $this->assertEquals(200, $indexResponse->getStatusCode());
         $this->assertNotEmpty($indexBody, 'Legacy extender forced cached sitemap index should not be empty');
-        
+
         // Validate the cached sitemap structure
         $this->assertValidSitemapIndexXml($indexBody);
-        
+
         $sitemapUrls = $this->getSitemapUrls($indexBody);
         $this->assertGreaterThan(0, count($sitemapUrls), 'Legacy extender forced cached sitemap should contain sitemap URLs');
 
@@ -93,11 +103,11 @@ class LegacyCachedModeTest extends ConsoleTestCase
 
         // Run the sitemap build command
         $input = [
-            'command' => 'fof:sitemap:build'
+            'command' => 'fof:sitemap:build',
         ];
-        
+
         $output = $this->runCommand($input);
-        
+
         // The command should complete successfully
         $this->assertStringNotContainsString('error', strtolower($output));
         $this->assertStringContainsString('Completed', $output);
@@ -110,7 +120,7 @@ class LegacyCachedModeTest extends ConsoleTestCase
         // The sitemap should still be served from cache despite the 'run' setting
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
         $this->assertEquals(200, $indexResponse->getStatusCode());
-        
+
         $indexBody = $indexResponse->getBody()->getContents();
         $this->assertNotEmpty($indexBody, 'Legacy extender forced cached mode should override setting');
         $this->assertValidSitemapIndexXml($indexBody);
@@ -127,35 +137,35 @@ class LegacyCachedModeTest extends ConsoleTestCase
 
         // Run the sitemap build command
         $input = [
-            'command' => 'fof:sitemap:build'
+            'command' => 'fof:sitemap:build',
         ];
-        
+
         $output = $this->runCommand($input);
-        
+
         // The command should complete successfully
         $this->assertStringNotContainsString('error', strtolower($output));
         $this->assertStringContainsString('Completed', $output);
 
         // Check that physical files exist on disk
         $publicPath = $this->app()->getContainer()->get('flarum.paths')->public;
-        $sitemapsPath = $publicPath . '/sitemaps';
-        
+        $sitemapsPath = $publicPath.'/sitemaps';
+
         // The sitemaps directory should exist
         $this->assertTrue(is_dir($sitemapsPath), 'Legacy forced cached mode should create sitemaps directory on disk');
-        
+
         // There should be sitemap files
-        $files = glob($sitemapsPath . '/sitemap*.xml');
+        $files = glob($sitemapsPath.'/sitemap*.xml');
         $this->assertGreaterThan(0, count($files), 'Legacy forced cached mode should create sitemap XML files on disk');
-        
+
         // Check for index file
-        $indexFile = $sitemapsPath . '/sitemap.xml';
+        $indexFile = $sitemapsPath.'/sitemap.xml';
         $this->assertTrue(file_exists($indexFile), 'Legacy forced cached mode should create sitemap index file on disk');
-        
+
         // Verify index file content is valid
         $indexContent = file_get_contents($indexFile);
         $this->assertNotEmpty($indexContent, 'Legacy cached index file should not be empty');
         $this->assertValidSitemapIndexXml($indexContent);
-        
+
         // Verify the container flag is set
         $container = $this->app()->getContainer();
         $this->assertTrue($container->has('fof-sitemaps.forceCached'));

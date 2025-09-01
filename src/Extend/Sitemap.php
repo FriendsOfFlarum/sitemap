@@ -32,6 +32,7 @@ class Sitemap implements ExtenderInterface
      * Resource must extend FoF\Sitemap\Resources\Resource.
      *
      * @param string $resource
+     *
      * @return self
      */
     public function addResource(string $resource): self
@@ -46,6 +47,7 @@ class Sitemap implements ExtenderInterface
      * Remove a resource from the sitemap. Specify the ::class of the resource.
      *
      * @param string $resource
+     *
      * @return self
      */
     public function removeResource(string $resource): self
@@ -61,6 +63,7 @@ class Sitemap implements ExtenderInterface
      *
      * @param string $oldResource The resource to replace
      * @param string $newResource The replacement resource
+     *
      * @return self
      */
     public function replaceResource(string $oldResource, string $newResource): self
@@ -75,6 +78,7 @@ class Sitemap implements ExtenderInterface
      * Add a static URL to the sitemap. Specify the route name.
      *
      * @param string $routeName
+     *
      * @return self
      */
     public function addStaticUrl(string $routeName): self
@@ -146,6 +150,6 @@ class Sitemap implements ExtenderInterface
             }
         }
 
-        throw new InvalidArgumentException("{$resource} has to extend " . Resource::class);
+        throw new InvalidArgumentException("{$resource} has to extend ".Resource::class);
     }
 }

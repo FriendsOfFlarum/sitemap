@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Tests\integration;
 
 use Carbon\Carbon;
@@ -11,7 +21,7 @@ class TestDiscussionResource extends Discussion
     public function url($model): string
     {
         // Use a custom URL pattern to distinguish from the original
-        return '/custom-discussion/' . $model->id . '-' . $model->slug;
+        return '/custom-discussion/'.$model->id.'-'.$model->slug;
     }
 
     public function priority(): float
