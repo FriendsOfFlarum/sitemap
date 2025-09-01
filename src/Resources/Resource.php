@@ -18,6 +18,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\Sitemap\Sitemap\Alternative;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -113,7 +114,7 @@ abstract class Resource
      * are expected to provide it where necessary. It is expected that the data is
      * an array of `Alternative` objects.
      *
-     * @return array<Alternative>
+     * @return Alternative[]|null
      */
     public function alternatives($model): ?array
     {
