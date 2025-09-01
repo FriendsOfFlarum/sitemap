@@ -14,7 +14,6 @@ namespace FoF\Sitemap\Controllers;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
-use GuzzleHttp\Client;
 use FoF\Sitemap\Deploy\Memory;
 use FoF\Sitemap\Generate\Generator;
 use Illuminate\Support\Arr;
