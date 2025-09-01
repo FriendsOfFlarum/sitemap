@@ -16,7 +16,7 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
 
-class BasicTest extends TestCase
+class SitemapTest extends TestCase
 {
     use XmlSitemapTestTrait;
 
