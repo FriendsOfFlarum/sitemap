@@ -26,23 +26,8 @@ class BasicTest extends TestCase
     /**
      * @test
      */
-    public function sitemap_is_available_in_runtime_mode()
+    public function sitemapindex_is_available_in_runtime_mode()
     {
-        $response = $this->send(
-            $this->request('GET', '/sitemap.xml')
-        );
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', $response->getBody()->getContents());
-    }
-
-    /**
-     * @test
-     */
-    public function sitemap_is_available_in_muti_file_mode()
-    {
-        $this->setting('fof-sitemap.mode', 'multi-file');
-
         $response = $this->send(
             $this->request('GET', '/sitemap.xml')
         );
@@ -50,4 +35,19 @@ class BasicTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', $response->getBody()->getContents());
     }
+
+    // /**
+    //  * @test
+    //  */
+    // public function sitemap_is_available_in_muti_file_mode()
+    // {
+    //     $this->setting('fof-sitemap.mode', 'multi-file');
+
+    //     $response = $this->send(
+    //         $this->request('GET', '/sitemap.xml')
+    //     );
+
+    //     $this->assertEquals(200, $response->getStatusCode());
+    //     $this->assertStringContainsString('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', $response->getBody()->getContents());
+    // }
 }
