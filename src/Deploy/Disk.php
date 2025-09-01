@@ -16,12 +16,15 @@ use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
 use FoF\Sitemap\Jobs\TriggerBuildJob;
 use Illuminate\Contracts\Filesystem\Cloud;
+use Psr\Log\LoggerInterface;
 
 class Disk implements DeployInterface
 {
     public function __construct(
         public Cloud $sitemapStorage,
-        public Cloud $indexStorage
+        public Cloud $indexStorage,
+        protected UrlGenerator $url,
+        protected LoggerInterface $logger
     ) {
     }
 
@@ -32,7 +35,7 @@ class Disk implements DeployInterface
         $this->sitemapStorage->put($path, $set);
 
         return new StoredSet(
-            resolve(UrlGenerator::class)->to('forum')->route('fof-sitemap-set', ['id' => $setIndex]),
+            $this->url->to('forum')->route('fof-sitemap-set', ['id' => $setIndex]),
             Carbon::now()
         );
     }
@@ -41,37 +44,34 @@ class Disk implements DeployInterface
     {
         $this->indexStorage->put('sitemap.xml', $index);
 
-        return resolve(UrlGenerator::class)->to('forum')->route('fof-sitemap-index');
+        return $this->url->to('forum')->route('fof-sitemap-index');
     }
 
     public function getIndex(): ?string
     {
-        $logger = resolve('log');
-
         if (!$this->indexStorage->exists('sitemap.xml')) {
-            $logger->debug('[FoF Sitemap] Disk: Index not found, triggering build job');
+            $this->logger->debug('[FoF Sitemap] Disk: Index not found, triggering build job');
             resolve('flarum.queue.connection')->push(new TriggerBuildJob());
 
             return null;
         }
 
-        $logger->debug('[FoF Sitemap] Disk: Serving index from local storage');
+        $this->logger->debug('[FoF Sitemap] Disk: Serving index from local storage');
 
         return $this->indexStorage->get('sitemap.xml');
     }
 
     public function getSet($setIndex): ?string
     {
-        $logger = resolve('log');
         $path = "sitemap-$setIndex.xml";
 
         if (!$this->sitemapStorage->exists($path)) {
-            $logger->debug("[FoF Sitemap] Disk: Set $setIndex not found in local storage");
+            $this->logger->debug("[FoF Sitemap] Disk: Set $setIndex not found in local storage");
 
             return null;
         }
 
-        $logger->debug("[FoF Sitemap] Disk: Serving set $setIndex from local storage");
+        $this->logger->debug("[FoF Sitemap] Disk: Serving set $setIndex from local storage");
 
         return $this->sitemapStorage->get($path);
     }

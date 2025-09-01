@@ -88,12 +88,15 @@ php flarum cache:clear
 If you are using nginx and accessing `/sitemap.xml` or individual sitemap files (e.g., `/sitemap-1.xml`) results in an nginx 404 page, you can add the following rules to your configuration file:
 
 ```nginx
+# FoF Sitemap — Flarum handles everything
 location = /sitemap.xml {
-    try_files $uri $uri/ /index.php?$query_string;
+    rewrite ^ /index.php?$query_string last;
+    add_header Cache-Control "max-age=0";
 }
 
-location ~ ^/sitemap-\d+\.xml$ {
-    try_files $uri $uri/ /index.php?$query_string;
+location ^~ /sitemap- {
+    rewrite ^ /index.php?$query_string last;
+    add_header Cache-Control "max-age=0";
 }
 ```
 

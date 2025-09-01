@@ -14,13 +14,15 @@ namespace FoF\Sitemap\Deploy;
 
 use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
+use Psr\Log\LoggerInterface;
 
 class Memory implements DeployInterface
 {
     protected array $cache = [];
 
     public function __construct(
-        public UrlGenerator $urlGenerator
+        public UrlGenerator $urlGenerator,
+        protected LoggerInterface $logger
     ) {
     }
 
@@ -58,8 +60,7 @@ class Memory implements DeployInterface
 
     public function getIndex(): ?string
     {
-        $logger = resolve('log');
-        $logger->debug('[FoF Sitemap] Memory: Serving index from in-memory cache');
+        $this->logger->debug('[FoF Sitemap] Memory: Serving index from in-memory cache');
 
         return $this->getSet('index');
     }

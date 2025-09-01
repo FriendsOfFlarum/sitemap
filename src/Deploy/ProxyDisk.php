@@ -16,13 +16,15 @@ use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
 use FoF\Sitemap\Jobs\TriggerBuildJob;
 use Illuminate\Contracts\Filesystem\Cloud;
+use Psr\Log\LoggerInterface;
 
 class ProxyDisk implements DeployInterface
 {
     public function __construct(
         public Cloud $sitemapStorage,
         public Cloud $indexStorage,
-        private UrlGenerator $urlGenerator
+        private UrlGenerator $urlGenerator,
+        protected LoggerInterface $logger
     ) {
     }
 
@@ -49,32 +51,29 @@ class ProxyDisk implements DeployInterface
 
     public function getIndex(): ?string
     {
-        $logger = resolve('log');
-
         if (!$this->indexStorage->exists('sitemap.xml')) {
-            $logger->debug('[FoF Sitemap] ProxyDisk: Index not found in remote storage, triggering build job');
+            $this->logger->debug('[FoF Sitemap] ProxyDisk: Index not found in remote storage, triggering build job');
             resolve('flarum.queue.connection')->push(new TriggerBuildJob());
 
             return null;
         }
 
-        $logger->debug('[FoF Sitemap] ProxyDisk: Serving index from remote storage');
+        $this->logger->debug('[FoF Sitemap] ProxyDisk: Serving index from remote storage');
 
         return $this->indexStorage->get('sitemap.xml');
     }
 
     public function getSet($setIndex): ?string
     {
-        $logger = resolve('log');
         $path = "sitemap-$setIndex.xml";
 
         if (!$this->sitemapStorage->exists($path)) {
-            $logger->debug("[FoF Sitemap] ProxyDisk: Set $setIndex not found in remote storage");
+            $this->logger->debug("[FoF Sitemap] ProxyDisk: Set $setIndex not found in remote storage");
 
             return null;
         }
 
-        $logger->debug("[FoF Sitemap] ProxyDisk: Serving set $setIndex from remote storage");
+        $this->logger->debug("[FoF Sitemap] ProxyDisk: Serving set $setIndex from remote storage");
 
         return $this->sitemapStorage->get($path);
     }
