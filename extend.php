@@ -53,6 +53,7 @@ return [
         ->default('fof-sitemap.mode', 'run')
         ->default('fof-sitemap.frequency', 'daily')
         ->default('fof-sitemap.excludeUsers', false)
+        ->default('fof-sitemap.excludeTags', false)
         ->default('fof-sitemap.model.user.comments.minimum_item_threshold', 5)
         ->default('fof-sitemap.model.tags.discussion.minimum_item_threshold', 5)
         ->default('fof-sitemap.include_priority', true)

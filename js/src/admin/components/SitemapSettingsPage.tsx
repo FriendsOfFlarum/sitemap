@@ -50,6 +50,14 @@ export default class SitemapSettingsPage extends ExtensionPage {
                   required: true,
                 })
               : null}
+            {app.initializers.has('flarum-tags')
+              ? this.buildSettingComponent({
+                  type: 'switch',
+                  setting: 'fof-sitemap.excludeTags',
+                  label: app.translator.trans('fof-sitemap.admin.settings.exclude_tags'),
+                  help: app.translator.trans('fof-sitemap.admin.settings.exclude_tags_help'),
+                })
+              : null}
           </div>
 
           {this.modeChoice()}

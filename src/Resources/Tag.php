@@ -44,6 +44,6 @@ class Tag extends Resource
 
     public function enabled(): bool
     {
-        return static::$extensionManager->isEnabled('flarum-tags');
+        return static::$extensionManager->isEnabled('flarum-tags') && !static::$settings->get('fof-sitemap.excludeTags');
     }
 }
