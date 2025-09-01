@@ -93,7 +93,8 @@ class Generator
                         $resource->url($item),
                         $resource->lastModifiedAt($item),
                         $resource->dynamicFrequency($item) ?? $resource->frequency(),
-                        $resource->dynamicPriority($item) ?? $resource->priority()
+                        $resource->dynamicPriority($item) ?? $resource->priority(),
+                        $resource->alternatives($item)
                     );
 
                     try {

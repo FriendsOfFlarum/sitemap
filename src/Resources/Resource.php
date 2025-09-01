@@ -92,4 +92,31 @@ abstract class Resource
     {
         return null; // Default: use static priority()
     }
+
+    /**
+     * Alternative languages based on model data (optional override).
+     * 
+     * Data here is used to generate alternate locations for the content, 
+     * for example pre-translated versions of the same content. For each
+     * entry, 2 properties are expected:
+     * - hreflang: The language code (e.g. "en", "fr", "es")
+     * - href: The URL of the alternate version
+     * 
+     * The resulting output will look like:
+     * <url>
+     *   <loc>https://example.com/en</loc>
+     *   <xhtml:link rel="alternate" hreflang="fr" href="https://example.com/fr" />
+     *   <xhtml:link rel="alternate" hreflang="es" href="https://example.com/es" />
+     * </url>
+     * 
+     * This extension does not generate any of this data itself, 3rd party extensions
+     * are expected to provide it where necessary. It is expected that the data is
+     * an array of `Alternative` objects.
+     * 
+     * @return array<Alternative>
+     */
+    public function alternatives($model): ?array
+    {
+        return null;
+    }
 }

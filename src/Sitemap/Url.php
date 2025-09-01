@@ -21,7 +21,8 @@ class Url
         public string $location,
         public ?Carbon $lastModified = null,
         public ?string $changeFrequency = null,
-        public ?float $priority = null
+        public ?float $priority = null,
+        public ?array $alternatives = null
     ) {
     }
 

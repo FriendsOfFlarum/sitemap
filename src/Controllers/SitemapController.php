@@ -73,6 +73,6 @@ class SitemapController implements RequestHandlerInterface
 
         $this->logger->debug('[FoF Sitemap] No sitemap content found, returning 404');
 
-        return new Response\XmlResponse('', 404);
+        return new Response\EmptyResponse(404);
     }
 }
