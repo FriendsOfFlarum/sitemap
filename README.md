@@ -104,14 +104,75 @@ These rules ensure that Flarum will handle sitemap requests when no physical fil
 
 ## Extending
 
-### Register a new Resource
+### Using the Unified Sitemap Extender (Recommended)
 
-In order to register your own resource, create a class that implements `FoF\Sitemap\Resources\Resource`. Make sure
-to implement all abstract methods, check other implementations for examples. After this, register your
+The recommended way to extend the sitemap is using the unified `Sitemap` extender, which allows method chaining and follows Flarum's common extender patterns:
+
+```php
+use FoF\Sitemap\Extend;
+
+return [
+    (new Extend\Sitemap())
+        ->addResource(YourCustomResource::class)
+        ->removeResource(\FoF\Sitemap\Resources\Tag::class)
+        ->replaceResource(\FoF\Sitemap\Resources\User::class, YourCustomUserResource::class)
+        ->addStaticUrl('reviews.index')
+        ->addStaticUrl('custom.page')
+        ->forceCached(),
+];
+```
+
+#### Available Methods
+
+- **`addResource(string $resourceClass)`**: Add a custom resource to the sitemap
+- **`removeResource(string $resourceClass)`**: Remove an existing resource from the sitemap
+- **`replaceResource(string $oldResourceClass, string $newResourceClass)`**: Replace an existing resource with a new one
+- **`addStaticUrl(string $routeName)`**: Add a static URL by route name
+- **`forceCached()`**: Force cached mode for managed hosting environments
+
+### Register a New Resource
+
+Create a class that extends `FoF\Sitemap\Resources\Resource` and implement all abstract methods:
+
+```php
+use FoF\Sitemap\Resources\Resource;
+use FoF\Sitemap\Sitemap\Frequency;
+
+class YourCustomResource extends Resource
+{
+    public function query(): Builder
+    {
+        return YourModel::query()->where('is_public', true);
+    }
+
+    public function url($model): string
+    {
+        return $this->generateRouteUrl('your.route', ['id' => $model->id]);
+    }
+
+    public function priority(): float
+    {
+        return 0.7;
+    }
+
+    public function frequency(): string
+    {
+        return Frequency::WEEKLY;
+    }
+
+    public function lastModifiedAt($model): Carbon
+    {
+        return $model->updated_at ?? $model->created_at;
+    }
+}
+```
+
+Then register it using the unified extender:
 
 ```php
 return [
-    new \FoF\Sitemap\Extend\RegisterResource(YourResource::class),
+    (new \FoF\Sitemap\Extend\Sitemap())
+        ->addResource(YourCustomResource::class),
 ];
 ```
 
@@ -155,35 +216,116 @@ class YourResource extends Resource
 
 If these methods return `null` or are not implemented, the static `frequency()` and `priority()` methods will be used instead. This ensures full backward compatibility with existing extensions.
 
-That's it.
-
 ### Remove a Resource
 
-In a very similar way, you can also remove resources from the sitemap:
+Remove existing resources from the sitemap:
+
 ```php
 return [
-    (new \FoF\Sitemap\Extend\RemoveResource(\FoF\Sitemap\Resources\Tag::class)),
+    (new \FoF\Sitemap\Extend\Sitemap())
+        ->removeResource(\FoF\Sitemap\Resources\Tag::class),
 ];
 ```
 
-### Register a static URL
+### Replace a Resource
 
-Some pages of your forum might not be covered by the default resources. To add those urls to the sitemap there is a
-pseudo resource called `StaticUrls`. You can use the `RegisterStaticUrl` extender to add your own urls. The extender
-takes a route name as parameter, which will be resolved to a url using the `Flarum\Http\UrlGenerator` class.
+Replace an existing resource with a custom implementation. This is useful when you want to modify the behavior of a built-in resource:
+
 ```php
 return [
-    (new \FoF\Sitemap\Extend\RegisterStaticUrl('reviews.index')),
+    (new \FoF\Sitemap\Extend\Sitemap())
+        ->replaceResource(\FoF\Sitemap\Resources\User::class, YourCustomUserResource::class),
 ];
 ```
 
-### Force cache mode
+**Example Use Cases for `replaceResource`:**
 
-If you wish to force the use of cache mode, for example in complex hosted environments, this can be done by calling the extender:
+1. **Custom User Resource**: Replace the default user resource to change URL structure or filtering logic
+2. **Enhanced Discussion Resource**: Replace the discussion resource to add custom metadata or different priority calculations
+3. **Modified Tag Resource**: Replace the tag resource to change how tags are included or prioritized
+
+```php
+// Example: Replace the default User resource with a custom one
+class CustomUserResource extends \FoF\Sitemap\Resources\User
+{
+    public function query(): Builder
+    {
+        // Only include users with profile pictures
+        return parent::query()->whereNotNull('avatar_url');
+    }
+    
+    public function url($model): string
+    {
+        // Use a custom URL structure
+        return $this->generateRouteUrl('user.profile', ['username' => $model->username]);
+    }
+    
+    public function priority(): float
+    {
+        // Higher priority for users
+        return 0.8;
+    }
+}
+
+return [
+    (new \FoF\Sitemap\Extend\Sitemap())
+        ->replaceResource(\FoF\Sitemap\Resources\User::class, CustomUserResource::class),
+];
+```
+
+### Register Static URLs
+
+Add static URLs to the sitemap by specifying route names:
+
 ```php
 return [
-    (new \FoF\Sitemap\Extend\ForceCached()),
-]
+    (new \FoF\Sitemap\Extend\Sitemap())
+        ->addStaticUrl('reviews.index')
+        ->addStaticUrl('custom.page'),
+];
+```
+
+### Force Cache Mode
+
+Force the use of cache mode for managed hosting environments:
+
+```php
+return [
+    (new \FoF\Sitemap\Extend\Sitemap())
+        ->forceCached(),
+];
+```
+
+### Legacy Extenders (Deprecated)
+
+The following extenders are still supported for backwards compatibility but are deprecated and will be removed in Flarum 2.0. Please migrate to the unified `Sitemap` extender.
+
+#### Register a Resource (Legacy)
+```php
+return [
+    new \FoF\Sitemap\Extend\RegisterResource(YourResource::class), // Deprecated
+];
+```
+
+#### Remove a Resource (Legacy)
+```php
+return [
+    new \FoF\Sitemap\Extend\RemoveResource(\FoF\Sitemap\Resources\Tag::class), // Deprecated
+];
+```
+
+#### Register Static URL (Legacy)
+```php
+return [
+    new \FoF\Sitemap\Extend\RegisterStaticUrl('reviews.index'), // Deprecated
+];
+```
+
+#### Force Cached Mode (Legacy)
+```php
+return [
+    new \FoF\Sitemap\Extend\ForceCached(), // Deprecated
+];
 ```
 
 ## Optional Sitemap Elements

@@ -14,42 +14,28 @@ namespace FoF\Sitemap\Extend;
 
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
-use FoF\Sitemap\Resources\Resource;
 use Illuminate\Contracts\Container\Container;
-use InvalidArgumentException;
 
+/**
+ * @deprecated Use FoF\Sitemap\Extend\Sitemap::addResource() instead. Will be removed in Flarum 2.0.
+ */
 class RegisterResource implements ExtenderInterface
 {
+    private Sitemap $sitemap;
+
     /**
      * Add a resource from the sitemap. Specify the ::class of the resource.
      * Resource must extend FoF\Sitemap\Resources\Resource.
      *
      * @param string $resource
      */
-    public function __construct(
-        private string $resource
-    ) {
+    public function __construct(string $resource)
+    {
+        $this->sitemap = (new Sitemap())->addResource($resource);
     }
 
     public function extend(Container $container, ?Extension $extension = null)
     {
-        $container->extend('fof-sitemaps.resources', function (array $resources) {
-            $this->validateResource();
-
-            $resources[] = $this->resource;
-
-            return $resources;
-        });
-    }
-
-    private function validateResource(): void
-    {
-        foreach (class_parents($this->resource) as $class) {
-            if ($class === Resource::class) {
-                return;
-            }
-        }
-
-        throw new InvalidArgumentException("{$this->resource} has to extend ".Resource::class);
+        $this->sitemap->extend($container, $extension);
     }
 }

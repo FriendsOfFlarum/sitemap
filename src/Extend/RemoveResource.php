@@ -16,25 +16,26 @@ use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 
+/**
+ * @deprecated Use FoF\Sitemap\Extend\Sitemap::removeResource() instead. Will be removed in Flarum 2.0.
+ */
 class RemoveResource implements ExtenderInterface
 {
+    private Sitemap $sitemap;
+
     /**
      * Remove a resource from the sitemap. Specify the ::class of the resource.
      * Resource must extend FoF\Sitemap\Resources\Resource.
      *
      * @param string $resource
      */
-    public function __construct(
-        private string $resource
-    ) {
+    public function __construct(string $resource)
+    {
+        $this->sitemap = (new Sitemap())->removeResource($resource);
     }
 
     public function extend(Container $container, ?Extension $extension = null)
     {
-        $container->extend('fof-sitemaps.resources', function (array $resources) {
-            return array_filter($resources, function ($res) {
-                return $res !== $this->resource;
-            });
-        });
+        $this->sitemap->extend($container, $extension);
     }
 }
