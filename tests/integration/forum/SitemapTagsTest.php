@@ -73,16 +73,15 @@ class SitemapTagsTest extends TestCase
             $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
             $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
 
-            if ($sitemapResponse->getStatusCode() !== 200) {
-                continue;
-            }
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
             $urls = $this->getUrlsFromSitemap($sitemapBody);
-
+            
+            
             if (count($urls) > 0) {
                 $this->assertValidSitemapXml($sitemapBody);
-
+                
                 foreach ($urls as $url) {
                     // Check for tag URLs (typically contain /t/)
                     if (preg_match('/\/t\/(\w+)/', $url, $matches)) {
@@ -99,20 +98,21 @@ class SitemapTagsTest extends TestCase
         // Should include public parent tags with discussions above default threshold of 5
         $this->assertContains('general', $foundTagUrls, 'Should include general tag (8 discussions)');
         $this->assertContains('support', $foundTagUrls, 'Should include support tag (6 discussions)');
-
+        
         // Child tags are not included by default (bugs and features are child tags of support)
         // $this->assertContains('bugs', $foundTagUrls, 'Should include bugs tag (5 discussions)');
         // $this->assertContains('features', $foundTagUrls, 'Should include features tag (5 discussions)');
-
+        
         // Should not include restricted tags for guests (even though it has 7 discussions)
         $this->assertNotContains('restricted', $foundTagUrls, 'Should not include restricted tag for guest');
-
+        
         // Should not include empty tag
         $this->assertNotContains('empty', $foundTagUrls, 'Should not include empty tag (0 discussions)');
-
+        
         // Should still include discussions
         $this->assertTrue($foundDiscussionUrl, 'Should still include discussion URLs');
     }
+
 
     /**
      * @test
@@ -131,16 +131,14 @@ class SitemapTagsTest extends TestCase
             $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
             $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
 
-            if ($sitemapResponse->getStatusCode() !== 200) {
-                continue;
-            }
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
             $urls = $this->getUrlsFromSitemap($sitemapBody);
-
+            
             if (count($urls) > 0) {
                 $this->assertValidSitemapXml($sitemapBody);
-
+                
                 foreach ($urls as $url) {
                     if (preg_match('/\/t\/(\w+)/', $url, $matches)) {
                         $foundTagUrls[] = $matches[1];
@@ -151,10 +149,14 @@ class SitemapTagsTest extends TestCase
 
         // Should not include empty tag (0 discussions)
         $this->assertNotContains('empty', $foundTagUrls, 'Should not include empty tag with 0 discussions');
-
+        
         // Should include parent tags with discussions above threshold
         $this->assertContains('general', $foundTagUrls, 'Should include general tag with 8 discussions');
         $this->assertContains('support', $foundTagUrls, 'Should include support tag with 6 discussions');
+        
+        // Child tags might not be included by default
+        // $this->assertContains('bugs', $foundTagUrls, 'Should include bugs tag with 5 discussions');
+        // $this->assertContains('features', $foundTagUrls, 'Should include features tag with 5 discussions');
     }
 
     // /**
@@ -212,9 +214,7 @@ class SitemapTagsTest extends TestCase
             $sitemapPath = parse_url($sitemapUrl, PHP_URL_PATH);
             $sitemapResponse = $this->send($this->request('GET', $sitemapPath));
 
-            if ($sitemapResponse->getStatusCode() !== 200) {
-                continue;
-            }
+            if ($sitemapResponse->getStatusCode() !== 200) continue;
 
             $sitemapBody = $sitemapResponse->getBody()->getContents();
             $urls = $this->getUrlsFromSitemap($sitemapBody);
@@ -230,20 +230,20 @@ class SitemapTagsTest extends TestCase
 
             if ($hasTagUrls && count($urls) > 0) {
                 $foundTagSitemap = true;
-
+                
                 // Validate XML structure
                 $this->assertValidSitemapXml($sitemapBody);
-
+                
                 // Check for proper sitemap elements
                 $xpath = $this->parseXmlWithNamespace($sitemapBody);
                 $priorities = $xpath->query('//sm:url/sm:priority');
                 $changefreqs = $xpath->query('//sm:url/sm:changefreq');
                 $lastmods = $xpath->query('//sm:url/sm:lastmod');
-
+                
                 // Should have priority and changefreq by default
                 $this->assertGreaterThan(0, $priorities->length, 'Tag sitemap should include priority elements');
                 $this->assertGreaterThan(0, $changefreqs->length, 'Tag sitemap should include changefreq elements');
-
+                
                 break;
             }
         }
