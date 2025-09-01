@@ -14,14 +14,15 @@ namespace FoF\Sitemap\Deploy;
 
 use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
-use Laminas\Diactoros\Uri;
+use Psr\Log\LoggerInterface;
 
 class Memory implements DeployInterface
 {
     protected array $cache = [];
 
     public function __construct(
-        public UrlGenerator $urlGenerator
+        public UrlGenerator $urlGenerator,
+        protected LoggerInterface $logger
     ) {
     }
 
@@ -30,7 +31,7 @@ class Memory implements DeployInterface
         $this->cache[$setIndex] = $set;
 
         return new StoredSet(
-            $this->urlGenerator->to('forum')->route('fof-sitemap-live', [
+            $this->urlGenerator->to('forum')->route('fof-sitemap-set', [
                 'id' => $setIndex,
             ]),
             Carbon::now()
@@ -57,10 +58,10 @@ class Memory implements DeployInterface
         return $this->getIndex();
     }
 
-    public function getIndex(): ?Uri
+    public function getIndex(): ?string
     {
-        return new Uri($this->urlGenerator->to('forum')->route('fof-sitemap-live', [
-            'id' => 'index',
-        ]));
+        $this->logger->debug('[FoF Sitemap] Memory: Serving index from in-memory cache');
+
+        return $this->getSet('index');
     }
 }

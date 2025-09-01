@@ -76,6 +76,20 @@ export default class SitemapSettingsPage extends ExtensionPage {
             help: app.translator.trans('fof-sitemap.admin.settings.risky_performance_improvements_help'),
           })}
 
+          {this.buildSettingComponent({
+            type: 'switch',
+            setting: 'fof-sitemap.include_priority',
+            label: app.translator.trans('fof-sitemap.admin.settings.include_priority'),
+            help: app.translator.trans('fof-sitemap.admin.settings.include_priority_help'),
+          })}
+
+          {this.buildSettingComponent({
+            type: 'switch',
+            setting: 'fof-sitemap.include_changefreq',
+            label: app.translator.trans('fof-sitemap.admin.settings.include_changefreq'),
+            help: app.translator.trans('fof-sitemap.admin.settings.include_changefreq_help'),
+          })}
+
           {this.submitButton()}
         </div>
       </div>

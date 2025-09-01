@@ -3,3 +3,4 @@ vendor/
 composer.lock
 js/dist
 .phpunit.result.cache
+.aider*

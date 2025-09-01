@@ -34,7 +34,7 @@ class Generator
     ) {
     }
 
-    public function generate(OutputInterface $output = null): ?string
+    public function generate(?OutputInterface $output = null): ?string
     {
         if (!$output) {
             $output = new NullOutput();
@@ -58,7 +58,7 @@ class Generator
      *
      * @return StoredSet[]
      */
-    public function loop(OutputInterface $output = null): array
+    public function loop(?OutputInterface $output = null): array
     {
         if (!$output) {
             $output = new NullOutput();
@@ -92,8 +92,9 @@ class Generator
                     $url = new Url(
                         $resource->url($item),
                         $resource->lastModifiedAt($item),
-                        $resource->frequency(),
-                        $resource->priority()
+                        $resource->dynamicFrequency($item) ?? $resource->frequency(),
+                        $resource->dynamicPriority($item) ?? $resource->priority(),
+                        $resource->alternatives($item)
                     );
 
                     try {

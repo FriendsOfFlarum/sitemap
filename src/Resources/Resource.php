@@ -18,6 +18,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\Sitemap\Sitemap\Alternative;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -75,5 +76,48 @@ abstract class Resource
     public function enabled(): bool
     {
         return true;
+    }
+
+    /**
+     * Dynamic frequency based on model data (optional override).
+     */
+    public function dynamicFrequency($model): ?string
+    {
+        return null; // Default: use static frequency()
+    }
+
+    /**
+     * Dynamic priority based on model data (optional override).
+     */
+    public function dynamicPriority($model): ?float
+    {
+        return null; // Default: use static priority()
+    }
+
+    /**
+     * Alternative languages based on model data (optional override).
+     *
+     * Data here is used to generate alternate locations for the content,
+     * for example pre-translated versions of the same content. For each
+     * entry, 2 properties are expected:
+     * - hreflang: The language code (e.g. "en", "fr", "es")
+     * - href: The URL of the alternate version
+     *
+     * The resulting output will look like:
+     * <url>
+     *   <loc>https://example.com/en</loc>
+     *   <xhtml:link rel="alternate" hreflang="fr" href="https://example.com/fr" />
+     *   <xhtml:link rel="alternate" hreflang="es" href="https://example.com/es" />
+     * </url>
+     *
+     * This extension does not generate any of this data itself, 3rd party extensions
+     * are expected to provide it where necessary. It is expected that the data is
+     * an array of `Alternative` objects.
+     *
+     * @return Alternative[]|null
+     */
+    public function alternatives($model): ?array
+    {
+        return null;
     }
 }

@@ -15,41 +15,65 @@ namespace FoF\Sitemap\Controllers;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
 use GuzzleHttp\Client;
+use FoF\Sitemap\Deploy\Memory;
+use FoF\Sitemap\Generate\Generator;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response;
-use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 
 class SitemapController implements RequestHandlerInterface
 {
     public function __construct(
         protected DeployInterface $deploy,
         protected SettingsRepositoryInterface $settings,
-        protected Client $client
+        protected Generator $generator,
+        protected LoggerInterface $logger
     ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $index = $this->deploy->getIndex();
+        // Get route parameters from the request attributes
+        $routeParams = $request->getAttribute('routeParameters', []);
+        /** @var string|null $id */
+        $id = Arr::get($routeParams, 'id');
 
-        if ($index instanceof Uri) {
-            // We fetch the contents of the file here, as we must return a non-redirect reposnse.
-            // This is required as when Flarum is configured to use S3 or other CDN, the actual file
-            // lives off of the Flarum domain, and this index must be hosted under the Flarum domain.
-            $index = $this->fetchContentsFromUri($index);
+        $this->logger->debug('[FoF Sitemap] Route parameters: '.json_encode($routeParams));
+        $this->logger->debug('[FoF Sitemap] Extracted ID: '.($id ?? 'null'));
+
+        if ($id !== null) {
+            // Individual sitemap request
+            $this->logger->debug("[FoF Sitemap] Handling individual sitemap request for set: $id");
+
+            if ($this->deploy instanceof Memory) {
+                $this->logger->debug('[FoF Sitemap] Memory deployment: Generating sitemap on-the-fly');
+                $this->generator->generate();
+            }
+
+            $content = $this->deploy->getSet($id);
+        } else {
+            // Index request
+            $this->logger->debug('[FoF Sitemap] Handling sitemap index request');
+
+            if ($this->deploy instanceof Memory) {
+                $this->logger->debug('[FoF Sitemap] Memory deployment: Generating sitemap on-the-fly');
+                $this->generator->generate();
+            }
+
+            $content = $this->deploy->getIndex();
         }
 
-        if (is_string($index)) {
-            return new Response\XmlResponse($index);
+        if (is_string($content) && !empty($content)) {
+            $this->logger->debug('[FoF Sitemap] Successfully serving sitemap content');
+
+            return new Response\XmlResponse($content);
         }
+
+        $this->logger->debug('[FoF Sitemap] No sitemap content found, returning 404');
 
         return new Response\EmptyResponse(404);
-    }
-
-    protected function fetchContentsFromUri(Uri $uri): string
-    {
-        return $this->client->get($uri)->getBody()->getContents();
     }
 }

@@ -18,12 +18,12 @@ use FoF\Sitemap\Jobs\TriggerBuildJob;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Psr\Log\LoggerInterface;
 
-class Disk implements DeployInterface
+class ProxyDisk implements DeployInterface
 {
     public function __construct(
         public Cloud $sitemapStorage,
         public Cloud $indexStorage,
-        protected UrlGenerator $url,
+        private UrlGenerator $urlGenerator,
         protected LoggerInterface $logger
     ) {
     }
@@ -34,8 +34,9 @@ class Disk implements DeployInterface
 
         $this->sitemapStorage->put($path, $set);
 
+        // Return main domain URL instead of storage URL
         return new StoredSet(
-            $this->url->to('forum')->route('fof-sitemap-set', ['id' => $setIndex]),
+            $this->urlGenerator->to('forum')->route('fof-sitemap-set', ['id' => $setIndex]),
             Carbon::now()
         );
     }
@@ -44,19 +45,20 @@ class Disk implements DeployInterface
     {
         $this->indexStorage->put('sitemap.xml', $index);
 
-        return $this->url->to('forum')->route('fof-sitemap-index');
+        // Return main domain URL
+        return $this->urlGenerator->to('forum')->route('fof-sitemap-index');
     }
 
     public function getIndex(): ?string
     {
         if (!$this->indexStorage->exists('sitemap.xml')) {
-            $this->logger->debug('[FoF Sitemap] Disk: Index not found, triggering build job');
+            $this->logger->debug('[FoF Sitemap] ProxyDisk: Index not found in remote storage, triggering build job');
             resolve('flarum.queue.connection')->push(new TriggerBuildJob());
 
             return null;
         }
 
-        $this->logger->debug('[FoF Sitemap] Disk: Serving index from local storage');
+        $this->logger->debug('[FoF Sitemap] ProxyDisk: Serving index from remote storage');
 
         return $this->indexStorage->get('sitemap.xml');
     }
@@ -66,12 +68,12 @@ class Disk implements DeployInterface
         $path = "sitemap-$setIndex.xml";
 
         if (!$this->sitemapStorage->exists($path)) {
-            $this->logger->debug("[FoF Sitemap] Disk: Set $setIndex not found in local storage");
+            $this->logger->debug("[FoF Sitemap] ProxyDisk: Set $setIndex not found in remote storage");
 
             return null;
         }
 
-        $this->logger->debug("[FoF Sitemap] Disk: Serving set $setIndex from local storage");
+        $this->logger->debug("[FoF Sitemap] ProxyDisk: Serving set $setIndex from remote storage");
 
         return $this->sitemapStorage->get($path);
     }

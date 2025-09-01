@@ -33,9 +33,9 @@ class UrlSet
         $this->urls[] = $url;
     }
 
-    public function addUrl($location, $lastModified = null, $changeFrequency = null, $priority = null)
+    public function addUrl($location, $lastModified = null, $changeFrequency = null, $priority = null, $alternatives = null)
     {
-        $this->add(new Url($location, $lastModified, $changeFrequency, $priority));
+        $this->add(new Url($location, $lastModified, $changeFrequency, $priority, $alternatives));
     }
 
     public function toXml(): string
@@ -44,7 +44,9 @@ class UrlSet
         $view = resolve(Factory::class);
 
         return $view->make('fof-sitemap::urlset')
-            ->with('set', $this)
+            ->with([
+                'set' => $this,
+            ])
             ->render();
     }
 }

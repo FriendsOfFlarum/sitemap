@@ -29,7 +29,7 @@ class RegisterStaticUrl implements ExtenderInterface
     ) {
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null)
     {
         StaticUrls::addRoute($this->routeName);
     }

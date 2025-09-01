@@ -9,21 +9,25 @@ can easily inject their own Resource information, check Extending below.
 
 ## Modes
 
-There are two modes to use the sitemap.
+There are two modes to use the sitemap, both now serving content from the main domain for search engine compliance.
 
 ### Runtime mode
 
-After enabling the extension the sitemap will automatically be available and generated on the fly.
+After enabling the extension the sitemap will automatically be available at `/sitemap.xml` and generated on the fly.
+Individual sitemap files are served at `/sitemap-1.xml`, `/sitemap-2.xml`, etc.
 It contains all Users, Discussions, Tags and Pages guests have access to.
 
 _Applicable to small forums, most likely on shared hosting environments, with discussions, users, tags and pages summed
-up being less than **10.000 items**.
+up being less than **10,000 items**.
 This is not a hard limit, but performance will be degraded as the number of items increase._
 
 ### Cached multi-file mode
 
-For larger forums you can set up a cron job that generates a sitemap index and compressed sitemap files.
-A first sitemap will be automatically generated after the setting is changed, but subsequent updates will have to be triggered either manually or through the scheduler (see below).
+For larger forums, sitemaps are automatically generated and updated via the Flarum scheduler.
+Sitemaps are stored on your configured storage (local disk, S3, CDN) but always served from your main domain
+to ensure search engine compliance. Individual sitemaps are accessible at `/sitemap-1.xml`, `/sitemap-2.xml`, etc.
+
+A first sitemap will be automatically generated after the setting is changed. Subsequent updates are handled automatically by the scheduler (see Scheduling section below).
 
 A rebuild can be manually triggered at any time by using:
 
@@ -31,7 +35,7 @@ A rebuild can be manually triggered at any time by using:
 php flarum fof:sitemap:build
 ```
 
-_Best for larger forums, starting at 10.000 items._
+_Best for larger forums, starting at 10,000 items._
 
 ### Risky Performance Improvements
 
@@ -43,10 +47,21 @@ By removing those columns, it significantly reduces the size of the database res
 This setting only brings noticeable improvements if you have millions of discussions or users.
 We recommend not enabling it unless the CRON job takes more than an hour to run or that the SQL connection gets saturated by the amount of data.
 
+## Search Engine Compliance
+
+This extension automatically ensures search engine compliance by:
+
+- **Domain consistency**: All sitemaps are served from your main forum domain, even when using external storage (S3, CDN)
+- **Unified URLs**: Consistent URL structure (`/sitemap.xml`, `/sitemap-1.xml`) regardless of storage backend
+- **Automatic proxying**: When external storage is detected, content is automatically proxied through your main domain
+
+This means you can use S3 or CDN storage for performance while maintaining full Google Search Console compatibility.
+
 ## Scheduling
 
-Consider setting up the Flarum scheduler, which removes the requirement to setup a cron job as advised above.
-Read more information about this [here](https://discuss.flarum.org/d/24118)
+The extension automatically registers with the Flarum scheduler to update cached sitemaps.
+This removes the need for manual intervention once configured.
+Read more information about setting up the Flarum scheduler [here](https://discuss.flarum.org/d/24118).
 
 The frequency setting for the scheduler can be customized via the extension settings page.
 
@@ -70,15 +85,22 @@ php flarum cache:clear
 
 ## Nginx issues
 
-If you are using nginx and accessing `/sitemap.xml` results in an nginx 404 page, you can add the following rule to your configuration file, underneath your existing `location` rule:
+If you are using nginx and accessing `/sitemap.xml` or individual sitemap files (e.g., `/sitemap-1.xml`) results in an nginx 404 page, you can add the following rules to your configuration file:
 
-```
+```nginx
+# FoF Sitemap — Flarum handles everything
 location = /sitemap.xml {
-    try_files $uri $uri/ /index.php?$query_string;
+    rewrite ^ /index.php?$query_string last;
+    add_header Cache-Control "max-age=0";
+}
+
+location ^~ /sitemap- {
+    rewrite ^ /index.php?$query_string last;
+    add_header Cache-Control "max-age=0";
 }
 ```
 
-This rule makes sure that Flarum will answer the request for `/sitemap.xml` when no file exists with that name.
+These rules ensure that Flarum will handle sitemap requests when no physical files exist.
 
 ## Extending
 
@@ -92,6 +114,47 @@ return [
     new \FoF\Sitemap\Extend\RegisterResource(YourResource::class),
 ];
 ```
+
+#### Dynamic Priority and Frequency (Optional)
+
+Your custom resource can optionally implement dynamic priority and frequency values based on the actual model data:
+
+```php
+class YourResource extends Resource
+{
+    // Required abstract methods...
+    
+    /**
+     * Optional: Dynamic frequency based on model activity
+     */
+    public function dynamicFrequency($model): ?string
+    {
+        $lastActivity = $model->updated_at ?? $model->created_at;
+        $daysSinceActivity = $lastActivity->diffInDays(now());
+        
+        if ($daysSinceActivity < 1) return Frequency::HOURLY;
+        if ($daysSinceActivity < 7) return Frequency::DAILY;
+        if ($daysSinceActivity < 30) return Frequency::WEEKLY;
+        return Frequency::MONTHLY;
+    }
+    
+    /**
+     * Optional: Dynamic priority based on model importance
+     */
+    public function dynamicPriority($model): ?float
+    {
+        // Example: Higher priority for more popular content
+        $popularity = $model->view_count ?? 0;
+        
+        if ($popularity > 1000) return 1.0;
+        if ($popularity > 100) return 0.8;
+        return 0.5;
+    }
+}
+```
+
+If these methods return `null` or are not implemented, the static `frequency()` and `priority()` methods will be used instead. This ensures full backward compatibility with existing extensions.
+
 That's it.
 
 ### Remove a Resource
@@ -122,6 +185,47 @@ return [
     (new \FoF\Sitemap\Extend\ForceCached()),
 ]
 ```
+
+## Optional Sitemap Elements
+
+The extension allows you to control whether `<priority>` and `<changefreq>` elements are included in your sitemap:
+
+### Admin Settings
+
+- **Include priority values**: Priority values are ignored by Google but may be used by other search engines like Bing and Yandex
+- **Include change frequency values**: Change frequency values are ignored by Google but may be used by other search engines for crawl scheduling
+
+Both settings are enabled by default for backward compatibility.
+
+### Dynamic Values
+
+When enabled, the extension uses intelligent frequency calculation based on actual content activity:
+
+- **Discussions**: Frequency based on last post date (hourly for active discussions, monthly for older ones)
+- **Users**: Frequency based on last seen date (weekly for active users, yearly for inactive ones)
+- **Static content**: Uses predefined frequency values
+
+This provides more meaningful information to search engines compared to static values.
+
+## Troubleshooting
+
+### Regenerating Sitemaps
+
+If you've updated the extension or changed storage settings, you may need to regenerate your sitemaps:
+
+```bash
+php flarum fof:sitemap:build
+```
+
+### Debug Logging
+
+When Flarum is in debug mode, the extension provides detailed logging showing:
+- Whether sitemaps are being generated on-the-fly or served from storage
+- When content is being proxied from external storage
+- Route parameter extraction and request handling
+- Any issues with sitemap generation or serving
+
+Check your Flarum logs (`storage/logs/`) for detailed information about sitemap operations.
 
 ## Commissioned
 
