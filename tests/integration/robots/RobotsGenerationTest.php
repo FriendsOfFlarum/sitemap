@@ -1,14 +1,25 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Tests\Integration\Robots;
 
-use Flarum\Testing\integration\TestCase;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Tests\Integration\XmlSitemapTestTrait;
 
 class RobotsGenerationTest extends TestCase
 {
-    use RetrievesAuthorizedUsers, XmlSitemapTestTrait;
+    use RetrievesAuthorizedUsers;
+    use XmlSitemapTestTrait;
 
     public function setUp(): void
     {
@@ -63,7 +74,7 @@ class RobotsGenerationTest extends TestCase
         );
 
         $content = $response->getBody()->getContents();
-        
+
         // Just check that a sitemap URL is present, don't worry about the exact URL
         $this->assertStringContainsString('Sitemap:', $content);
         $this->assertStringContainsString('/sitemap.xml', $content);

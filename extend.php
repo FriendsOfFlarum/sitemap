@@ -77,8 +77,8 @@ return [
 
     // Conditionally add TagEntry only when flarum/tags extension is enabled
     (new Extend\Conditional())
-        ->whenExtensionEnabled('flarum-tags', fn() => [
+        ->whenExtensionEnabled('flarum-tags', fn () => [
             (new Robots())
-                ->addEntry(TagEntry::class)
+                ->addEntry(TagEntry::class),
         ]),
 ];

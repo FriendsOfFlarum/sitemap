@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Providers;
 
 use Flarum\Foundation\AbstractServiceProvider;
@@ -16,7 +26,7 @@ use FoF\Sitemap\Robots\RobotsEntry;
 
 /**
  * Service provider for robots.txt functionality.
- * 
+ *
  * Registers the robots.txt generator and default entries,
  * and sets up the necessary dependencies.
  */

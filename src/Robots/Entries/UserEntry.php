@@ -1,12 +1,22 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Robots\Entries;
 
 use FoF\Sitemap\Robots\RobotsEntry;
 
 /**
  * Robots.txt entry that conditionally disallows user pages.
- * 
+ *
  * This entry disallows user profile pages when the excludeUsers
  * setting is enabled, keeping robots.txt consistent with sitemap exclusions.
  */
@@ -14,7 +24,7 @@ class UserEntry extends RobotsEntry
 {
     /**
      * Get rules to disallow user paths when users are excluded.
-     * 
+     *
      * @return array Rules disallowing user-related paths if setting is enabled
      */
     public function getRules(): array
@@ -24,7 +34,7 @@ class UserEntry extends RobotsEntry
         }
 
         $rules = [];
-        
+
         // Get the forum base path
         $forumPath = $this->getForumBasePath();
         if ($forumPath === null) {
@@ -32,14 +42,14 @@ class UserEntry extends RobotsEntry
         }
 
         // Disallow user profile pages (/u/)
-        $rules[] = $this->disallowForAll($forumPath . '/u/');
+        $rules[] = $this->disallowForAll($forumPath.'/u/');
 
         return $rules;
     }
 
     /**
      * Check if user exclusion is enabled.
-     * 
+     *
      * @return bool True if users should be excluded from robots.txt
      */
     public function enabled(): bool
@@ -49,7 +59,7 @@ class UserEntry extends RobotsEntry
 
     /**
      * Get the forum base path.
-     * 
+     *
      * @return string|null The forum base path, or null if it can't be determined
      */
     protected function getForumBasePath(): ?string
@@ -57,6 +67,7 @@ class UserEntry extends RobotsEntry
         try {
             $forumUrl = static::$urlGenerator->to('forum')->base();
             $path = parse_url($forumUrl, PHP_URL_PATH);
+
             return $path !== false ? rtrim($path ?: '', '/') : null;
         } catch (\Exception $e) {
             return null;

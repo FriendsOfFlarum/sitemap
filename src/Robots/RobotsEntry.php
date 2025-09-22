@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Robots;
 
 use Flarum\Http\UrlGenerator;
@@ -7,11 +17,11 @@ use Flarum\Settings\SettingsRepositoryInterface;
 
 /**
  * Abstract base class for robots.txt entries.
- * 
+ *
  * Extend this class to create custom robots.txt entries that can be
  * registered through the Robots extender. Each entry can define
  * multiple rules for different user agents.
- * 
+ *
  * @example
  * class MyCustomEntry extends RobotsEntry
  * {
@@ -37,7 +47,7 @@ abstract class RobotsEntry
 
     /**
      * Set the URL generator instance.
-     * 
+     *
      * @param UrlGenerator $generator The URL generator instance
      */
     public static function setUrlGenerator(UrlGenerator $generator): void
@@ -47,7 +57,7 @@ abstract class RobotsEntry
 
     /**
      * Set the settings repository instance.
-     * 
+     *
      * @param SettingsRepositoryInterface $settings The settings repository instance
      */
     public static function setSettings(SettingsRepositoryInterface $settings): void
@@ -57,7 +67,7 @@ abstract class RobotsEntry
 
     /**
      * Get robots.txt rules for this entry.
-     * 
+     *
      * Return an array of rules where each rule is an associative array
      * that can contain the following keys:
      * - 'user_agent': The user agent this rule applies to (defaults to '*')
@@ -65,9 +75,9 @@ abstract class RobotsEntry
      * - 'allow': Path to allow for this user agent
      * - 'crawl_delay': Crawl delay in seconds for this user agent
      * - 'sitemap': Sitemap URL (global directive, not user-agent specific)
-     * 
+     *
      * @return array Array of rules with keys: user_agent, disallow, allow, crawl_delay
-     * 
+     *
      * @example
      * return [
      *     ['user_agent' => '*', 'disallow' => '/admin'],
@@ -79,10 +89,10 @@ abstract class RobotsEntry
 
     /**
      * Whether this entry is enabled.
-     * 
+     *
      * Override this method to conditionally enable/disable the entry
      * based on settings, extension status, or other conditions.
-     * 
+     *
      * @return bool True if the entry should be included in robots.txt
      */
     public function enabled(): bool
@@ -92,11 +102,12 @@ abstract class RobotsEntry
 
     /**
      * Generate a URL for a named route.
-     * 
+     *
      * Helper method to generate URLs for Flarum routes.
-     * 
-     * @param string $name Route name
-     * @param array $parameters Route parameters
+     *
+     * @param string $name       Route name
+     * @param array  $parameters Route parameters
+     *
      * @return string Generated URL
      */
     protected function generateRouteUrl(string $name, array $parameters = []): string
@@ -106,8 +117,9 @@ abstract class RobotsEntry
 
     /**
      * Create a disallow rule for all user agents.
-     * 
+     *
      * @param string $path Path to disallow
+     *
      * @return array Disallow rule for all user agents
      */
     protected function disallowForAll(string $path): array
@@ -117,9 +129,10 @@ abstract class RobotsEntry
 
     /**
      * Create a disallow rule for a specific user agent.
-     * 
+     *
      * @param string $userAgent User agent name
-     * @param string $path Path to disallow
+     * @param string $path      Path to disallow
+     *
      * @return array Disallow rule for specific user agent
      */
     protected function disallowFor(string $userAgent, string $path): array
@@ -129,8 +142,9 @@ abstract class RobotsEntry
 
     /**
      * Create an allow rule for all user agents.
-     * 
+     *
      * @param string $path Path to allow
+     *
      * @return array Allow rule for all user agents
      */
     protected function allowForAll(string $path): array
@@ -140,9 +154,10 @@ abstract class RobotsEntry
 
     /**
      * Create an allow rule for a specific user agent.
-     * 
+     *
      * @param string $userAgent User agent name
-     * @param string $path Path to allow
+     * @param string $path      Path to allow
+     *
      * @return array Allow rule for specific user agent
      */
     protected function allowFor(string $userAgent, string $path): array
@@ -152,8 +167,9 @@ abstract class RobotsEntry
 
     /**
      * Create a crawl delay rule for all user agents.
-     * 
+     *
      * @param int $seconds Crawl delay in seconds
+     *
      * @return array Crawl delay rule for all user agents
      */
     protected function crawlDelayForAll(int $seconds): array
@@ -163,9 +179,10 @@ abstract class RobotsEntry
 
     /**
      * Create a crawl delay rule for a specific user agent.
-     * 
+     *
      * @param string $userAgent User agent name
-     * @param int $seconds Crawl delay in seconds
+     * @param int    $seconds   Crawl delay in seconds
+     *
      * @return array Crawl delay rule for specific user agent
      */
     protected function crawlDelayFor(string $userAgent, int $seconds): array
@@ -175,8 +192,9 @@ abstract class RobotsEntry
 
     /**
      * Create a sitemap rule.
-     * 
+     *
      * @param string $url Sitemap URL
+     *
      * @return array Sitemap rule
      */
     protected function sitemap(string $url): array

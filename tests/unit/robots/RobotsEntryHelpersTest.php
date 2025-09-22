@@ -1,10 +1,19 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Tests\Unit\Robots;
 
 use Flarum\Testing\unit\TestCase;
 use FoF\Sitemap\Robots\RobotsEntry;
-use Mockery as m;
 
 class RobotsEntryHelpersTest extends TestCase
 {

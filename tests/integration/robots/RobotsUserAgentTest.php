@@ -1,15 +1,26 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Tests\Integration\Robots;
 
-use Flarum\Testing\integration\TestCase;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Extend\Robots;
 use FoF\Sitemap\Robots\RobotsEntry;
 
 class RobotsUserAgentTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+
     public function setUp(): void
     {
         parent::setUp();
