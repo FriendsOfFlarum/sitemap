@@ -18,12 +18,22 @@ use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
 
 return [
+    (new Extend\Frontend('forum'))
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->css(__DIR__.'/resources/less/forum.less'),
+
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
     (new Extend\Routes('forum'))
         ->get('/sitemap.xml', 'fof-sitemap-index', Controllers\SitemapController::class)
-        ->get('/sitemap-{id:\d+}.xml', 'fof-sitemap-set', Controllers\SitemapController::class),
+        ->get('/sitemap-{id:\d+}.xml', 'fof-sitemap-set', Controllers\SitemapController::class)
+        // Remove the robots.txt route added by v17development/flarum-seo to avoid conflicts.
+        // This is so this extension can handle the robots.txt generation instead.
+        // We can safely remove this without a conditional, as the remove() function will simply do nothing if the route does not exist.
+        // TODO: Reach out to v17development to see if they want to drop robots.txt generation from their extension.
+        ->remove('v17development-flarum-seo')
+        ->get('/robots.txt', 'fof-sitemap-robots-index', Controllers\RobotsController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
