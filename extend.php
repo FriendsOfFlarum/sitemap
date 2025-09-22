@@ -16,6 +16,8 @@ use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
+use FoF\Sitemap\Extend\Robots;
+use FoF\Sitemap\Robots\Entries\TagEntry;
 
 return [
     (new Extend\Frontend('forum'))
@@ -42,7 +44,8 @@ return [
 
     (new Extend\ServiceProvider())
         ->register(Providers\Provider::class)
-        ->register(Providers\DeployProvider::class),
+        ->register(Providers\DeployProvider::class)
+        ->register(Providers\RobotsProvider::class),
 
     (new Extend\Console())
         ->command(Console\BuildSitemapCommand::class)
@@ -71,4 +74,11 @@ return [
 
     (new Extend\Event())
         ->subscribe(Listeners\SettingsListener::class),
+
+    // Conditionally add TagEntry only when flarum/tags extension is enabled
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-tags', fn() => [
+            (new Robots())
+                ->addEntry(TagEntry::class)
+        ]),
 ];
