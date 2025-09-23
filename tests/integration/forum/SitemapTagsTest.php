@@ -14,12 +14,14 @@ namespace FoF\Sitemap\Tests\integration\forum;
 
 use Carbon\Carbon;
 use Flarum\Group\Group;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
 
 class SitemapTagsTest extends TestCase
 {
     use XmlSitemapTestTrait;
+    use RetrievesAuthorizedUsers;
 
     public function setUp(): void
     {
