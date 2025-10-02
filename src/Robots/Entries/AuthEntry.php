@@ -43,6 +43,11 @@ class AuthEntry extends RobotsEntry
             $rules[] = $this->disallowForAll($path);
         }
 
+        // Login
+        if ($path = $this->getRoutePath('login')) {
+            $rules[] = $this->disallowForAll($path);
+        }
+
         // Logout functionality
         if ($path = $this->getRoutePath('logout')) {
             $rules[] = $this->disallowForAll($path);
