@@ -17,6 +17,11 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\Tags\Tag;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
+use Flarum\User\User;
 
 class SitemapTagsTest extends TestCase
 {
@@ -31,7 +36,7 @@ class SitemapTagsTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'General Discussion', 'slug' => 'general', 'position' => 0, 'parent_id' => null, 'discussion_count' => 8],
                 ['id' => 2, 'name' => 'Support', 'slug' => 'support', 'position' => 1, 'parent_id' => null, 'discussion_count' => 6],
                 ['id' => 3, 'name' => 'Bug Reports', 'slug' => 'bugs', 'position' => 2, 'parent_id' => 2, 'discussion_count' => 5],
@@ -39,15 +44,15 @@ class SitemapTagsTest extends TestCase
                 ['id' => 5, 'name' => 'Restricted Tag', 'slug' => 'restricted', 'position' => 4, 'parent_id' => null, 'is_restricted' => true, 'discussion_count' => 7],
                 ['id' => 6, 'name' => 'Empty Tag', 'slug' => 'empty', 'position' => 5, 'parent_id' => null, 'discussion_count' => 0],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'General Discussion 1', 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
                 ['id' => 2, 'title' => 'Support Question', 'created_at' => Carbon::createFromDate(2023, 2, 1)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2023, 2, 1)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 2, 'comment_count' => 1, 'is_private' => 0],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>General discussion content</p></t>'],
                 ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(2023, 2, 1)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Support question content</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 ['id' => 2, 'username' => 'testuser', 'email' => 'test@example.com', 'joined_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString()],
             ],
             'discussion_tag' => [
@@ -60,9 +65,7 @@ class SitemapTagsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_includes_tag_urls_when_tags_extension_enabled()
     {
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
@@ -113,9 +116,7 @@ class SitemapTagsTest extends TestCase
         $this->assertTrue($foundDiscussionUrl, 'Should still include discussion URLs');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_excludes_empty_tags_based_on_threshold()
     {
         // Set minimum discussion threshold for tags
@@ -200,9 +201,7 @@ class SitemapTagsTest extends TestCase
         $this->assertTrue($foundDiscussionUrl, 'Should still include discussion URLs when only tags are excluded');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_validates_tag_xml_structure()
     {
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
@@ -253,9 +252,7 @@ class SitemapTagsTest extends TestCase
         $this->assertTrue($foundTagSitemap, 'Should find at least one sitemap containing tag URLs');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_excludes_tags_route_from_static_urls_when_tags_excluded()
     {
         // Enable tag exclusion

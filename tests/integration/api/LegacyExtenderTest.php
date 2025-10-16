@@ -19,6 +19,10 @@ use FoF\Sitemap\Extend\RegisterStaticUrl;
 use FoF\Sitemap\Extend\RemoveResource;
 use FoF\Sitemap\Tests\integration\TestResource;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
+use Flarum\User\User;
 
 class LegacyExtenderTest extends TestCase
 {
@@ -31,7 +35,7 @@ class LegacyExtenderTest extends TestCase
         $this->extension('fof-sitemap');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 [
                     'id'             => 1,
                     'title'          => 'Test Discussion',
@@ -43,10 +47,10 @@ class LegacyExtenderTest extends TestCase
                     'is_private'     => 0,
                 ],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Test content</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 ['id' => 2, 'username' => 'testuser', 'email' => 'test@example.com', 'joined_at' => Carbon::createFromDate(
                     2023,
                     1,
@@ -56,9 +60,7 @@ class LegacyExtenderTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_can_remove_existing_resource()
     {
         $this->extend(
@@ -100,9 +102,7 @@ class LegacyExtenderTest extends TestCase
         $this->assertFalse($foundDiscussionUrl, 'Legacy extender should not include discussion URLs when Discussion resource is removed');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legacy_extender_can_add_custom_resource()
     {
         $this->extend(
@@ -153,9 +153,7 @@ class LegacyExtenderTest extends TestCase
         $this->assertTrue($foundDiscussionUrl, 'Legacy extender should still include existing resources when adding custom resource');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legacy_extender_validates_resource_inheritance()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -164,9 +162,7 @@ class LegacyExtenderTest extends TestCase
         new RegisterResource(\stdClass::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legacy_extender_can_add_static_url()
     {
         // First register a custom route that we can reference

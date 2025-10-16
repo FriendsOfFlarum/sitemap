@@ -15,6 +15,10 @@ namespace FoF\Sitemap\Tests\integration\console;
 use Carbon\Carbon;
 use Flarum\Testing\integration\ConsoleTestCase;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
+use Flarum\User\User;
 
 class LegacyCachedModeTest extends ConsoleTestCase
 {
@@ -27,7 +31,7 @@ class LegacyCachedModeTest extends ConsoleTestCase
         $this->extension('fof-sitemap');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 [
                     'id'             => 1,
                     'title'          => 'Test Discussion',
@@ -39,18 +43,16 @@ class LegacyCachedModeTest extends ConsoleTestCase
                     'is_private'     => 0,
                 ],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Test content</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 ['id' => 2, 'username' => 'testuser', 'email' => 'test@example.com', 'joined_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'comment_count' => 10],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legacy_extender_can_force_cached_mode()
     {
         $this->extend(
@@ -88,9 +90,7 @@ class LegacyCachedModeTest extends ConsoleTestCase
         $this->assertTrue($container->get('fof-sitemaps.forceCached'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legacy_extender_forced_cached_mode_overrides_setting()
     {
         // Set the extension to runtime mode via setting
@@ -126,9 +126,7 @@ class LegacyCachedModeTest extends ConsoleTestCase
         $this->assertValidSitemapIndexXml($indexBody);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legacy_extender_forced_cached_mode_creates_physical_files()
     {
         $this->extend(

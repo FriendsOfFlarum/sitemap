@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Extend\Robots;
 use FoF\Sitemap\Robots\RobotsEntry;
+use PHPUnit\Framework\Attributes\Test;
 
 class RobotsExtenderTest extends TestCase
 {
@@ -28,7 +29,7 @@ class RobotsExtenderTest extends TestCase
         $this->extension('fof-sitemap');
     }
 
-    /** @test */
+    #[Test]
     public function robots_extender_can_add_custom_entry()
     {
         $this->extend(
@@ -47,7 +48,7 @@ class RobotsExtenderTest extends TestCase
         $this->assertStringContainsString('Crawl-delay: 5', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_extender_can_remove_existing_entry()
     {
         $this->extend(
@@ -65,7 +66,7 @@ class RobotsExtenderTest extends TestCase
         $this->assertStringNotContainsString('Disallow: /api', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_extender_can_replace_existing_entry()
     {
         $this->extend(
@@ -84,7 +85,7 @@ class RobotsExtenderTest extends TestCase
         $this->assertStringContainsString('Allow: /admin/public', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_extender_validates_entry_classes()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -96,7 +97,7 @@ class RobotsExtenderTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function robots_extender_validates_entry_inheritance()
     {
         $this->expectException(\InvalidArgumentException::class);

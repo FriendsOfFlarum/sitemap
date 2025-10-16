@@ -15,6 +15,7 @@ namespace FoF\Sitemap\Tests\Integration\Robots;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Tests\Integration\XmlSitemapTestTrait;
+use PHPUnit\Framework\Attributes\Test;
 
 class RobotsGenerationTest extends TestCase
 {
@@ -28,7 +29,7 @@ class RobotsGenerationTest extends TestCase
         $this->extension('fof-sitemap');
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_returns_valid_response()
     {
         $response = $this->send(
@@ -39,7 +40,7 @@ class RobotsGenerationTest extends TestCase
         $this->assertEquals('text/plain; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_contains_default_entries()
     {
         $response = $this->send(
@@ -66,7 +67,7 @@ class RobotsGenerationTest extends TestCase
         $this->assertStringContainsString('Sitemap:', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_includes_sitemap_url()
     {
         $response = $this->send(
@@ -80,7 +81,7 @@ class RobotsGenerationTest extends TestCase
         $this->assertStringContainsString('/sitemap.xml', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_excludes_users_when_setting_enabled()
     {
         $this->setting('fof-sitemap.excludeUsers', true);
@@ -95,7 +96,7 @@ class RobotsGenerationTest extends TestCase
         $this->assertStringContainsString('Disallow: /u/', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_includes_users_when_setting_disabled()
     {
         $this->setting('fof-sitemap.excludeUsers', false);

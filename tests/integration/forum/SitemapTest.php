@@ -15,6 +15,10 @@ namespace FoF\Sitemap\Tests\integration\forum;
 use Carbon\Carbon;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
+use Flarum\User\User;
 
 class SitemapTest extends TestCase
 {
@@ -27,13 +31,13 @@ class SitemapTest extends TestCase
         $this->extension('fof-sitemap');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'First Discussion', 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 3, 'is_private' => 0],
                 ['id' => 2, 'title' => 'Second Discussion', 'created_at' => Carbon::createFromDate(2023, 2, 1)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2023, 2, 1)->toDateTimeString(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2, 'is_private' => 0],
                 ['id' => 3, 'title' => 'Third Discussion', 'created_at' => Carbon::createFromDate(2023, 3, 1)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2023, 3, 1)->toDateTimeString(), 'user_id' => 4, 'first_post_id' => 6, 'comment_count' => 4, 'is_private' => 0],
                 ['id' => 4, 'title' => 'Hidden Discussion', 'created_at' => Carbon::createFromDate(2023, 4, 1)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2023, 4, 1)->toDateTimeString(), 'hidden_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 10, 'comment_count' => 1, 'is_private' => 0],
             ],
-            'posts' => [
+            Post::class => [
                 // User 2 posts (6 total - above default threshold of 5)
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>User 2 post 1</p></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 2)->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>User 2 post 2</p></t>'],
@@ -60,7 +64,7 @@ class SitemapTest extends TestCase
                 // User 5 posts (1 total - well below threshold)
                 ['id' => 18, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 8)->toDateTimeString(), 'user_id' => 5, 'type' => 'comment', 'content' => '<t><p>User 5 only post</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 ['id' => 2, 'username' => 'user_6_posts', 'email' => 'user6@example.com', 'joined_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'comment_count' => 6],
                 ['id' => 3, 'username' => 'user_3_posts', 'email' => 'user3@example.com', 'joined_at' => Carbon::createFromDate(2023, 1, 2)->toDateTimeString(), 'comment_count' => 3],
                 ['id' => 4, 'username' => 'user_8_posts', 'email' => 'user8@example.com', 'joined_at' => Carbon::createFromDate(2023, 1, 3)->toDateTimeString(), 'comment_count' => 8],
@@ -69,9 +73,7 @@ class SitemapTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_index_returns_valid_xml_structure()
     {
         $response = $this->send(
@@ -86,9 +88,7 @@ class SitemapTest extends TestCase
         $this->assertValidSitemapIndexXml($body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_includes_discussions_with_sample_data()
     {
         $response = $this->send(
@@ -106,9 +106,7 @@ class SitemapTest extends TestCase
         $this->assertGreaterThan(0, count($sitemapUrls), 'Should contain sitemap entries');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function individual_sitemap_contains_valid_urls()
     {
         // First get the sitemap index
@@ -136,9 +134,7 @@ class SitemapTest extends TestCase
         $this->assertGreaterThan(0, count($urls), 'Should contain URLs');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_includes_user_urls_with_sufficient_posts()
     {
         // With default threshold of 5, users 2 (6 posts) and 4 (8 posts) should be included
@@ -179,9 +175,7 @@ class SitemapTest extends TestCase
         $this->assertTrue($foundDiscussionUrl, 'Should include discussion URLs in sitemap');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_respects_user_minimum_post_threshold_setting()
     {
         // Set a high threshold that our test users won't meet
@@ -227,9 +221,7 @@ class SitemapTest extends TestCase
         $this->assertFalse($foundUserUrl, 'Should not include user URLs when threshold is too high');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_includes_priority_and_changefreq_by_default()
     {
         // Default settings should include priority and changefreq
@@ -276,9 +268,7 @@ class SitemapTest extends TestCase
         $this->assertTrue($foundChangefreq, 'Should include changefreq elements by default');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_excludes_priority_when_disabled()
     {
         // Disable priority inclusion
@@ -322,9 +312,7 @@ class SitemapTest extends TestCase
         $this->assertTrue($foundChangefreq, 'Should still include changefreq elements when only priority is disabled');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_excludes_changefreq_when_disabled()
     {
         // Disable changefreq inclusion
@@ -368,9 +356,7 @@ class SitemapTest extends TestCase
         $this->assertFalse($foundChangefreq, 'Should not include changefreq elements when disabled');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_excludes_both_priority_and_changefreq_when_disabled()
     {
         // Disable both priority and changefreq inclusion
@@ -415,9 +401,7 @@ class SitemapTest extends TestCase
         $this->assertFalse($foundChangefreq, 'Should not include changefreq elements when disabled');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_excludes_all_users_when_setting_enabled()
     {
         // Enable user exclusion
