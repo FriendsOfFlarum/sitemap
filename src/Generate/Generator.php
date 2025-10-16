@@ -14,7 +14,6 @@ namespace FoF\Sitemap\Generate;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use Flarum\Database\AbstractModel;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
 use FoF\Sitemap\Deploy\StoredSet;
