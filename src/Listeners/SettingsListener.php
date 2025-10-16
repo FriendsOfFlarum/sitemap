@@ -18,11 +18,12 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Jobs\TriggerBuildJob;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;
 
 class SettingsListener
 {
-    public function __construct(protected SettingsRepositoryInterface $settings, protected Factory $filesystem)
+    public function __construct(protected SettingsRepositoryInterface $settings, protected Factory $filesystem, protected Queue $queue)
     {
     }
 
@@ -64,6 +65,6 @@ class SettingsListener
 
     private function createCachedSitemaps(): void
     {
-        resolve('flarum.queue.connection')->push(new TriggerBuildJob());
+        $this->queue->push(new TriggerBuildJob());
     }
 }

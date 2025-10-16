@@ -100,7 +100,7 @@ class Generator
 
             $resource
                 ->query()
-                ->each(function (AbstractModel|string $item) use (&$output, &$set, $resource, &$remotes, &$i) {
+                ->each(function (mixed $item) use (&$output, &$set, $resource, &$remotes, &$i) {
                     $url = new Url(
                         $resource->url($item),
                         $resource->lastModifiedAt($item),

@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
 use FoF\Sitemap\Jobs\TriggerBuildJob;
 use Illuminate\Contracts\Filesystem\Cloud;
+use Illuminate\Contracts\Queue\Queue;
 use Psr\Log\LoggerInterface;
 
 class ProxyDisk implements DeployInterface
@@ -24,7 +25,8 @@ class ProxyDisk implements DeployInterface
         public Cloud $sitemapStorage,
         public Cloud $indexStorage,
         private UrlGenerator $urlGenerator,
-        protected LoggerInterface $logger
+        protected LoggerInterface $logger,
+        protected Queue $queue,
     ) {
     }
 
@@ -53,7 +55,7 @@ class ProxyDisk implements DeployInterface
     {
         if (!$this->indexStorage->exists('sitemap.xml')) {
             $this->logger->debug('[FoF Sitemap] ProxyDisk: Index not found in remote storage, triggering build job');
-            resolve('flarum.queue.connection')->push(new TriggerBuildJob());
+            $this->queue->push(new TriggerBuildJob());
 
             return null;
         }
