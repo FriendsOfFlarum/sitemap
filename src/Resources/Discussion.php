@@ -65,7 +65,7 @@ class Discussion extends Resource
     public function dynamicFrequency($model): string
     {
         $lastActivity = $this->lastModifiedAt($model);
-        $daysSinceActivity = $lastActivity->diffInDays(Carbon::now());
+        $daysSinceActivity = $lastActivity->diffInDays(Carbon::now(), true);
 
         if ($daysSinceActivity < 1) {
             return Frequency::HOURLY;

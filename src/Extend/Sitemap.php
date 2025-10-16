@@ -101,7 +101,7 @@ class Sitemap implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, ?Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if (!empty($this->resourcesToAdd) || !empty($this->resourcesToRemove) || !empty($this->resourcesToReplace)) {
             $container->extend('fof-sitemaps.resources', function (array $resources) {

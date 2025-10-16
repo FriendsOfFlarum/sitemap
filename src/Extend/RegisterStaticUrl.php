@@ -33,7 +33,7 @@ class RegisterStaticUrl implements ExtenderInterface
         $this->sitemap = (new Sitemap())->addStaticUrl($routeName);
     }
 
-    public function extend(Container $container, ?Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $this->sitemap->extend($container, $extension);
     }
