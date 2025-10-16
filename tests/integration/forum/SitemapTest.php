@@ -13,12 +13,12 @@
 namespace FoF\Sitemap\Tests\integration\forum;
 
 use Carbon\Carbon;
-use Flarum\Testing\integration\TestCase;
-use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
-use PHPUnit\Framework\Attributes\Test;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
+use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+use PHPUnit\Framework\Attributes\Test;
 
 class SitemapTest extends TestCase
 {

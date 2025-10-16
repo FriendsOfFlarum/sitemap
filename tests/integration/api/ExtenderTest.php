@@ -13,15 +13,15 @@
 namespace FoF\Sitemap\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use FoF\Sitemap\Extend\Sitemap;
 use FoF\Sitemap\Tests\integration\TestDiscussionResource;
 use FoF\Sitemap\Tests\integration\TestResource;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
 use PHPUnit\Framework\Attributes\Test;
-use Flarum\Discussion\Discussion;
-use Flarum\Post\Post;
-use Flarum\User\User;
 
 class ExtenderTest extends TestCase
 {

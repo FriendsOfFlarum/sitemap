@@ -12,16 +12,12 @@
 
 namespace FoF\Sitemap;
 
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Resource;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
 use FoF\Sitemap\Extend\Robots;
 use FoF\Sitemap\Robots\Entries\TagEntry;
-use Flarum\Api\Context;
-use Flarum\Api\Endpoint;
-use Flarum\Api\Resource;
-use Flarum\Api\Schema;
 
 return [
     (new Extend\Frontend('admin'))

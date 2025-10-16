@@ -13,13 +13,13 @@
 namespace FoF\Sitemap\Tests\integration\console;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\ConsoleTestCase;
+use Flarum\User\User;
 use FoF\Sitemap\Extend\Sitemap;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
 use PHPUnit\Framework\Attributes\Test;
-use Flarum\Discussion\Discussion;
-use Flarum\Post\Post;
-use Flarum\User\User;
 
 class CachedModeTest extends ConsoleTestCase
 {

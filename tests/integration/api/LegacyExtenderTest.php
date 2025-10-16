@@ -13,16 +13,16 @@
 namespace FoF\Sitemap\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use FoF\Sitemap\Extend\RegisterResource;
 use FoF\Sitemap\Extend\RegisterStaticUrl;
 use FoF\Sitemap\Extend\RemoveResource;
 use FoF\Sitemap\Tests\integration\TestResource;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
 use PHPUnit\Framework\Attributes\Test;
-use Flarum\Discussion\Discussion;
-use Flarum\Post\Post;
-use Flarum\User\User;
 
 class LegacyExtenderTest extends TestCase
 {

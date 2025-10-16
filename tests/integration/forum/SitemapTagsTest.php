@@ -13,15 +13,15 @@
 namespace FoF\Sitemap\Tests\integration\forum;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
 use PHPUnit\Framework\Attributes\Test;
-use Flarum\Tags\Tag;
-use Flarum\Discussion\Discussion;
-use Flarum\Post\Post;
-use Flarum\User\User;
 
 class SitemapTagsTest extends TestCase
 {

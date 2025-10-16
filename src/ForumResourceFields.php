@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap;
 
 use Flarum\Api\Context;
@@ -8,7 +18,7 @@ use Illuminate\Contracts\Container\Container;
 
 class ForumResourceFields
 {
-    public function __invoke():array
+    public function __invoke(): array
     {
         return [
             Schema\Boolean::make('fof-sitemap.usersIndexAvailable')
