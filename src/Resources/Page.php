@@ -51,7 +51,7 @@ class Page extends Resource
 
     public function lastModifiedAt($model): Carbon
     {
-        return $model->edit_time ?? $model->time;
+        return $model->updated_at ?? $model->created_at;
     }
 
     public function enabled(): bool

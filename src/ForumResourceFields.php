@@ -1,0 +1,29 @@
+<?php
+
+namespace FoF\Sitemap;
+
+use Flarum\Api\Context;
+use Flarum\Api\Schema;
+use Illuminate\Contracts\Container\Container;
+
+class ForumResourceFields
+{
+    public function __invoke():array
+    {
+        return [
+            Schema\Boolean::make('fof-sitemap.usersIndexAvailable')
+                ->visible(fn (\stdClass $model, Context $context) => $context->getActor()->isAdmin())
+                ->get(function (\stdClass $model, Context $context) {
+                    // If the users index has been removed via the extender, we want to remove the related settings from the admin
+                    return in_array(Resources\User::class, resolve('fof-sitemaps.resources'));
+                }),
+
+            Schema\Boolean::make('fof-sitemap.modeChoice')
+                ->visible(fn (\stdClass $model, Context $context) => $context->getActor()->isAdmin())
+                ->get(function (\stdClass $model, Context $context) {
+                    // If the special extender to disable runtime has been used, we need this information to hide the matching settings
+                    return !resolve(Container::class)->bound('fof-sitemaps.forceCached');
+                }),
+        ];
+    }
+}
