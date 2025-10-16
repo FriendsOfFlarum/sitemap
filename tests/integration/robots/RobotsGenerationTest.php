@@ -12,16 +12,11 @@
 
 namespace FoF\Sitemap\Tests\Integration\Robots;
 
-use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use FoF\Sitemap\Tests\Integration\XmlSitemapTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 
 class RobotsGenerationTest extends TestCase
 {
-    use RetrievesAuthorizedUsers;
-    use XmlSitemapTestTrait;
-
     public function setUp(): void
     {
         parent::setUp();
