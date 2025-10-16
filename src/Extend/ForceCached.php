@@ -31,7 +31,7 @@ class ForceCached implements ExtenderInterface
         $this->sitemap = (new Sitemap())->forceCached();
     }
 
-    public function extend(Container $container, ?Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $this->sitemap->extend($container, $extension);
     }

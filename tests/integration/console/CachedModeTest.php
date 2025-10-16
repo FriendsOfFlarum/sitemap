@@ -13,9 +13,13 @@
 namespace FoF\Sitemap\Tests\integration\console;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\ConsoleTestCase;
+use Flarum\User\User;
 use FoF\Sitemap\Extend\Sitemap;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+use PHPUnit\Framework\Attributes\Test;
 
 class CachedModeTest extends ConsoleTestCase
 {
@@ -28,7 +32,7 @@ class CachedModeTest extends ConsoleTestCase
         $this->extension('fof-sitemap');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 [
                     'id'             => 1,
                     'title'          => 'Test Discussion',
@@ -40,18 +44,16 @@ class CachedModeTest extends ConsoleTestCase
                     'is_private'     => 0,
                 ],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Test content</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 ['id' => 2, 'username' => 'testuser', 'email' => 'test@example.com', 'joined_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'comment_count' => 10],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_build_command_exists()
     {
         $input = [
@@ -64,9 +66,7 @@ class CachedModeTest extends ConsoleTestCase
         $this->assertStringContainsString('fof:sitemap:build', $output);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sitemap_build_command_runs_without_errors()
     {
         $input = [
@@ -84,9 +84,7 @@ class CachedModeTest extends ConsoleTestCase
         $this->assertStringContainsString('Completed', $output);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cached_mode_generates_and_serves_sitemaps()
     {
         // Set the extension to cached multi-file mode
@@ -152,9 +150,7 @@ class CachedModeTest extends ConsoleTestCase
         $this->assertTrue($foundUserUrl, 'Cached sitemap should include user URLs');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_can_force_cached_mode()
     {
         $this->extend(
@@ -193,9 +189,7 @@ class CachedModeTest extends ConsoleTestCase
         $this->assertTrue($container->get('fof-sitemaps.forceCached'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_forced_cached_mode_overrides_setting()
     {
         // Set the extension to runtime mode via setting
@@ -232,9 +226,7 @@ class CachedModeTest extends ConsoleTestCase
         $this->assertValidSitemapIndexXml($indexBody);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cached_mode_creates_physical_files_on_disk()
     {
         // Set the extension to cached multi-file mode
@@ -281,9 +273,7 @@ class CachedModeTest extends ConsoleTestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_forced_cached_mode_creates_physical_files()
     {
         $this->extend(

@@ -14,10 +14,11 @@ namespace FoF\Sitemap\Tests\Unit\Robots;
 
 use Flarum\Testing\unit\TestCase;
 use FoF\Sitemap\Robots\RobotsEntry;
+use PHPUnit\Framework\Attributes\Test;
 
 class RobotsEntryHelpersTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function helper_methods_create_correct_rule_structures()
     {
         $entry = new TestRobotsEntryForHelpers();

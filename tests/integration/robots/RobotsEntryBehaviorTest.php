@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Extend\Robots;
 use FoF\Sitemap\Robots\RobotsEntry;
+use PHPUnit\Framework\Attributes\Test;
 
 class RobotsEntryBehaviorTest extends TestCase
 {
@@ -28,7 +29,7 @@ class RobotsEntryBehaviorTest extends TestCase
         $this->extension('fof-sitemap');
     }
 
-    /** @test */
+    #[Test]
     public function disabled_entries_are_not_included()
     {
         $this->extend(
@@ -46,7 +47,7 @@ class RobotsEntryBehaviorTest extends TestCase
         $this->assertStringNotContainsString('Disallow: /disabled-path', $content);
     }
 
-    /** @test */
+    #[Test]
     public function entries_can_use_settings()
     {
         $this->setting('test.robots.enabled', true);
@@ -66,7 +67,7 @@ class RobotsEntryBehaviorTest extends TestCase
         $this->assertStringContainsString('Disallow: /settings-based', $content);
     }
 
-    /** @test */
+    #[Test]
     public function entries_respect_settings_changes()
     {
         $this->setting('test.robots.enabled', false);
@@ -86,7 +87,7 @@ class RobotsEntryBehaviorTest extends TestCase
         $this->assertStringNotContainsString('Disallow: /settings-based', $content);
     }
 
-    /** @test */
+    #[Test]
     public function entries_can_return_empty_rules()
     {
         $this->extend(

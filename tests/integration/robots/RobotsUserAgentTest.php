@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Extend\Robots;
 use FoF\Sitemap\Robots\RobotsEntry;
+use PHPUnit\Framework\Attributes\Test;
 
 class RobotsUserAgentTest extends TestCase
 {
@@ -28,7 +29,7 @@ class RobotsUserAgentTest extends TestCase
         $this->extension('fof-sitemap');
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_groups_rules_by_user_agent()
     {
         $this->extend(
@@ -53,7 +54,7 @@ class RobotsUserAgentTest extends TestCase
         $this->assertStringContainsString('Disallow: /', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_places_sitemaps_at_end()
     {
         $this->extend(

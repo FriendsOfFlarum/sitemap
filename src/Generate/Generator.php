@@ -14,7 +14,6 @@ namespace FoF\Sitemap\Generate;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use Flarum\Database\AbstractModel;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
 use FoF\Sitemap\Deploy\StoredSet;
@@ -100,7 +99,7 @@ class Generator
 
             $resource
                 ->query()
-                ->each(function (AbstractModel|string $item) use (&$output, &$set, $resource, &$remotes, &$i) {
+                ->each(function (mixed $item) use (&$output, &$set, $resource, &$remotes, &$i) {
                     $url = new Url(
                         $resource->url($item),
                         $resource->lastModifiedAt($item),

@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
 use FoF\Sitemap\Jobs\TriggerBuildJob;
 use Illuminate\Contracts\Filesystem\Cloud;
+use Illuminate\Contracts\Queue\Queue;
 use Psr\Log\LoggerInterface;
 
 class Disk implements DeployInterface
@@ -24,7 +25,8 @@ class Disk implements DeployInterface
         public Cloud $sitemapStorage,
         public Cloud $indexStorage,
         protected UrlGenerator $url,
-        protected LoggerInterface $logger
+        protected LoggerInterface $logger,
+        protected Queue $queue,
     ) {
     }
 
@@ -51,7 +53,7 @@ class Disk implements DeployInterface
     {
         if (!$this->indexStorage->exists('sitemap.xml')) {
             $this->logger->debug('[FoF Sitemap] Disk: Index not found, triggering build job');
-            resolve('flarum.queue.connection')->push(new TriggerBuildJob());
+            $this->queue->push(new TriggerBuildJob());
 
             return null;
         }

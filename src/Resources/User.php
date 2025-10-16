@@ -63,7 +63,7 @@ class User extends Resource
     public function dynamicFrequency($model): string
     {
         $lastSeen = $model->last_seen_at ?? $model->joined_at;
-        $daysSinceActivity = $lastSeen->diffInDays(Carbon::now());
+        $daysSinceActivity = $lastSeen->diffInDays(Carbon::now(), true);
 
         if ($daysSinceActivity < 7) {
             return Frequency::WEEKLY;

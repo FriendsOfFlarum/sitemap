@@ -23,6 +23,7 @@ use FoF\Sitemap\Deploy\ProxyDisk;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Queue\Queue;
 use Psr\Log\LoggerInterface;
 
 class DeployProvider extends AbstractServiceProvider
@@ -50,6 +51,8 @@ class DeployProvider extends AbstractServiceProvider
             $url = $container->make(UrlGenerator::class);
             /** @var LoggerInterface $logger */
             $logger = $container->make(LoggerInterface::class);
+            /** @var Queue $queue */
+            $queue = $container->make(Queue::class);
 
             // Check if storage URL matches Flarum's base URL
             if ($this->needsProxy($sitemaps, $container)) {
@@ -57,7 +60,8 @@ class DeployProvider extends AbstractServiceProvider
                     $sitemaps,
                     $sitemaps,
                     $url,
-                    $logger
+                    $logger,
+                    $queue
                 );
             }
 
@@ -65,7 +69,8 @@ class DeployProvider extends AbstractServiceProvider
                 $sitemaps,
                 $sitemaps,
                 $url,
-                $logger
+                $logger,
+                $queue
             );
         });
     }

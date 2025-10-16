@@ -13,11 +13,15 @@
 namespace FoF\Sitemap\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use FoF\Sitemap\Extend\Sitemap;
 use FoF\Sitemap\Tests\integration\TestDiscussionResource;
 use FoF\Sitemap\Tests\integration\TestResource;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+use PHPUnit\Framework\Attributes\Test;
 
 class ExtenderTest extends TestCase
 {
@@ -30,7 +34,7 @@ class ExtenderTest extends TestCase
         $this->extension('fof-sitemap');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 [
                     'id'             => 1,
                     'title'          => 'Test Discussion',
@@ -42,10 +46,10 @@ class ExtenderTest extends TestCase
                     'is_private'     => 0,
                 ],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(2023, 1, 1)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Test content</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 ['id' => 2, 'username' => 'testuser', 'email' => 'test@example.com', 'joined_at' => Carbon::createFromDate(
                     2023,
                     1,
@@ -55,9 +59,7 @@ class ExtenderTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_can_remove_existing_resource()
     {
         $this->extend(
@@ -100,9 +102,7 @@ class ExtenderTest extends TestCase
         $this->assertFalse($foundDiscussionUrl, 'Unified extender should not include discussion URLs when Discussion resource is removed');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_can_add_custom_resource()
     {
         $this->extend(
@@ -154,9 +154,7 @@ class ExtenderTest extends TestCase
         $this->assertTrue($foundDiscussionUrl, 'Unified extender should still include existing resources when adding custom resource');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_validates_resource_inheritance()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -165,9 +163,7 @@ class ExtenderTest extends TestCase
         (new Sitemap())->addResource(\stdClass::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_can_replace_existing_resource()
     {
         $this->extend(
@@ -227,9 +223,7 @@ class ExtenderTest extends TestCase
         $this->assertTrue($foundUserUrl, 'Unified extender should still include other resources when Discussion resource is replaced');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unified_extender_can_add_static_url()
     {
         // First register a custom route that we can reference

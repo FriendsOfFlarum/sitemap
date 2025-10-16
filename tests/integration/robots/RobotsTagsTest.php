@@ -14,6 +14,7 @@ namespace FoF\Sitemap\Tests\Integration\Robots;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class RobotsTagsTest extends TestCase
 {
@@ -26,7 +27,7 @@ class RobotsTagsTest extends TestCase
         $this->extension('fof-sitemap', 'flarum-tags');
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_excludes_tags_when_setting_enabled()
     {
         $this->setting('fof-sitemap.excludeTags', true);
@@ -42,7 +43,7 @@ class RobotsTagsTest extends TestCase
         $this->assertStringContainsString('Disallow: /tags', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_includes_tags_when_setting_disabled()
     {
         $this->setting('fof-sitemap.excludeTags', false);
@@ -58,7 +59,7 @@ class RobotsTagsTest extends TestCase
         $this->assertStringNotContainsString('Disallow: /tags', $content);
     }
 
-    /** @test */
+    #[Test]
     public function robots_txt_excludes_tags_without_tags_extension()
     {
         // Disable tags extension
