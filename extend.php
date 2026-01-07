@@ -77,4 +77,5 @@ return [
             (new Robots())
                 ->addEntry(TagEntry::class),
         ]),
+    (new Extend\Middleware('api'))->add(Middleware\ApiRobotsHeader::class),
 ];
