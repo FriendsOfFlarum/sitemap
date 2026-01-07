@@ -38,6 +38,9 @@ return [
         ->register(Providers\DeployProvider::class)
         ->register(Providers\RobotsProvider::class),
 
+    (new Extend\Middleware('api'))
+        ->add(Middleware\ApiRobotsHeader::class),
+
     (new Extend\Console())
         ->command(Console\BuildSitemapCommand::class)
         ->schedule(Console\BuildSitemapCommand::class, new Console\BuildSitemapSchedule()),
