@@ -226,23 +226,23 @@ class MemoryStressTest extends ConsoleTestCase
 
                 // Create discussions without first_post_id initially
                 $discussions[] = [
-                    'id' => $i,
-                    'title' => "Stress Test Discussion {$i}",
-                    'slug' => "stress-test-discussion-{$i}",
-                    'created_at' => $createdAt,
+                    'id'             => $i,
+                    'title'          => "Stress Test Discussion {$i}",
+                    'slug'           => "stress-test-discussion-{$i}",
+                    'created_at'     => $createdAt,
                     'last_posted_at' => $createdAt,
-                    'user_id' => 1,
-                    'comment_count' => 1,
-                    'is_private' => 0,
+                    'user_id'        => 1,
+                    'comment_count'  => 1,
+                    'is_private'     => 0,
                 ];
 
                 $posts[] = [
-                    'id' => $i,
+                    'id'            => $i,
                     'discussion_id' => $i,
-                    'created_at' => $createdAt,
-                    'user_id' => 1,
-                    'type' => 'comment',
-                    'content' => '<t><p>Test content</p></t>',
+                    'created_at'    => $createdAt,
+                    'user_id'       => 1,
+                    'type'          => 'comment',
+                    'content'       => '<t><p>Test content</p></t>',
                 ];
             }
 
@@ -252,7 +252,7 @@ class MemoryStressTest extends ConsoleTestCase
 
             // Update discussions to set first_post_id
             $this->database()->statement(
-                "UPDATE discussions SET first_post_id = id WHERE id >= ? AND id <= ?",
+                'UPDATE discussions SET first_post_id = id WHERE id >= ? AND id <= ?',
                 [$startId, $endId]
             );
         }
@@ -310,24 +310,24 @@ class MemoryStressTest extends ConsoleTestCase
         $this->prepareDatabase([
             'discussions' => [
                 [
-                    'id' => 1,
-                    'title' => 'Baseline Discussion',
-                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'id'             => 1,
+                    'title'          => 'Baseline Discussion',
+                    'created_at'     => Carbon::now()->toDateTimeString(),
                     'last_posted_at' => Carbon::now()->toDateTimeString(),
-                    'user_id' => 1,
-                    'first_post_id' => 1,
-                    'comment_count' => 1,
-                    'is_private' => 0,
+                    'user_id'        => 1,
+                    'first_post_id'  => 1,
+                    'comment_count'  => 1,
+                    'is_private'     => 0,
                 ],
             ],
             'posts' => [
                 [
-                    'id' => 1,
+                    'id'            => 1,
                     'discussion_id' => 1,
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'user_id' => 1,
-                    'type' => 'comment',
-                    'content' => '<t><p>Baseline content</p></t>',
+                    'created_at'    => Carbon::now()->toDateTimeString(),
+                    'user_id'       => 1,
+                    'type'          => 'comment',
+                    'content'       => '<t><p>Baseline content</p></t>',
                 ],
             ],
         ]);

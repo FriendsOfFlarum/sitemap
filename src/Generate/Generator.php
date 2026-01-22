@@ -41,8 +41,8 @@ class Generator
     public function generate(?OutputInterface $output = null): ?string
     {
         $logger = resolve(LoggerInterface::class);
-        $logger->info('[FoF Sitemap] Generator.generate() started, deploy class: ' . get_class($this->deploy));
-        $logger->info('[FoF Sitemap] Generator resources count: ' . count($this->resources));
+        $logger->info('[FoF Sitemap] Generator.generate() started, deploy class: '.get_class($this->deploy));
+        $logger->info('[FoF Sitemap] Generator resources count: '.count($this->resources));
 
         if (!$output) {
             $output = new NullOutput();
@@ -110,37 +110,37 @@ class Generator
             $chunkSize = resolve(SettingsRepositoryInterface::class)->get('fof-sitemap.riskyPerformanceImprovements') ? 150000 : 75000;
 
             $query->each(function (AbstractModel|string $item) use (&$output, &$set, $resource, &$remotes, &$i, &$foundResults) {
-                    $foundResults = true;
-                    $url = new Url(
-                        $resource->url($item),
-                        $resource->lastModifiedAt($item),
-                        $resource->dynamicFrequency($item) ?? $resource->frequency(),
-                        $resource->dynamicPriority($item) ?? $resource->priority(),
-                        $resource->alternatives($item)
-                    );
+                $foundResults = true;
+                $url = new Url(
+                    $resource->url($item),
+                    $resource->lastModifiedAt($item),
+                    $resource->dynamicFrequency($item) ?? $resource->frequency(),
+                    $resource->dynamicPriority($item) ?? $resource->priority(),
+                    $resource->alternatives($item)
+                );
 
-                    try {
-                        $set->add($url);
-                    } catch (SetLimitReachedException) {
-                        $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
+                try {
+                    $set->add($url);
+                } catch (SetLimitReachedException) {
+                    $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
 
-                        $memoryMB = round(memory_get_usage(true) / 1024 / 1024, 2);
-                        $output->writeln("Storing set $i (Memory: {$memoryMB}MB)");
+                    $memoryMB = round(memory_get_usage(true) / 1024 / 1024, 2);
+                    $output->writeln("Storing set $i (Memory: {$memoryMB}MB)");
 
-                        // Explicitly clear the URLs array to free memory before creating new set
-                        $set->urls = [];
+                    // Explicitly clear the URLs array to free memory before creating new set
+                    $set->urls = [];
 
-                        // Force garbage collection after storing large sets
-                        if ($i % 5 == 0) {
-                            gc_collect_cycles();
-                        }
-
-                        $i++;
-
-                        $set = new UrlSet();
-                        $set->add($url);
+                    // Force garbage collection after storing large sets
+                    if ($i % 5 == 0) {
+                        gc_collect_cycles();
                     }
-                }, $chunkSize);
+
+                    $i++;
+
+                    $set = new UrlSet();
+                    $set->add($url);
+                }
+            }, $chunkSize);
 
             // Log if no results were found during iteration
             if (!$foundResults) {

@@ -30,7 +30,7 @@ class RobotsController implements RequestHandlerInterface
 {
     /**
      * @param RobotsGenerator $generator The robots.txt generator instance
-     * @param LoggerInterface $logger The logger instance
+     * @param LoggerInterface $logger    The logger instance
      */
     public function __construct(
         protected RobotsGenerator $generator,

@@ -65,10 +65,11 @@ class BuildSitemapController extends AbstractDeleteController
             // The Generator will update fof-sitemap.last_build_time when generation completes
             $jobId = $this->queue->push(new TriggerBuildJob());
 
-            $this->logger->info("[FoF Sitemap] Build job successfully queued with ID: " . ($jobId ?? 'null'));
+            $this->logger->info('[FoF Sitemap] Build job successfully queued with ID: '.($jobId ?? 'null'));
         } catch (\Exception $e) {
-            $this->logger->error("[FoF Sitemap] Failed to queue build job: " . $e->getMessage());
-            $this->logger->error("[FoF Sitemap] Exception trace: " . $e->getTraceAsString());
+            $this->logger->error('[FoF Sitemap] Failed to queue build job: '.$e->getMessage());
+            $this->logger->error('[FoF Sitemap] Exception trace: '.$e->getTraceAsString());
+
             throw $e;
         }
 

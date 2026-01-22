@@ -25,7 +25,7 @@ class TriggerBuildJob extends AbstractJob
 
         /** @var Generator $generator */
         $generator = resolve(Generator::class);
-        $logger->info('[FoF Sitemap] Generator resolved: ' . get_class($generator));
+        $logger->info('[FoF Sitemap] Generator resolved: '.get_class($generator));
 
         $generator->generate();
 

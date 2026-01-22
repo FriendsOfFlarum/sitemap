@@ -33,13 +33,14 @@ class Disk implements DeployInterface
         $path = "sitemap-$setIndex.xml";
 
         $this->logger->info("[FoF Sitemap] Disk: Storing set $setIndex to path: $path");
-        $this->logger->info("[FoF Sitemap] Disk: Full filesystem path: " . $this->sitemapStorage->path($path));
+        $this->logger->info('[FoF Sitemap] Disk: Full filesystem path: '.$this->sitemapStorage->path($path));
 
         try {
             $result = $this->sitemapStorage->put($path, $set);
-            $this->logger->info("[FoF Sitemap] Disk: Successfully stored set $setIndex, result: " . ($result ? 'true' : 'false'));
+            $this->logger->info("[FoF Sitemap] Disk: Successfully stored set $setIndex, result: ".($result ? 'true' : 'false'));
         } catch (\Exception $e) {
-            $this->logger->error("[FoF Sitemap] Disk: Failed to store set $setIndex: " . $e->getMessage());
+            $this->logger->error("[FoF Sitemap] Disk: Failed to store set $setIndex: ".$e->getMessage());
+
             throw $e;
         }
 
@@ -55,9 +56,10 @@ class Disk implements DeployInterface
 
         try {
             $result = $this->indexStorage->put('sitemap.xml', $index);
-            $this->logger->info('[FoF Sitemap] Disk: Successfully stored index, result: ' . ($result ? 'true' : 'false'));
+            $this->logger->info('[FoF Sitemap] Disk: Successfully stored index, result: '.($result ? 'true' : 'false'));
         } catch (\Exception $e) {
-            $this->logger->error('[FoF Sitemap] Disk: Failed to store index: ' . $e->getMessage());
+            $this->logger->error('[FoF Sitemap] Disk: Failed to store index: '.$e->getMessage());
+
             throw $e;
         }
 
