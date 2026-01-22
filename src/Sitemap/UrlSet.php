@@ -13,7 +13,7 @@
 namespace FoF\Sitemap\Sitemap;
 
 use FoF\Sitemap\Exceptions\SetLimitReachedException;
-use Illuminate\View\Factory;
+use XMLWriter;
 
 class UrlSet
 {
@@ -40,13 +40,66 @@ class UrlSet
 
     public function toXml(): string
     {
-        /** @var Factory $view */
-        $view = resolve(Factory::class);
+        $settings = resolve(\Flarum\Settings\SettingsRepositoryInterface::class);
+        $includeChangefreq = $settings->get('fof-sitemap.include_changefreq') ?? true;
+        $includePriority = $settings->get('fof-sitemap.include_priority') ?? true;
 
-        return $view->make('fof-sitemap::urlset')
-            ->with([
-                'set' => $this,
-            ])
-            ->render();
+        $writer = new XMLWriter();
+        $writer->openMemory();
+        // Disable indentation to reduce memory overhead
+        $writer->setIndent(false);
+
+        $writer->startDocument('1.0', 'UTF-8');
+        $writer->startElement('urlset');
+        $writer->writeAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+        $writer->writeAttribute('xmlns:xhtml', 'http://www.w3.org/1999/xhtml');
+
+        foreach ($this->urls as $url) {
+            $this->renderUrl($writer, $url, $includeChangefreq, $includePriority);
+        }
+
+        $writer->endElement(); // urlset
+        $writer->endDocument();
+
+        return $writer->outputMemory();
+    }
+
+    /**
+     * Render a single URL entry as XML.
+     * Separated for clarity and maintainability.
+     */
+    private function renderUrl(XMLWriter $writer, Url $url, bool $includeChangefreq, bool $includePriority): void
+    {
+        $writer->startElement('url');
+
+        $writer->writeElement('loc', $url->location);
+
+        // Alternative language links
+        if ($url->alternatives) {
+            foreach ($url->alternatives as $alt) {
+                $writer->startElement('xhtml:link');
+                $writer->writeAttribute('rel', 'alternate');
+                $writer->writeAttribute('hreflang', $alt->hreflang);
+                $writer->writeAttribute('href', $alt->href);
+                $writer->endElement(); // xhtml:link
+            }
+        }
+
+        // Last modification date
+        if ($url->lastModified) {
+            $writer->writeElement('lastmod', $url->lastModified->toW3cString());
+        }
+
+        // Change frequency (optional based on settings)
+        if ($url->changeFrequency && $includeChangefreq) {
+            $writer->writeElement('changefreq', $url->changeFrequency);
+        }
+
+        // Priority (optional based on settings)
+        if ($url->priority && $includePriority) {
+            $writer->writeElement('priority', $url->priority);
+        }
+
+        $writer->endElement(); // url
     }
 }

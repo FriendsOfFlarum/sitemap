@@ -17,6 +17,7 @@ use Laminas\Diactoros\Response\TextResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Controller for serving robots.txt files.
@@ -29,9 +30,11 @@ class RobotsController implements RequestHandlerInterface
 {
     /**
      * @param RobotsGenerator $generator The robots.txt generator instance
+     * @param LoggerInterface $logger The logger instance
      */
     public function __construct(
-        protected RobotsGenerator $generator
+        protected RobotsGenerator $generator,
+        protected LoggerInterface $logger
     ) {
     }
 
@@ -47,7 +50,15 @@ class RobotsController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        $serverParams = $request->getServerParams();
+        $ip = $serverParams['REMOTE_ADDR'] ?? 'unknown';
+        $userAgent = $request->getHeaderLine('User-Agent') ?: 'unknown';
+
+        $this->logger->debug("[FoF Sitemap] Received robots.txt request from IP: {$ip}, User-Agent: {$userAgent}");
+
         $content = $this->generator->generate();
+
+        $this->logger->debug('[FoF Sitemap] Successfully serving robots.txt content');
 
         return new TextResponse($content, 200, ['Content-Type' => 'text/plain; charset=utf-8']);
     }

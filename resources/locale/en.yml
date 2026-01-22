@@ -5,6 +5,11 @@ fof-sitemap:
             exclude_users_help: By default any user visible to guests will be indexed
             exclude_tags: Exclude all tag pages from sitemap
             exclude_tags_help: By default any tag visible to guests will be indexed
+            build_button: Rebuild Sitemaps Now
+            build_button_help: Triggers an immediate rebuild of all sitemap files. The job will be dispatched to the queue if it's configured, else will run immediately.
+            build_success: Sitemap rebuild has been queued successfully. Check your logs to monitor progress.
+            build_error: Failed to queue sitemap rebuild. Please check your logs and queue configuration.
+            last_build_time: Last Build Time
             mode_label: Operation mode
             mode_help: Selecting the correct mode for your size of forum is vitally important.
             mode_help_runtime_label: Runtime Mode

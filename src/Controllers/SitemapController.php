@@ -40,8 +40,14 @@ class SitemapController implements RequestHandlerInterface
         /** @var string|null $id */
         $id = Arr::get($routeParams, 'id');
 
+        $serverParams = $request->getServerParams();
+        $ip = $serverParams['REMOTE_ADDR'] ?? 'unknown';
+        $userAgent = $request->getHeaderLine('User-Agent') ?: 'unknown';
+
+        $this->logger->debug("[FoF Sitemap] Received sitemap request from IP: {$ip}, User-Agent: {$userAgent}");
         $this->logger->debug('[FoF Sitemap] Route parameters: '.json_encode($routeParams));
         $this->logger->debug('[FoF Sitemap] Extracted ID: '.($id ?? 'null'));
+        $this->logger->debug('[FoF Sitemap] Deploy class: '.get_class($this->deploy));
 
         if ($id !== null) {
             // Individual sitemap request
