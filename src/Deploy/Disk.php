@@ -33,7 +33,7 @@ class Disk implements DeployInterface
         $path = "sitemap-$setIndex.xml";
 
         $this->logger->info("[FoF Sitemap] Disk: Storing set $setIndex to path: $path");
-        $this->logger->info('[FoF Sitemap] Disk: Full filesystem path: '.$this->sitemapStorage->path($path));
+        $this->logger->info('[FoF Sitemap] Disk: Full filesystem path: '.$this->sitemapStorage->url($path));
 
         try {
             $result = $this->sitemapStorage->put($path, $set);
@@ -68,7 +68,7 @@ class Disk implements DeployInterface
 
     public function getIndex(): ?string
     {
-        $fullPath = $this->indexStorage->path('sitemap.xml');
+        $fullPath = $this->indexStorage->url('sitemap.xml');
         $this->logger->debug("[FoF Sitemap] Disk: Checking for index at: {$fullPath}");
 
         if (!$this->indexStorage->exists('sitemap.xml')) {
@@ -86,7 +86,7 @@ class Disk implements DeployInterface
     public function getSet($setIndex): ?string
     {
         $path = "sitemap-$setIndex.xml";
-        $fullPath = $this->sitemapStorage->path($path);
+        $fullPath = $this->sitemapStorage->url($path);
 
         $this->logger->debug("[FoF Sitemap] Disk: Checking for set $setIndex at: {$fullPath}");
 
