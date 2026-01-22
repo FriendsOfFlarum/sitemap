@@ -32,7 +32,17 @@ class Disk implements DeployInterface
     {
         $path = "sitemap-$setIndex.xml";
 
-        $this->sitemapStorage->put($path, $set);
+        $this->logger->info("[FoF Sitemap] Disk: Storing set $setIndex to path: $path");
+        $this->logger->info('[FoF Sitemap] Disk: Full filesystem path: '.$this->sitemapStorage->url($path));
+
+        try {
+            $result = $this->sitemapStorage->put($path, $set);
+            $this->logger->info("[FoF Sitemap] Disk: Successfully stored set $setIndex, result: ".($result ? 'true' : 'false'));
+        } catch (\Exception $e) {
+            $this->logger->error("[FoF Sitemap] Disk: Failed to store set $setIndex: ".$e->getMessage());
+
+            throw $e;
+        }
 
         return new StoredSet(
             $this->url->to('forum')->route('fof-sitemap-set', ['id' => $setIndex]),
@@ -42,13 +52,25 @@ class Disk implements DeployInterface
 
     public function storeIndex(string $index): ?string
     {
-        $this->indexStorage->put('sitemap.xml', $index);
+        $this->logger->info('[FoF Sitemap] Disk: Storing index to sitemap.xml');
+
+        try {
+            $result = $this->indexStorage->put('sitemap.xml', $index);
+            $this->logger->info('[FoF Sitemap] Disk: Successfully stored index, result: '.($result ? 'true' : 'false'));
+        } catch (\Exception $e) {
+            $this->logger->error('[FoF Sitemap] Disk: Failed to store index: '.$e->getMessage());
+
+            throw $e;
+        }
 
         return $this->url->to('forum')->route('fof-sitemap-index');
     }
 
     public function getIndex(): ?string
     {
+        $fullPath = $this->indexStorage->url('sitemap.xml');
+        $this->logger->debug("[FoF Sitemap] Disk: Checking for index at: {$fullPath}");
+
         if (!$this->indexStorage->exists('sitemap.xml')) {
             $this->logger->debug('[FoF Sitemap] Disk: Index not found, triggering build job');
             resolve('flarum.queue.connection')->push(new TriggerBuildJob());
@@ -56,7 +78,7 @@ class Disk implements DeployInterface
             return null;
         }
 
-        $this->logger->debug('[FoF Sitemap] Disk: Serving index from local storage');
+        $this->logger->debug("[FoF Sitemap] Disk: Serving index from: {$fullPath}");
 
         return $this->indexStorage->get('sitemap.xml');
     }
@@ -64,6 +86,9 @@ class Disk implements DeployInterface
     public function getSet($setIndex): ?string
     {
         $path = "sitemap-$setIndex.xml";
+        $fullPath = $this->sitemapStorage->url($path);
+
+        $this->logger->debug("[FoF Sitemap] Disk: Checking for set $setIndex at: {$fullPath}");
 
         if (!$this->sitemapStorage->exists($path)) {
             $this->logger->debug("[FoF Sitemap] Disk: Set $setIndex not found in local storage");
@@ -71,7 +96,7 @@ class Disk implements DeployInterface
             return null;
         }
 
-        $this->logger->debug("[FoF Sitemap] Disk: Serving set $setIndex from local storage");
+        $this->logger->debug("[FoF Sitemap] Disk: Serving set $setIndex from: {$fullPath}");
 
         return $this->sitemapStorage->get($path);
     }
