@@ -97,7 +97,7 @@ class UrlSet
 
         // Priority (optional based on settings)
         if ($url->priority && $includePriority) {
-            $writer->writeElement('priority', $url->priority);
+            $writer->writeElement('priority', (string) $url->priority);
         }
 
         $writer->endElement(); // url
