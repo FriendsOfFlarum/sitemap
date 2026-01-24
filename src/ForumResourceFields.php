@@ -47,6 +47,7 @@ class ForumResourceFields
                 ->get(function (\stdClass $model, Context $context) {
                     $mode = $this->settings->get('fof-sitemap.mode');
                     $isCachedMode = $mode !== 'run' || $this->container->bound('fof-sitemaps.forceCached');
+
                     // Show the build button when in cached mode (either via UI setting or forced via extender)
                     return $isCachedMode;
                 }),
