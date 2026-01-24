@@ -14,10 +14,17 @@ namespace FoF\Sitemap;
 
 use Flarum\Api\Context;
 use Flarum\Api\Schema;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
 class ForumResourceFields
 {
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected Container $container
+    ) {
+    }
+
     public function __invoke(): array
     {
         return [
@@ -32,7 +39,16 @@ class ForumResourceFields
                 ->visible(fn (\stdClass $model, Context $context) => $context->getActor()->isAdmin())
                 ->get(function (\stdClass $model, Context $context) {
                     // If the special extender to disable runtime has been used, we need this information to hide the matching settings
-                    return !resolve(Container::class)->bound('fof-sitemaps.forceCached');
+                    return !$this->container->bound('fof-sitemaps.forceCached');
+                }),
+
+            Schema\Boolean::make('fof-sitemap.showBuildButton')
+                ->visible(fn (\stdClass $model, Context $context) => $context->getActor()->isAdmin())
+                ->get(function (\stdClass $model, Context $context) {
+                    $mode = $this->settings->get('fof-sitemap.mode');
+                    $isCachedMode = $mode !== 'run' || $this->container->bound('fof-sitemaps.forceCached');
+                    // Show the build button when in cached mode (either via UI setting or forced via extender)
+                    return $isCachedMode;
                 }),
         ];
     }

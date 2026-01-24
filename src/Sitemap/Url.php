@@ -13,7 +13,6 @@
 namespace FoF\Sitemap\Sitemap;
 
 use Carbon\Carbon;
-use Illuminate\View\Factory;
 
 class Url
 {
@@ -24,10 +23,5 @@ class Url
         public ?float $priority = null,
         public ?array $alternatives = null
     ) {
-    }
-
-    public function toXML(Factory $view): string
-    {
-        return $view->make('fof-sitemap::url')->with('url', $this)->render();
     }
 }

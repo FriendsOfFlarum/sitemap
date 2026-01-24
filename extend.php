@@ -28,6 +28,9 @@ return [
         ->get('/sitemap-{id:\d+}.xml', 'fof-sitemap-set', Controllers\SitemapController::class)
         ->get('/robots.txt', 'fof-sitemap-robots-index', Controllers\RobotsController::class),
 
+    (new Extend\Routes('api'))
+        ->delete('/fof-sitemap/build', 'fof-sitemap.build', Api\BuildSitemapController::class),
+
     new Extend\Locales(__DIR__.'/resources/locale'),
 
     (new Extend\ApiResource(Resource\ForumResource::class))
@@ -44,9 +47,6 @@ return [
     (new Extend\Console())
         ->command(Console\BuildSitemapCommand::class)
         ->schedule(Console\BuildSitemapCommand::class, new Console\BuildSitemapSchedule()),
-
-    (new Extend\View())
-        ->namespace('fof-sitemap', __DIR__.'/views'),
 
     (new Extend\Filesystem())
         ->disk('flarum-sitemaps', function (Paths $paths, UrlGenerator $url) {
