@@ -13,7 +13,8 @@
 namespace FoF\Sitemap\Sitemap;
 
 use Carbon\Carbon;
-use Illuminate\View\Factory;
+use FoF\Sitemap\Deploy\StoredSet;
+use XMLWriter;
 
 class Sitemap
 {
@@ -25,8 +26,36 @@ class Sitemap
 
     public function toXML(): string
     {
-        $view = resolve(Factory::class);
+        $writer = new XMLWriter();
+        $writer->openMemory();
+        // Disable indentation to reduce memory overhead
+        $writer->setIndent(false);
 
-        return $view->make('fof-sitemap::sitemap')->with('sitemap', $this)->render();
+        $writer->startDocument('1.0', 'UTF-8');
+        $writer->startElement('sitemapindex');
+        $writer->writeAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+
+        foreach ($this->sets as $set) {
+            $this->renderSitemapEntry($writer, $set);
+        }
+
+        $writer->endElement(); // sitemapindex
+        $writer->endDocument();
+
+        return $writer->outputMemory();
+    }
+
+    /**
+     * Render a single sitemap entry as XML.
+     * Separated for clarity and maintainability.
+     */
+    private function renderSitemapEntry(XMLWriter $writer, StoredSet $set): void
+    {
+        $writer->startElement('sitemap');
+
+        $writer->writeElement('loc', $set->url);
+        $writer->writeElement('lastmod', $set->lastModifiedAt->toW3cString());
+
+        $writer->endElement(); // sitemap
     }
 }

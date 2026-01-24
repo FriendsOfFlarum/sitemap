@@ -38,8 +38,7 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "flarum/core": "^2.0.0-beta",
+        "flarum/core": "^2.0.0",
         "guzzlehttp/guzzle": "*"
     },
     "extra": {
@@ -80,10 +79,10 @@
         }
     },
     "require-dev": {
-        "flarum/tags": "^2.0.0-beta",
-        "fof/pages": "^2.0.0-beta",
-        "flarum/phpstan": "^2.0.0-beta",
-        "flarum/testing": "^2.0.0-beta"
+        "flarum/tags": "^2.0.0",
+        "fof/pages": "^2.0.0",
+        "flarum/phpstan": "^2.0.0",
+        "flarum/testing": "^2.0.0"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse",
@@ -107,5 +106,7 @@
         "psr-4": {
             "FoF\\Sitemap\\Tests\\": "tests/"
         }
-    }
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
 }

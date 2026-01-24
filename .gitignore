@@ -1,6 +1,7 @@
 js/node_modules
 vendor/
 composer.lock
-js/dist
 .phpunit.result.cache
 .aider*
+.vscode
+.DS_Store

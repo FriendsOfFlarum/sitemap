@@ -44,7 +44,8 @@ class Provider extends AbstractServiceProvider
         $this->container->singleton(Generator::class, function (Container $container) {
             return new Generator(
                 $container->make(DeployInterface::class),
-                $container->make('fof-sitemaps.resources')
+                $container->make('fof-sitemaps.resources'),
+                $container->make(SettingsRepositoryInterface::class)
             );
         });
     }
