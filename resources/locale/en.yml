@@ -22,7 +22,7 @@ fof-sitemap:
             advanced_options_label: Advanced options
             frequency_label: How often should the scheduler re-build the cached sitemap?
             risky_performance_improvements: Enable large chunk size (risky)
-            risky_performance_improvements_help: "Increases the database fetch chunk size from 75,000 to 150,000 rows. Speeds up generation on million-row datasets but doubles the peak Eloquent model RAM per chunk. Only enable if you have verified sufficient server memory. Also activates column pruning (see below)."
+            risky_performance_improvements_help: "Increases the database fetch chunk size from 75,000 to 150,000 rows. Speeds up generation on million-row datasets but doubles the peak Eloquent model RAM per chunk. Only enable if you have verified sufficient server memory. Also activates column pruning (see above)."
             column_pruning: Enable column pruning
             column_pruning_help: "Fetches only the columns needed to generate URLs (e.g. id, slug, username, dates) instead of SELECT *. Significantly reduces memory usage per model on large forums. Safe for most setups — only disable if a custom slug driver or visibility scope requires columns not in the default selection."
             include_priority: Include priority values in sitemap
