@@ -1,8 +1,10 @@
 # Breaking Changes
 
-## `DeployInterface::storeSet()` — signature change
+## v2.6.0
 
-### What changed
+### `DeployInterface::storeSet()` — signature change
+
+#### What changed
 
 The second parameter of `DeployInterface::storeSet()` has changed from `string` to a PHP **stream resource** (`resource`).
 
@@ -18,7 +20,7 @@ public function storeSet(int $setIndex, $stream): ?StoredSet;
 
 The first parameter type has also been tightened from untyped to `int`.
 
-### Why
+#### Why
 
 Previously, the generator built each 50,000-URL sitemap set as a string by:
 
@@ -48,11 +50,11 @@ The root cause is architectural: materialising the entire XML payload as a PHP s
 
 For a forum with 1.3 M records split across 26 sets this means the difference between reliably completing within a 512 MB container and OOM-crashing on every run.
 
-### How to update third-party deploy backends
+#### How to update third-party deploy backends
 
 If you have implemented `DeployInterface` in your own extension, you need to update `storeSet()` to accept and consume a stream resource instead of a string.
 
-#### Option 1 — Read the stream into a string (simplest, functionally equivalent to before)
+##### Option 1 — Read the stream into a string (simplest, functionally equivalent to before)
 
 Use this only if your backend has no stream-aware API. It will materialise the string in memory the same way as before, so it does not benefit from the memory reduction.
 
@@ -64,7 +66,7 @@ public function storeSet(int $setIndex, $stream): ?StoredSet
 }
 ```
 
-#### Option 2 — Pass the stream directly to a stream-aware storage API (recommended)
+##### Option 2 — Pass the stream directly to a stream-aware storage API (recommended)
 
 Flysystem v3 (used by Flarum 1.x and later), AWS SDK, GCS SDK, and most modern storage libraries accept a resource handle directly, avoiding any string copy.
 
@@ -102,15 +104,15 @@ public function storeSet(int $setIndex, $stream): ?StoredSet
 }
 ```
 
-#### Important: do NOT close the stream
+##### Important: do NOT close the stream
 
 The stream is owned by the `Generator` and will be closed with `fclose()` after `storeSet()` returns. Your implementation must not close it.
 
-#### Important: stream position
+##### Important: stream position
 
 `UrlSet::stream()` rewinds the stream to position 0 before returning it. The stream will always be at the beginning when your `storeSet()` receives it — you do not need to `rewind()` it yourself.
 
-### What the built-in backends do
+#### What the built-in backends do
 
 | Backend | Strategy |
 |---------|----------|
@@ -127,7 +129,7 @@ The stream is owned by the `Generator` and will be closed with `fclose()` after 
 | `public array $urls` | No replacement — URLs are written to the stream immediately and not stored |
 | `public function toXml(): string` | `public function stream(): resource` — returns rewound php://temp stream |
 
-The `add(Url $url)` and `addUrl(...)` methods retain the same signatures. A new `count(): int` method is available to query how many URLs have been written without exposing the underlying array.
+The `add(Url $url)` method retains the same signature. A new `count(): int` method is available to query how many URLs have been written without exposing the underlying array.
 
 If you were calling `$urlSet->toXml()` or reading `$urlSet->urls` directly in custom code, migrate to the stream API:
 
@@ -146,3 +148,40 @@ $fh = fopen('/path/to/sitemap.xml', 'wb');
 stream_copy_to_stream($urlSet->stream(), $fh);
 fclose($fh);
 ```
+
+### Column pruning enabled by default
+
+The new `fof-sitemap.columnPruning` setting is **enabled by default**. It instructs the generator to fetch only the columns needed for URL and date generation instead of `SELECT *`:
+
+| Resource | Columns fetched |
+|----------|----------------|
+| Discussion | `id`, `slug`, `created_at`, `last_posted_at` |
+| User | `id`, `username`, `last_seen_at`, `joined_at` |
+
+This provides a ~7× reduction in per-model RAM. The most significant saving is on User queries, where the `preferences` JSON blob (~570 bytes per user) is no longer loaded into PHP for every model in the chunk.
+
+**Impact on existing installs:** Column pruning activates automatically on the next sitemap build after upgrading to v2.6.0. For the vast majority of forums this is transparent. You may need to disable it if:
+
+- A custom slug driver for Discussions or Users reads a column not in the pruned list above.
+- A custom visibility scope applied via `whereVisibleTo()` depends on a column alias or computed column being present in the `SELECT`.
+
+To disable, toggle **Advanced options → Enable column pruning** off in the admin panel, or set the default in your extension:
+
+```php
+(new Extend\Settings())->default('fof-sitemap.columnPruning', false)
+```
+
+### Eager-loaded relations dropped per model
+
+As of v2.6.0, the generator calls `$model->setRelations([])` on every yielded Eloquent model before passing it to resource methods. Third-party extensions that add relations to User or Discussion via `$with` overrides or Eloquent event listeners will no longer have those relations available inside `Resource::url()`, `lastModifiedAt()`, `dynamicFrequency()`, or `alternatives()`.
+
+If your resource relies on a relation being pre-loaded, eager-load it explicitly in your `query()` method instead:
+
+```php
+public function query(): Builder
+{
+    return MyModel::query()->with('requiredRelation');
+}
+```
+
+This ensures the relation is loaded as part of the chunked query rather than relying on a model-level `$with` default.
