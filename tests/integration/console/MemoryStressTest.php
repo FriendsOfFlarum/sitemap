@@ -323,8 +323,8 @@ class MemoryStressTest extends ConsoleTestCase
         }
 
         $discussionCount = 81500;
-        $userCount       = 702000;
-        $totalUrls       = $discussionCount + $userCount; // ~784k
+        $userCount = 702000;
+        $totalUrls = $discussionCount + $userCount; // ~784k
 
         // Use the Disk (file-backed) deploy backend so storeSet() streams directly to
         // disk rather than materialising all sets in RAM (which is what Memory does).
@@ -341,11 +341,11 @@ class MemoryStressTest extends ConsoleTestCase
 
         $peakBefore = memory_get_peak_usage(true);
 
-        $input  = ['command' => 'fof:sitemap:build'];
+        $input = ['command' => 'fof:sitemap:build'];
         $output = $this->runCommand($input);
 
-        $peakAfter    = memory_get_peak_usage(true);
-        $memoryUsed   = $peakAfter - $peakBefore;
+        $peakAfter = memory_get_peak_usage(true);
+        $memoryUsed = $peakAfter - $peakBefore;
         $memoryUsedMB = round($memoryUsed / 1024 / 1024, 2);
 
         $this->assertStringContainsString('Completed', $output);
@@ -358,7 +358,7 @@ class MemoryStressTest extends ConsoleTestCase
         // preferences blob + all other columns). The streaming refactor eliminates the
         // additional 40-80MB that XMLWriter::outputMemory() + the $urls[] object array
         // previously added on top. 400MB gives ~35% headroom for production extension overhead.
-        $memoryLimit   = 400 * 1024 * 1024;
+        $memoryLimit = 400 * 1024 * 1024;
         $memoryLimitMB = 400;
         $this->assertLessThan(
             $memoryLimit,
@@ -381,8 +381,8 @@ class MemoryStressTest extends ConsoleTestCase
     {
         // 13 columns per user; 65535 / 13 = ~5041, use 4000 to be safe
         $batchSize = 4000;
-        $batches   = ceil($count / $batchSize);
-        $baseDate  = Carbon::createFromDate(2015, 1, 1);
+        $batches = ceil($count / $batchSize);
+        $baseDate = Carbon::createFromDate(2015, 1, 1);
 
         // Realistic preferences blob matching a typical active Flarum user (~570 bytes)
         $preferences = json_encode([
@@ -408,13 +408,13 @@ class MemoryStressTest extends ConsoleTestCase
         ]);
 
         for ($batch = 0; $batch < $batches; $batch++) {
-            $users   = [];
+            $users = [];
             $startId = $batch * $batchSize + 2; // +2: id=1 is admin
-            $endId   = min($startId + $batchSize - 1, $count + 1);
+            $endId = min($startId + $batchSize - 1, $count + 1);
 
             for ($i = $startId; $i <= $endId; $i++) {
                 $joinedAt = $baseDate->copy()->addDays($i % 3650)->toDateTimeString();
-                $users[]  = [
+                $users[] = [
                     'id'                    => $i,
                     'username'              => "stressuser{$i}",
                     'email'                 => "stressuser{$i}@example.com",

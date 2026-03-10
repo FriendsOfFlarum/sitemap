@@ -12,7 +12,6 @@
 
 namespace FoF\Sitemap\Tests\Unit\Generate;
 
-use Carbon\Carbon;
 use Flarum\Testing\unit\TestCase;
 use FoF\Sitemap\Sitemap\UrlSet;
 
@@ -32,7 +31,7 @@ class GeneratorStreamingTest extends TestCase
     {
         // Test that the stream returned by UrlSet::stream() is properly closed
         // by Generator::flushSet() after passing to deploy backend.
-        $set    = new UrlSet();
+        $set = new UrlSet();
         $set->addUrl('https://example.com/test');
         $stream = $set->stream();
 
@@ -71,7 +70,7 @@ class GeneratorStreamingTest extends TestCase
 
         // Flush set 1
         $stream1 = $set1->stream();
-        $xml1    = stream_get_contents($stream1);
+        $xml1 = stream_get_contents($stream1);
         fclose($stream1);
 
         // Start set 2 with the overflow URL
@@ -79,7 +78,7 @@ class GeneratorStreamingTest extends TestCase
         $set2->addUrl($overflowUrl);
 
         $stream2 = $set2->stream();
-        $xml2    = stream_get_contents($stream2);
+        $xml2 = stream_get_contents($stream2);
         fclose($stream2);
 
         // Set 1: contains first and last of the AMOUNT_LIMIT URLs, not the overflow
@@ -99,7 +98,7 @@ class GeneratorStreamingTest extends TestCase
         $set->addUrl('https://example.com/d/1');
         $set->addUrl('https://example.com/d/2');
 
-        $stream  = $set->stream();
+        $stream = $set->stream();
         $content = stream_get_contents($stream);
         fclose($stream);
 
@@ -132,14 +131,14 @@ class GeneratorStreamingTest extends TestCase
         $set1->addUrl('https://example.com/alpha');
 
         $stream1 = $set1->stream();
-        $xml1    = stream_get_contents($stream1);
+        $xml1 = stream_get_contents($stream1);
         fclose($stream1);
 
         $set2 = new UrlSet();
         $set2->addUrl('https://example.com/beta');
 
         $stream2 = $set2->stream();
-        $xml2    = stream_get_contents($stream2);
+        $xml2 = stream_get_contents($stream2);
         fclose($stream2);
 
         $this->assertStringContainsString('alpha', $xml1);

@@ -30,7 +30,7 @@ class DiskDeployTest extends TestCase
 
         return new Disk(
             $sitemapStorage ?? m::mock(Cloud::class),
-            $indexStorage   ?? m::mock(Cloud::class),
+            $indexStorage ?? m::mock(Cloud::class),
             $urlGenerator,
             new NullLogger()
         );
@@ -49,20 +49,20 @@ class DiskDeployTest extends TestCase
     public function storeSet_passes_stream_resource_to_filesystem(): void
     {
         $content = '<urlset>disk content</urlset>';
-        $stream  = $this->makeStream($content);
+        $stream = $this->makeStream($content);
 
         $storage = m::mock(Cloud::class);
         // Flysystem Cloud::put() accepts a string or resource; verify it receives a resource
         $storage->shouldReceive('put')
             ->once()
-            ->withArgs(function (string $path, $passedStream) use ($stream) {
+            ->withArgs(function (string $path, $passedStream) {
                 return $path === 'sitemap-0.xml' && is_resource($passedStream);
             })
             ->andReturn(true);
 
         $storage->shouldReceive('url')->andReturn('http://example.com/sitemaps/sitemap-0.xml');
 
-        $disk   = $this->makeDisk($storage, m::mock(Cloud::class));
+        $disk = $this->makeDisk($storage, m::mock(Cloud::class));
         $result = $disk->storeSet(0, $stream);
         fclose($stream);
 
@@ -79,7 +79,7 @@ class DiskDeployTest extends TestCase
             ->andReturn(true);
         $storage->shouldReceive('url')->andReturn('http://example.com/sitemaps/sitemap-3.xml');
 
-        $disk   = $this->makeDisk($storage, m::mock(Cloud::class));
+        $disk = $this->makeDisk($storage, m::mock(Cloud::class));
         $stream = $this->makeStream('<urlset/>');
         $disk->storeSet(3, $stream);
         fclose($stream);
@@ -97,7 +97,7 @@ class DiskDeployTest extends TestCase
             ->with('fof-sitemap-set', ['id' => 0])
             ->andReturn('http://forum.example.com/sitemap-set/0');
 
-        $disk   = new Disk($storage, m::mock(Cloud::class), $urlGenerator, new NullLogger());
+        $disk = new Disk($storage, m::mock(Cloud::class), $urlGenerator, new NullLogger());
         $stream = $this->makeStream();
         $result = $disk->storeSet(0, $stream);
         fclose($stream);
@@ -114,7 +114,7 @@ class DiskDeployTest extends TestCase
         $storage->shouldReceive('put')->andThrow(new \RuntimeException('Disk full'));
         $storage->shouldReceive('url')->andReturn('http://example.com/sitemaps/sitemap-0.xml');
 
-        $disk   = $this->makeDisk($storage, m::mock(Cloud::class));
+        $disk = $this->makeDisk($storage, m::mock(Cloud::class));
         $stream = $this->makeStream();
 
         try {

@@ -56,7 +56,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add($this->makeUrl('https://example.com/d/1'));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $doc = new \DOMDocument();
@@ -70,7 +70,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add($this->makeUrl('https://example.com/d/42'));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringContainsString('<urlset', $xml);
@@ -84,7 +84,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add($this->makeUrl('https://example.com/d/99'));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringContainsString('https://example.com/d/99', $xml);
@@ -127,7 +127,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add(new Url('https://example.com/', null, 'weekly', null));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringContainsString('<changefreq>weekly</changefreq>', $xml);
@@ -140,7 +140,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add(new Url('https://example.com/', null, 'weekly', null));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringNotContainsString('<changefreq>', $xml);
@@ -153,7 +153,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add(new Url('https://example.com/', null, null, 0.8));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringContainsString('<priority>0.8</priority>', $xml);
@@ -166,7 +166,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add(new Url('https://example.com/', null, null, 0.8));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringNotContainsString('<priority>', $xml);
@@ -179,7 +179,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add(new Url('https://example.com/', Carbon::parse('2024-06-15 12:00:00', 'UTC')));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringContainsString('<lastmod>', $xml);
@@ -196,7 +196,7 @@ class UrlSetStreamingTest extends TestCase
         }
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         for ($i = 1; $i <= 5; $i++) {
@@ -211,7 +211,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add($this->makeUrl());
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringContainsString('http://www.sitemaps.org/schemas/sitemap/0.9', $xml);
@@ -226,7 +226,7 @@ class UrlSetStreamingTest extends TestCase
         $this->assertEquals(1, $set->count());
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $this->assertStringContainsString('https://example.com/page', $xml);
@@ -235,9 +235,9 @@ class UrlSetStreamingTest extends TestCase
     /** @test */
     public function empty_urlset_stream_is_valid_xml(): void
     {
-        $set    = new UrlSet();
+        $set = new UrlSet();
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $doc = new \DOMDocument();
@@ -254,7 +254,7 @@ class UrlSetStreamingTest extends TestCase
         $set->add($this->makeUrl('https://example.com/d/2'));
 
         $stream = $set->stream();
-        $xml    = stream_get_contents($stream);
+        $xml = stream_get_contents($stream);
         fclose($stream);
 
         $schemaPath = __DIR__.'/../../fixtures/sitemap.xsd';
@@ -268,7 +268,7 @@ class UrlSetStreamingTest extends TestCase
 
         libxml_use_internal_errors(true);
         $isValid = $doc->schemaValidate($schemaPath);
-        $errors  = array_map(fn ($e) => trim($e->message), libxml_get_errors());
+        $errors = array_map(fn ($e) => trim($e->message), libxml_get_errors());
         libxml_clear_errors();
 
         $this->assertTrue($isValid, 'UrlSet XML must validate against sitemap schema: '.implode(', ', $errors));

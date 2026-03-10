@@ -72,7 +72,7 @@ class Generator
         }
 
         $includeChangefreq = (bool) ($this->settings->get('fof-sitemap.include_changefreq') ?? true);
-        $includePriority   = (bool) ($this->settings->get('fof-sitemap.include_priority') ?? true);
+        $includePriority = (bool) ($this->settings->get('fof-sitemap.include_priority') ?? true);
 
         // The bigger the query chunk size, the better for performance.
         // We don't want to make it too high because extensions impact the amount of data MySQL returns per query.
@@ -80,9 +80,9 @@ class Generator
         // With risky improvements enabled we can bump it because column pruning is also applied.
         $chunkSize = $this->settings->get('fof-sitemap.riskyPerformanceImprovements') ? 150000 : 75000;
 
-        $set     = new UrlSet($includeChangefreq, $includePriority);
+        $set = new UrlSet($includeChangefreq, $includePriority);
         $remotes = [];
-        $i       = 0;
+        $i = 0;
 
         foreach ($this->resources as $res) {
             /** @var AbstractResource $resource */
@@ -152,7 +152,7 @@ class Generator
      */
     private function flushSet(UrlSet $set, int $index, OutputInterface $output, array &$remotes): void
     {
-        $stream       = $set->stream();
+        $stream = $set->stream();
         $remotes[$index] = $this->deploy->storeSet($index, $stream);
         fclose($stream);
 

@@ -58,7 +58,7 @@ class MemoryDeployTest extends TestCase
     public function storeSet_reads_stream_content_into_cache(): void
     {
         $content = '<urlset>cached content</urlset>';
-        $stream  = $this->makeStream($content);
+        $stream = $this->makeStream($content);
 
         $this->deploy->storeSet(0, $stream);
         fclose($stream);

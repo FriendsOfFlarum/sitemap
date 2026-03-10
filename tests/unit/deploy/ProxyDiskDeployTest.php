@@ -30,7 +30,7 @@ class ProxyDiskDeployTest extends TestCase
 
         return new ProxyDisk(
             $sitemapStorage ?? m::mock(Cloud::class),
-            $indexStorage   ?? m::mock(Cloud::class),
+            $indexStorage ?? m::mock(Cloud::class),
             $urlGenerator,
             new NullLogger()
         );
@@ -56,7 +56,7 @@ class ProxyDiskDeployTest extends TestCase
             })
             ->andReturn(true);
 
-        $proxy  = $this->makeProxy($storage);
+        $proxy = $this->makeProxy($storage);
         $stream = $this->makeStream('<urlset>s3 content</urlset>');
         $result = $proxy->storeSet(0, $stream);
         fclose($stream);
@@ -75,7 +75,7 @@ class ProxyDiskDeployTest extends TestCase
             ->with('fof-sitemap-set', ['id' => 2])
             ->andReturn('http://forum.example.com/sitemap-set/2');
 
-        $proxy  = new ProxyDisk($storage, m::mock(Cloud::class), $urlGenerator, new NullLogger());
+        $proxy = new ProxyDisk($storage, m::mock(Cloud::class), $urlGenerator, new NullLogger());
         $stream = $this->makeStream();
         $result = $proxy->storeSet(2, $stream);
         fclose($stream);
@@ -93,7 +93,7 @@ class ProxyDiskDeployTest extends TestCase
             ->with('sitemap-7.xml', m::type('resource'))
             ->andReturn(true);
 
-        $proxy  = $this->makeProxy($storage);
+        $proxy = $this->makeProxy($storage);
         $stream = $this->makeStream();
         $proxy->storeSet(7, $stream);
         fclose($stream);
