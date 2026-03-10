@@ -311,9 +311,8 @@ class MemoryStressTest extends ConsoleTestCase
      * Replicates the exact production community that triggered the OOM:
      *   702k users + 81.5k discussions = ~784k sitemap entries (~16 sets).
      *
-     * Users are the dominant resource here (702k >> 81.5k discussions), and the
-     * User resource has a minimum comment_count threshold filter, so we seed users
-     * with comment_count > 0 to ensure they all appear in the sitemap.
+     * Users are seeded with all real Flarum columns including a ~570-byte preferences
+     * JSON blob so each hydrated Eloquent model has a footprint close to production.
      *
      * Set SITEMAP_STRESS_TEST_PRODUCTION_REPLICA=1 to run this test.
      */
@@ -345,18 +344,22 @@ class MemoryStressTest extends ConsoleTestCase
         $input  = ['command' => 'fof:sitemap:build'];
         $output = $this->runCommand($input);
 
-        $peakAfter  = memory_get_peak_usage(true);
-        $memoryUsed = $peakAfter - $peakBefore;
+        $peakAfter    = memory_get_peak_usage(true);
+        $memoryUsed   = $peakAfter - $peakBefore;
         $memoryUsedMB = round($memoryUsed / 1024 / 1024, 2);
 
         $this->assertStringContainsString('Completed', $output);
         $this->assertStringNotContainsString('error', strtolower($output));
         $this->assertStringNotContainsString('out of memory', strtolower($output));
 
-        // 784k entries across ~16 sets using Disk backend (streams directly, no string copy).
-        // Measured at ~154MB on reference hardware; 200MB gives ~30% headroom.
-        $memoryLimit   = 200 * 1024 * 1024;
-        $memoryLimitMB = 200;
+        // 784k entries across ~16 sets, fat user models, Disk backend (stream, no string copy).
+        // Measured at ~296MB on reference hardware with realistic preferences blobs.
+        // The dominant cost is Eloquent's 75k-model chunk (each model carries a ~570-byte
+        // preferences blob + all other columns). The streaming refactor eliminates the
+        // additional 40-80MB that XMLWriter::outputMemory() + the $urls[] object array
+        // previously added on top. 400MB gives ~35% headroom for production extension overhead.
+        $memoryLimit   = 400 * 1024 * 1024;
+        $memoryLimitMB = 400;
         $this->assertLessThan(
             $memoryLimit,
             $memoryUsed,
@@ -365,30 +368,66 @@ class MemoryStressTest extends ConsoleTestCase
     }
 
     /**
-     * Generate a large dataset of users for stress testing.
+     * Generate a large dataset of users for stress testing with realistic column data.
+     *
+     * Seeds all real Flarum users table columns including a ~570-byte preferences JSON
+     * blob, so that each hydrated Eloquent User model has a memory footprint close to
+     * what production models carry. Without this, test models are far lighter than
+     * production and the peak memory measurement is not representative.
+     *
      * Users start at id=2 (id=1 is the admin seeded by the test harness).
      */
     private function generateLargeUserDataset(int $count): void
     {
-        // Each user row has 6 fields; 65535 / 6 = ~10922, use 8000 to be safe
-        $batchSize = 8000;
+        // 13 columns per user; 65535 / 13 = ~5041, use 4000 to be safe
+        $batchSize = 4000;
         $batches   = ceil($count / $batchSize);
         $baseDate  = Carbon::createFromDate(2015, 1, 1);
 
+        // Realistic preferences blob matching a typical active Flarum user (~570 bytes)
+        $preferences = json_encode([
+            'notify_discussionRenamed_alert' => true,
+            'notify_discussionRenamed_email' => false,
+            'notify_postLiked_alert'         => true,
+            'notify_postLiked_email'         => false,
+            'notify_newPost_alert'           => true,
+            'notify_newPost_email'           => true,
+            'notify_userMentioned_alert'     => true,
+            'notify_userMentioned_email'     => true,
+            'notify_postMentioned_alert'     => true,
+            'notify_postMentioned_email'     => false,
+            'notify_newDiscussion_alert'     => false,
+            'notify_newDiscussion_email'     => false,
+            'locale'                         => 'en',
+            'theme_dark_mode'                => false,
+            'theme_colored_header'           => false,
+            'followAfterReply'               => false,
+            'discloseOnline'                 => true,
+            'indexProfile'                   => true,
+            'receiveInformationalEmail'      => true,
+        ]);
+
         for ($batch = 0; $batch < $batches; $batch++) {
-            $users    = [];
-            $startId  = $batch * $batchSize + 2; // +2: id=1 is admin
-            $endId    = min($startId + $batchSize - 1, $count + 1);
+            $users   = [];
+            $startId = $batch * $batchSize + 2; // +2: id=1 is admin
+            $endId   = min($startId + $batchSize - 1, $count + 1);
 
             for ($i = $startId; $i <= $endId; $i++) {
                 $joinedAt = $baseDate->copy()->addDays($i % 3650)->toDateTimeString();
                 $users[]  = [
-                    'id'            => $i,
-                    'username'      => "stressuser{$i}",
-                    'email'         => "stressuser{$i}@example.com",
-                    'joined_at'     => $joinedAt,
-                    'last_seen_at'  => $joinedAt,
-                    'comment_count' => 1,
+                    'id'                    => $i,
+                    'username'              => "stressuser{$i}",
+                    'email'                 => "stressuser{$i}@example.com",
+                    'is_email_confirmed'    => 1,
+                    'password'              => '$2y$10$examplehashedpasswordstringfortest',
+                    'avatar_url'            => null,
+                    'preferences'           => $preferences,
+                    'joined_at'             => $joinedAt,
+                    'last_seen_at'          => $joinedAt,
+                    'marked_all_as_read_at' => $joinedAt,
+                    'read_notifications_at' => $joinedAt,
+                    'discussion_count'      => $i % 50,
+                    'comment_count'         => ($i % 100) + 1,
                 ];
             }
 
