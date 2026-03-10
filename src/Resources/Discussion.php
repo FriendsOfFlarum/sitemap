@@ -24,7 +24,7 @@ class Discussion extends Resource
     {
         $query = Model::whereVisibleTo(new Guest());
 
-        if (static::$settings->get('fof-sitemap.riskyPerformanceImprovements')) {
+        if (static::$settings->get('fof-sitemap.riskyPerformanceImprovements') || static::$settings->get('fof-sitemap.columnPruning')) {
             // Limiting the number of columns to fetch improves query time
             // This is a risky optimization because of 2 reasons:
             // A custom slug driver might need a column not included in this list

@@ -191,6 +191,13 @@ export default class SitemapSettingsPage extends ExtensionPage {
 
         {this.buildSettingComponent({
           type: 'switch',
+          setting: 'fof-sitemap.columnPruning',
+          label: app.translator.trans('fof-sitemap.admin.settings.column_pruning'),
+          help: app.translator.trans('fof-sitemap.admin.settings.column_pruning_help'),
+        })}
+
+        {this.buildSettingComponent({
+          type: 'switch',
           setting: 'fof-sitemap.riskyPerformanceImprovements',
           label: app.translator.trans('fof-sitemap.admin.settings.risky_performance_improvements'),
           help: app.translator.trans('fof-sitemap.admin.settings.risky_performance_improvements_help'),

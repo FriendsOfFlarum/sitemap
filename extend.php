@@ -66,7 +66,8 @@ return [
         ->default('fof-sitemap.model.user.comments.minimum_item_threshold', 5)
         ->default('fof-sitemap.model.tags.discussion.minimum_item_threshold', 5)
         ->default('fof-sitemap.include_priority', true)
-        ->default('fof-sitemap.include_changefreq', true),
+        ->default('fof-sitemap.include_changefreq', true)
+        ->default('fof-sitemap.columnPruning', false),
 
     (new Extend\Event())
         ->subscribe(Listeners\SettingsListener::class),

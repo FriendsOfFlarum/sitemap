@@ -77,7 +77,7 @@ class Generator
         // The bigger the query chunk size, the better for performance.
         // We don't want to make it too high because extensions impact the amount of data MySQL returns per query.
         // The value is arbitrary; above ~50k chunks there are diminishing returns.
-        // With risky improvements enabled we can bump it because the number of columns returned is fixed.
+        // With risky improvements enabled we can bump it because column pruning is also applied.
         $chunkSize = $this->settings->get('fof-sitemap.riskyPerformanceImprovements') ? 150000 : 75000;
 
         $set     = new UrlSet($includeChangefreq, $includePriority);
