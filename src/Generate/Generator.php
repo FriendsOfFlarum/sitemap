@@ -23,7 +23,6 @@ use FoF\Sitemap\Resources\Resource as AbstractResource;
 use FoF\Sitemap\Sitemap\Sitemap;
 use FoF\Sitemap\Sitemap\Url;
 use FoF\Sitemap\Sitemap\UrlSet;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\NullOutput;
@@ -50,13 +49,10 @@ class Generator
 
         $startTime = Carbon::now();
 
-        $now = Carbon::now();
-
         $url = $this->deploy->storeIndex(
-            (new Sitemap($this->loop($output), $now))->toXML()
+            (new Sitemap($this->loop($output), Carbon::now()))->toXML()
         );
 
-        // Update last build time
         $this->settings->set('fof-sitemap.last_build_time', time());
 
         $output->writeln('Completed in '.$startTime->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE, true, 2));
@@ -75,9 +71,18 @@ class Generator
             $output = new NullOutput();
         }
 
-        $set = new UrlSet();
+        $includeChangefreq = (bool) ($this->settings->get('fof-sitemap.include_changefreq') ?? true);
+        $includePriority   = (bool) ($this->settings->get('fof-sitemap.include_priority') ?? true);
+
+        // The bigger the query chunk size, the better for performance.
+        // We don't want to make it too high because extensions impact the amount of data MySQL returns per query.
+        // The value is arbitrary; above ~50k chunks there are diminishing returns.
+        // With risky improvements enabled we can bump it because the number of columns returned is fixed.
+        $chunkSize = $this->settings->get('fof-sitemap.riskyPerformanceImprovements') ? 150000 : 75000;
+
+        $set     = new UrlSet($includeChangefreq, $includePriority);
         $remotes = [];
-        $i = 0;
+        $i       = 0;
 
         foreach ($this->resources as $res) {
             /** @var AbstractResource $resource */
@@ -85,14 +90,11 @@ class Generator
 
             if (!$resource->enabled()) {
                 $output->writeln("Skipping resource $res");
-
                 continue;
             }
 
-            // Get query once and reuse
             $query = $resource->query();
 
-            // For Collections, check if empty immediately to avoid unnecessary processing
             if ($query instanceof Collection && $query->isEmpty()) {
                 $output->writeln("Skipping resource $res (no results)");
                 continue;
@@ -100,17 +102,11 @@ class Generator
 
             $output->writeln("Processing resource $res");
 
-            // Track if we found any results (for Builder queries where we can't check upfront)
             $foundResults = false;
 
-            // The bigger the query chunk size, the better for performance
-            // We don't want to make it too high either because extensions impact the amount of data MySQL will have to return from that query
-            // The value is arbitrary, as soon as we are above 50k chunks there seem to be diminishing returns
-            // With risky improvements enabled, we can bump the value up because the number of columns returned is fixed
-            $chunkSize = resolve(SettingsRepositoryInterface::class)->get('fof-sitemap.riskyPerformanceImprovements') ? 150000 : 75000;
-
-            $query->each(function (AbstractModel|string $item) use (&$output, &$set, $resource, &$remotes, &$i, &$foundResults) {
+            $query->each(function (AbstractModel|string $item) use (&$output, &$set, $resource, &$remotes, &$i, &$foundResults, $includeChangefreq, $includePriority) {
                 $foundResults = true;
+
                 $url = new Url(
                     $resource->url($item),
                     $resource->lastModifiedAt($item),
@@ -122,47 +118,39 @@ class Generator
                 try {
                     $set->add($url);
                 } catch (SetLimitReachedException) {
-                    $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
-
-                    $memoryMB = round(memory_get_usage(true) / 1024 / 1024, 2);
-                    $output->writeln("Storing set $i (Memory: {$memoryMB}MB)");
-
-                    // Explicitly clear the URLs array to free memory before creating new set
-                    $set->urls = [];
-
-                    // Force garbage collection after storing large sets
-                    if ($i % 5 == 0) {
-                        gc_collect_cycles();
-                    }
-
+                    $this->flushSet($set, $i, $output, $remotes);
                     $i++;
 
-                    $set = new UrlSet();
+                    $set = new UrlSet($includeChangefreq, $includePriority);
                     $set->add($url);
                 }
             }, $chunkSize);
 
-            // Log if no results were found during iteration
             if (!$foundResults) {
                 $output->writeln("Note: Resource $res yielded no results during processing");
             }
+        }
 
-            // Only store the set if it contains URLs (avoid empty sets)
-            if (count($set->urls) > 0) {
-                $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
-
-                $memoryMB = round(memory_get_usage(true) / 1024 / 1024, 2);
-                $output->writeln("Storing set $i (Memory: {$memoryMB}MB)");
-
-                // Explicitly clear the URLs array to free memory
-                $set->urls = [];
-
-                $i++;
-
-                $set = new UrlSet();
-            }
+        // Flush the final partial set.
+        if ($set->count() > 0) {
+            $this->flushSet($set, $i, $output, $remotes);
         }
 
         return $remotes;
+    }
+
+    /**
+     * Finalise a UrlSet, pass its stream to the deploy backend, then close the stream.
+     */
+    private function flushSet(UrlSet $set, int $index, OutputInterface $output, array &$remotes): void
+    {
+        $stream       = $set->stream();
+        $remotes[$index] = $this->deploy->storeSet($index, $stream);
+        fclose($stream);
+
+        $memoryMB = round(memory_get_usage(true) / 1024 / 1024, 2);
+        $output->writeln("Storing set $index (Memory: {$memoryMB}MB)");
+
+        gc_collect_cycles();
     }
 }

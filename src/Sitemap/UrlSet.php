@@ -15,91 +15,143 @@ namespace FoF\Sitemap\Sitemap;
 use FoF\Sitemap\Exceptions\SetLimitReachedException;
 use XMLWriter;
 
+/**
+ * Streams sitemap URL-set XML directly to a php://temp stream via XMLWriter.
+ *
+ * No URL objects are accumulated in memory. Each entry is written and flushed
+ * immediately. The underlying stream can be passed directly to a deploy backend
+ * (e.g. Flysystem) without ever materialising the full XML as a PHP string.
+ *
+ * Use {@see UrlSet::stream()} to obtain the rewound stream resource when done,
+ * then pass it to {@see DeployInterface::storeSet()}.
+ */
 class UrlSet
 {
     const AMOUNT_LIMIT = 50000;
 
     /**
-     * @var Url[]
+     * How often (in URL count) the XMLWriter in-memory buffer is flushed to
+     * the underlying php://temp stream. Lower = less peak memory, marginally
+     * more write() calls.
      */
-    public $urls = [];
+    private const FLUSH_INTERVAL = 500;
 
-    public function add(Url $url)
+    private int $count = 0;
+
+    /** @var resource */
+    private $stream;
+
+    private XMLWriter $writer;
+
+    private bool $includeChangefreq;
+    private bool $includePriority;
+
+    public function __construct(bool $includeChangefreq = true, bool $includePriority = true)
     {
-        if (count($this->urls) >= static::AMOUNT_LIMIT) {
+        $this->includeChangefreq = $includeChangefreq;
+        $this->includePriority = $includePriority;
+
+        // php://temp: uses memory (up to 2 MB) then transparently spills to a
+        // system temp file. No path to manage; PHP cleans it up on fclose().
+        $stream = fopen('php://temp', 'r+b');
+
+        if ($stream === false) {
+            throw new \RuntimeException('Failed to open php://temp stream for sitemap UrlSet');
+        }
+
+        $this->stream = $stream;
+
+        $this->writer = new XMLWriter();
+        $this->writer->openMemory();
+        $this->writer->setIndent(false);
+
+        $this->writer->startDocument('1.0', 'UTF-8');
+        $this->writer->startElement('urlset');
+        $this->writer->writeAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+        $this->writer->writeAttribute('xmlns:xhtml', 'http://www.w3.org/1999/xhtml');
+
+        // Flush the document/urlset preamble to the stream immediately so
+        // the writer's in-memory buffer starts empty for URL entries.
+        fwrite($this->stream, $this->writer->flush(true));
+    }
+
+    /**
+     * Write a URL entry directly to the stream.
+     *
+     * @throws SetLimitReachedException when the 50 000-URL limit is reached
+     */
+    public function add(Url $url): void
+    {
+        if ($this->count >= static::AMOUNT_LIMIT) {
             throw new SetLimitReachedException();
         }
 
-        $this->urls[] = $url;
+        $this->writeUrl($url);
+        $this->count++;
+
+        // Periodically drain the XMLWriter in-memory buffer to the stream.
+        if ($this->count % self::FLUSH_INTERVAL === 0) {
+            fwrite($this->stream, $this->writer->flush(true));
+        }
     }
 
-    public function addUrl($location, $lastModified = null, $changeFrequency = null, $priority = null, $alternatives = null)
+    public function addUrl($location, $lastModified = null, $changeFrequency = null, $priority = null, $alternatives = null): void
     {
         $this->add(new Url($location, $lastModified, $changeFrequency, $priority, $alternatives));
     }
 
-    public function toXml(): string
+    public function count(): int
     {
-        $settings = resolve(\Flarum\Settings\SettingsRepositoryInterface::class);
-        $includeChangefreq = $settings->get('fof-sitemap.include_changefreq') ?? true;
-        $includePriority = $settings->get('fof-sitemap.include_priority') ?? true;
-
-        $writer = new XMLWriter();
-        $writer->openMemory();
-        // Disable indentation to reduce memory overhead
-        $writer->setIndent(false);
-
-        $writer->startDocument('1.0', 'UTF-8');
-        $writer->startElement('urlset');
-        $writer->writeAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
-        $writer->writeAttribute('xmlns:xhtml', 'http://www.w3.org/1999/xhtml');
-
-        foreach ($this->urls as $url) {
-            $this->renderUrl($writer, $url, $includeChangefreq, $includePriority);
-        }
-
-        $writer->endElement(); // urlset
-        $writer->endDocument();
-
-        return $writer->outputMemory();
+        return $this->count;
     }
 
     /**
-     * Render a single URL entry as XML.
-     * Separated for clarity and maintainability.
+     * Finalise the XML document and return a rewound readable stream.
+     *
+     * The caller is responsible for closing the stream after use (i.e. after
+     * passing it to {@see DeployInterface::storeSet()}).
+     *
+     * @return resource
      */
-    private function renderUrl(XMLWriter $writer, Url $url, bool $includeChangefreq, bool $includePriority): void
+    public function stream()
     {
-        $writer->startElement('url');
+        $this->writer->endElement(); // urlset
+        $this->writer->endDocument();
+        fwrite($this->stream, $this->writer->flush(true));
 
-        $writer->writeElement('loc', $url->location);
+        rewind($this->stream);
 
-        // Alternative language links
+        return $this->stream;
+    }
+
+    private function writeUrl(Url $url): void
+    {
+        $this->writer->startElement('url');
+
+        $this->writer->writeElement('loc', $url->location);
+
         if ($url->alternatives) {
             foreach ($url->alternatives as $alt) {
-                $writer->startElement('xhtml:link');
-                $writer->writeAttribute('rel', 'alternate');
-                $writer->writeAttribute('hreflang', $alt->hreflang);
-                $writer->writeAttribute('href', $alt->href);
-                $writer->endElement(); // xhtml:link
+                $this->writer->startElement('xhtml:link');
+                $this->writer->writeAttribute('rel', 'alternate');
+                $this->writer->writeAttribute('hreflang', $alt->hreflang);
+                $this->writer->writeAttribute('href', $alt->href);
+                $this->writer->endElement();
             }
         }
 
-        // Last modification date
         if ($url->lastModified) {
-            $writer->writeElement('lastmod', $url->lastModified->toW3cString());
+            $this->writer->writeElement('lastmod', $url->lastModified->toW3cString());
         }
 
-        // Change frequency (optional based on settings)
-        if ($url->changeFrequency && $includeChangefreq) {
-            $writer->writeElement('changefreq', $url->changeFrequency);
+        if ($url->changeFrequency && $this->includeChangefreq) {
+            $this->writer->writeElement('changefreq', $url->changeFrequency);
         }
 
-        // Priority (optional based on settings)
-        if ($url->priority && $includePriority) {
-            $writer->writeElement('priority', (string) $url->priority);
+        if ($url->priority && $this->includePriority) {
+            $this->writer->writeElement('priority', (string) $url->priority);
         }
 
-        $writer->endElement(); // url
+        $this->writer->endElement(); // url
     }
 }

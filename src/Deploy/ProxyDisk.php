@@ -28,11 +28,11 @@ class ProxyDisk implements DeployInterface
     ) {
     }
 
-    public function storeSet($setIndex, string $set): ?StoredSet
+    public function storeSet(int $setIndex, $stream): ?StoredSet
     {
         $path = "sitemap-$setIndex.xml";
 
-        $this->sitemapStorage->put($path, $set);
+        $this->sitemapStorage->put($path, $stream);
 
         // Return main domain URL instead of storage URL
         return new StoredSet(

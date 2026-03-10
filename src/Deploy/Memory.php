@@ -26,9 +26,13 @@ class Memory implements DeployInterface
     ) {
     }
 
-    public function storeSet($setIndex, string $set): ?StoredSet
+    public function storeSet(int $setIndex, $stream): ?StoredSet
     {
-        $this->cache[$setIndex] = $set;
+        // Memory deploy materialises the stream into a string. This is intentional:
+        // the Memory backend is only used for small/development forums where the
+        // sitemap fits comfortably in RAM. Large production forums must use the
+        // Disk or ProxyDisk backend, which pass the stream directly to the filesystem.
+        $this->cache[$setIndex] = stream_get_contents($stream);
 
         return new StoredSet(
             $this->urlGenerator->to('forum')->route('fof-sitemap-set', [
