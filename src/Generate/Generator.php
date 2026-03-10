@@ -107,6 +107,14 @@ class Generator
             $query->each(function (AbstractModel|string $item) use (&$output, &$set, $resource, &$remotes, &$i, &$foundResults, $includeChangefreq, $includePriority) {
                 $foundResults = true;
 
+                // Drop any eager-loaded relations that third-party extensions may have
+                // added to the model (via $with overrides or event listeners). We only
+                // need scalar column values for URL/date generation; keeping relations
+                // alive would multiply RAM usage across every model in the chunk.
+                if ($item instanceof AbstractModel) {
+                    $item->setRelations([]);
+                }
+
                 $url = new Url(
                     $resource->url($item),
                     $resource->lastModifiedAt($item),
