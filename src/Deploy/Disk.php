@@ -28,7 +28,7 @@ class Disk implements DeployInterface
     ) {
     }
 
-    public function storeSet($setIndex, string $set): ?StoredSet
+    public function storeSet(int $setIndex, $stream): ?StoredSet
     {
         $path = "sitemap-$setIndex.xml";
 
@@ -36,7 +36,7 @@ class Disk implements DeployInterface
         $this->logger->info('[FoF Sitemap] Disk: Full filesystem path: '.$this->sitemapStorage->url($path));
 
         try {
-            $result = $this->sitemapStorage->put($path, $set);
+            $result = $this->sitemapStorage->put($path, $stream);
             $this->logger->info("[FoF Sitemap] Disk: Successfully stored set $setIndex, result: ".($result ? 'true' : 'false'));
         } catch (\Exception $e) {
             $this->logger->error("[FoF Sitemap] Disk: Failed to store set $setIndex: ".$e->getMessage());

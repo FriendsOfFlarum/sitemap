@@ -16,7 +16,16 @@ use Laminas\Diactoros\Uri;
 
 interface DeployInterface
 {
-    public function storeSet($setIndex, string $set): ?StoredSet;
+    /**
+     * Store a sitemap URL set from a stream resource.
+     *
+     * The stream is positioned at the start and should be read to completion.
+     * Implementations must NOT close the stream; the caller owns it.
+     *
+     * @param int      $setIndex Zero-based index of the sitemap set
+     * @param resource $stream   Readable stream containing the XML content
+     */
+    public function storeSet(int $setIndex, $stream): ?StoredSet;
 
     public function storeIndex(string $index): ?string;
 

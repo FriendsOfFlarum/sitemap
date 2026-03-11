@@ -19,10 +19,10 @@ The extension intelligently includes content like Discussions, Users, Tags (flar
 ### Requirements
 
 - **PHP**: 8.0 or greater
-- **Memory**: Minimum 256MB PHP memory limit recommended for forums with 100k+ items
+- **Memory**: Minimum 128MB PHP memory limit. 256MB recommended for forums with 100k+ items.
 - **Flarum**: Compatible with Flarum 1.3.1+
 
-For very large forums (500k+ items), consider increasing `memory_limit` to 512MB or enabling cached multi-file mode.
+For very large forums (700k+ items across all resource types), 512MB is recommended when using cached multi-file mode with many extensions installed.
 
 Install with composer:
 
@@ -71,17 +71,13 @@ php flarum fof:sitemap:build
 
 The extension includes several automatic optimizations:
 
-- **Memory-efficient XML generation**: Uses XMLWriter with optimized settings to reduce memory usage by up to 14%
-- **Chunked database queries**: Processes large datasets in configurable chunks (75k or 150k items)
-- **Automatic garbage collection**: Frees memory periodically during generation
-- **Column selection**: When "risky performance improvements" is enabled, limits database columns to reduce response size
+- **Streaming XML generation** (v2.6.0+): Each URL is written directly to a `php://temp` stream as it is processed. The XMLWriter buffer is flushed every 500 entries. No full XML string is ever held in PHP RAM — the stream is passed directly to Flysystem's `put()`, resulting in near-zero overhead per set regardless of forum size.
+- **Column pruning** (v2.6.0+, enabled by default): Fetches only the columns needed for URL and date generation (`id`, `slug`/`username`, dates) instead of `SELECT *`. Provides a ~7× reduction in per-model RAM for Discussion and User queries. Disable in **Advanced options** if a custom slug driver needs additional columns.
+- **Relation clearing** (v2.6.0+): Eager-loaded relations added by third-party extensions are dropped from each model before processing, preventing them from accumulating across a chunk.
+- **Chunked database queries**: Processes large datasets in chunks (75,000 rows by default). Each chunk is discarded before the next is fetched, keeping Eloquent model RAM bounded.
+- **Automatic garbage collection**: Runs after each set is flushed to disk to reclaim any remaining cyclic references.
 
-**Risky Performance Improvements**: For enterprise forums with millions of items, this option:
-- Increases chunk size from 75k to 150k items
-- Limits returned database columns (discussions and users only)
-- Can improve generation speed by 30-50%
-
-**Warning**: Only enable if generation takes over an hour or saturates your database connection. May conflict with extensions that use custom visibility scopes or slug drivers.
+**Enable large chunk size (risky)**: For enterprise forums where generation speed is the primary concern. Increases chunk size from 75k to 150k rows. Doubles peak Eloquent RAM per chunk — only enable after verifying your server has sufficient headroom. Also activates column pruning if not already enabled.
 
 ### Search Engine Compliance
 
@@ -320,7 +316,8 @@ Both are enabled by default. When enabled, the extension uses intelligent freque
 
 ### Performance Settings
 
-- **Risky Performance Improvements**: For enterprise customers with millions of items. Reduces database response size but may break custom visibility scopes or slug drivers.
+- **Enable column pruning** (default: on): Fetches only the columns needed to generate sitemap URLs. Safe for most setups; disable only if a custom slug driver or visibility scope requires additional columns.
+- **Enable large chunk size (risky)**: Increases the database fetch chunk size from 75k to 150k rows. Only enable if you have verified sufficient server memory, as it doubles the peak Eloquent RAM per chunk.
 
 ## Server Configuration
 
@@ -398,18 +395,19 @@ location = /robots.txt {
 
 ### Memory Issues
 
-If you encounter out-of-memory errors during sitemap generation:
+Since v2.6.0, sitemap generation streams XML directly to storage rather than holding full XML strings in PHP RAM. Peak memory is dominated by the Eloquent model chunk size, not XML serialisation. If you still encounter OOM errors:
 
-1. **Check PHP memory limit**: Ensure `memory_limit` in `php.ini` is at least 256MB
+1. **Verify column pruning is enabled**: Check **Advanced options → Enable column pruning** in the admin panel. This is on by default but may have been disabled. It provides a ~7× per-model RAM reduction for Discussion and User queries.
+
+2. **Use cached multi-file mode**: Switch from runtime to cached mode in extension settings so generation runs as a background job rather than on a web request.
+
+3. **Check PHP memory limit**:
    ```bash
    php -i | grep memory_limit
    ```
+   256MB is sufficient for most large forums with column pruning enabled. If you have many extensions that add columns or relations to User/Discussion models, 512MB provides a safe margin.
 
-2. **Use cached multi-file mode**: Switch from runtime to cached mode in extension settings
-
-3. **Enable risky performance improvements**: For forums with 500k+ items, this can reduce memory usage
-
-4. **Increase memory limit**: Edit `php.ini` or use `.user.ini`:
+4. **Increase memory limit** if needed:
    ```ini
    memory_limit = 512M
    ```
@@ -440,16 +438,17 @@ Check your Flarum logs (`storage/logs/`) for detailed information.
 
 ### Performance Benchmarks
 
-Typical generation times and memory usage (with optimizations enabled):
+Typical generation times and peak memory usage (v2.6.0+, column pruning enabled, cached multi-file mode):
 
-| Forum Size | Discussions | Runtime Mode | Cached Mode | Peak Memory |
-|------------|-------------|--------------|-------------|-------------|
-| Small | <10k | <1 second | 5-10 seconds | ~100MB |
-| Medium | 100k | 15-30 seconds | 20-40 seconds | ~260MB |
-| Large | 500k | 2-4 minutes | 2-5 minutes | ~350MB |
-| Enterprise | 1M+ | 5-10 minutes | 5-15 minutes | ~400MB |
+| Forum Size | Total items | Peak Memory |
+|------------|-------------|-------------|
+| Small | <10k | <50MB |
+| Medium | ~100k | ~80MB |
+| Large | ~500k | ~150MB |
+| Production replica | ~784k (702k users + 81k discussions) | ~296MB |
+| Enterprise | 1M+ | ~350MB |
 
-*Benchmarks based on standard VPS hardware (4 CPU cores, 8GB RAM, SSD storage)*
+*Measured on standard hardware. Peak memory is dominated by the Eloquent chunk size (75k rows × model footprint). Extensions that add columns or relations to User/Discussion models will increase per-model footprint.*
 
 ## Technical Details
 
@@ -483,13 +482,12 @@ The extension follows modern PHP practices:
 
 ## Changelog
 
-### Recent Improvements (v2.5.0+, v3.0.0+)
+### v2.6.0
 
-- **Memory optimization**: 8-14% reduction in memory usage through XMLWriter optimization
-- **Performance improvements**: Eliminated redundant database queries
-- **Code modernization**: Removed legacy Blade templates in favor of XMLWriter
-- **Better error handling**: Improved logging and error messages
-- **Documentation**: Comprehensive troubleshooting and performance guidance
+- **Streaming XML generation**: `UrlSet` now writes directly to a `php://temp` stream flushed every 500 entries. `DeployInterface::storeSet()` receives a stream resource rather than a string — Disk and ProxyDisk backends pass it straight to Flysystem with zero string copy. Eliminates the primary source of OOM errors on large forums. See [BREAKING-CHANGES.md](BREAKING-CHANGES.md) for migration details.
+- **Column pruning** (default on): Fetches only the columns needed for URL/date generation for Discussion and User resources, reducing per-model RAM by ~7×.
+- **Relation clearing**: Drops eager-loaded relations from each model before processing, preventing third-party `$with` additions from accumulating RAM across a chunk.
+- **Split performance settings**: "Risky performance improvements" now controls chunk size only. Column pruning has its own independent toggle in Advanced options.
 
 ## Acknowledgments
 

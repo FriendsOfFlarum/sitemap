@@ -39,13 +39,19 @@ class MemoryStressTest extends ConsoleTestCase
      * Memory limits for stress tests (in bytes) by dataset size.
      * Tests will fail if memory usage exceeds these thresholds.
      *
-     * These limits are based on real-world benchmarks and allow for reasonable
-     * overhead while ensuring memory usage doesn't grow unbounded.
+     * Limits were reduced significantly after the streaming refactor:
+     * - UrlSet no longer accumulates 50k Url objects in a $urls[] array (~15-20 MB/set).
+     * - The XMLWriter in-memory buffer is flushed to a php://temp stream every 500 entries,
+     *   capping its footprint to a few hundred KB instead of ~40 MB per set.
+     * - storeSet() receives a stream resource; Disk/ProxyDisk pass it directly to
+     *   Flysystem::put(), so no full XML string is ever materialised in PHP RAM.
+     * - Only the Memory backend materialises the string (it is not intended for
+     *   production-scale forums).
      */
     private const MEMORY_LIMITS = [
-        100000  => 160 * 1024 * 1024,  // 160MB for 100k discussions (~2 sets)
-        250000  => 280 * 1024 * 1024,  // 280MB for 250k discussions (~5 sets)
-        1000000 => 420 * 1024 * 1024,  // 420MB for 1M discussions (~20 sets)
+        100000  => 80 * 1024 * 1024,   // 80MB for 100k discussions (~2 sets)
+        250000  => 100 * 1024 * 1024,  // 100MB for 250k discussions (~5 sets)
+        1000000 => 150 * 1024 * 1024,  // 150MB for 1M discussions (~20 sets)
     ];
 
     /**
@@ -297,6 +303,136 @@ class MemoryStressTest extends ConsoleTestCase
 
         $urls = $this->getUrlsFromSitemap($firstSitemapBody);
         $this->assertGreaterThan(0, count($urls), 'First sitemap should contain URLs');
+    }
+
+    /**
+     * @test
+     *
+     * Replicates the exact production community that triggered the OOM:
+     *   702k users + 81.5k discussions = ~784k sitemap entries (~16 sets).
+     *
+     * Users are seeded with all real Flarum columns including a ~570-byte preferences
+     * JSON blob so each hydrated Eloquent model has a footprint close to production.
+     *
+     * Set SITEMAP_STRESS_TEST_PRODUCTION_REPLICA=1 to run this test.
+     */
+    public function production_replica_702k_users_81k_discussions_stays_within_limits()
+    {
+        if (!getenv('SITEMAP_STRESS_TEST_PRODUCTION_REPLICA')) {
+            $this->markTestSkipped('Set SITEMAP_STRESS_TEST_PRODUCTION_REPLICA=1 to run this test');
+        }
+
+        $discussionCount = 81500;
+        $userCount = 702000;
+        $totalUrls = $discussionCount + $userCount; // ~784k
+
+        // Use the Disk (file-backed) deploy backend so storeSet() streams directly to
+        // disk rather than materialising all sets in RAM (which is what Memory does).
+        // This matches how a production forum would be configured.
+        $this->setting('fof-sitemap.mode', 'multi-file');
+
+        // Enable both users and discussions (override setUp() which disables users)
+        $this->setting('fof-sitemap.excludeUsers', false);
+        $this->setting('fof-sitemap.excludeTags', true);
+        $this->setting('fof-sitemap.model.user.comments.minimum_item_threshold', 0);
+
+        $this->generateLargeDataset($discussionCount);
+        $this->generateLargeUserDataset($userCount);
+
+        $peakBefore = memory_get_peak_usage(true);
+
+        $input = ['command' => 'fof:sitemap:build'];
+        $output = $this->runCommand($input);
+
+        $peakAfter = memory_get_peak_usage(true);
+        $memoryUsed = $peakAfter - $peakBefore;
+        $memoryUsedMB = round($memoryUsed / 1024 / 1024, 2);
+
+        $this->assertStringContainsString('Completed', $output);
+        $this->assertStringNotContainsString('error', strtolower($output));
+        $this->assertStringNotContainsString('out of memory', strtolower($output));
+
+        // 784k entries across ~16 sets, fat user models, Disk backend (stream, no string copy).
+        // Measured at ~296MB on reference hardware with realistic preferences blobs.
+        // The dominant cost is Eloquent's 75k-model chunk (each model carries a ~570-byte
+        // preferences blob + all other columns). The streaming refactor eliminates the
+        // additional 40-80MB that XMLWriter::outputMemory() + the $urls[] object array
+        // previously added on top. 400MB gives ~35% headroom for production extension overhead.
+        $memoryLimit = 400 * 1024 * 1024;
+        $memoryLimitMB = 400;
+        $this->assertLessThan(
+            $memoryLimit,
+            $memoryUsed,
+            "Production-replica memory usage ({$memoryUsedMB}MB) exceeded limit of {$memoryLimitMB}MB for {$totalUrls} total URLs"
+        );
+    }
+
+    /**
+     * Generate a large dataset of users for stress testing with realistic column data.
+     *
+     * Seeds all real Flarum users table columns including a ~570-byte preferences JSON
+     * blob, so that each hydrated Eloquent User model has a memory footprint close to
+     * what production models carry. Without this, test models are far lighter than
+     * production and the peak memory measurement is not representative.
+     *
+     * Users start at id=2 (id=1 is the admin seeded by the test harness).
+     */
+    private function generateLargeUserDataset(int $count): void
+    {
+        // 13 columns per user; 65535 / 13 = ~5041, use 4000 to be safe
+        $batchSize = 4000;
+        $batches = ceil($count / $batchSize);
+        $baseDate = Carbon::createFromDate(2015, 1, 1);
+
+        // Realistic preferences blob matching a typical active Flarum user (~570 bytes)
+        $preferences = json_encode([
+            'notify_discussionRenamed_alert' => true,
+            'notify_discussionRenamed_email' => false,
+            'notify_postLiked_alert'         => true,
+            'notify_postLiked_email'         => false,
+            'notify_newPost_alert'           => true,
+            'notify_newPost_email'           => true,
+            'notify_userMentioned_alert'     => true,
+            'notify_userMentioned_email'     => true,
+            'notify_postMentioned_alert'     => true,
+            'notify_postMentioned_email'     => false,
+            'notify_newDiscussion_alert'     => false,
+            'notify_newDiscussion_email'     => false,
+            'locale'                         => 'en',
+            'theme_dark_mode'                => false,
+            'theme_colored_header'           => false,
+            'followAfterReply'               => false,
+            'discloseOnline'                 => true,
+            'indexProfile'                   => true,
+            'receiveInformationalEmail'      => true,
+        ]);
+
+        for ($batch = 0; $batch < $batches; $batch++) {
+            $users = [];
+            $startId = $batch * $batchSize + 2; // +2: id=1 is admin
+            $endId = min($startId + $batchSize - 1, $count + 1);
+
+            for ($i = $startId; $i <= $endId; $i++) {
+                $joinedAt = $baseDate->copy()->addDays($i % 3650)->toDateTimeString();
+                $users[] = [
+                    'id'                    => $i,
+                    'username'              => "stressuser{$i}",
+                    'email'                 => "stressuser{$i}@example.com",
+                    'is_email_confirmed'    => 1,
+                    'password'              => '$2y$10$examplehashedpasswordstringfortest',
+                    'avatar_url'            => null,
+                    'preferences'           => $preferences,
+                    'joined_at'             => $joinedAt,
+                    'last_seen_at'          => $joinedAt,
+                    'marked_all_as_read_at' => $joinedAt,
+                    'read_notifications_at' => $joinedAt,
+                    'discussion_count'      => $i % 50,
+                    'comment_count'         => ($i % 100) + 1,
+                ];
+            }
+
+            $this->database()->table('users')->insert($users);
+        }
     }
 
     /**

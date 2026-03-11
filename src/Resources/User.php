@@ -25,8 +25,11 @@ class User extends Resource
         $query = Model::whereVisibleTo(new Guest())
             ->where('comment_count', '>', static::$settings->get('fof-sitemap.model.user.comments.minimum_item_threshold'));
 
-        if (static::$settings->get('fof-sitemap.riskyPerformanceImprovements')) {
-            // This is a risky statement for the same reasons as the Discussion resource
+        if (static::$settings->get('fof-sitemap.riskyPerformanceImprovements') || static::$settings->get('fof-sitemap.columnPruning')) {
+            // Fetch only the columns required for URL and date generation.
+            // Enabled by default via fof-sitemap.columnPruning — significantly reduces
+            // per-model RAM on large forums. Disable if a custom slug driver or visibility
+            // scope requires columns not listed here.
             $query->select([
                 'id',
                 'username',
