@@ -18,6 +18,15 @@ use Psr\Log\LoggerInterface;
 
 class TriggerBuildJob extends AbstractJob
 {
+    public static ?string $onQueue = null;
+
+    public function __construct()
+    {
+        if (static::$onQueue) {
+            $this->onQueue(static::$onQueue);
+        }
+    }
+
     public function handle(): void
     {
         $logger = resolve(LoggerInterface::class);
