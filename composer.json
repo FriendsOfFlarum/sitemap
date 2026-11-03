@@ -55,8 +55,7 @@
             },
             "optional-dependencies": [
                 "flarum/tags",
-                "fof/pages",
-                "v17development/flarum-seo"
+                "fof/pages"
             ]
         },
         "flarum-cli": {
