@@ -133,12 +133,14 @@ The recommended way to extend sitemaps uses the unified `Sitemap` extender with 
 
 ```php
 use FoF\Sitemap\Extend;
+use Illuminate\Database\Eloquent\Builder;
 
 return [
     (new Extend\Sitemap())
         ->addResource(YourCustomResource::class)
         ->removeResource(\FoF\Sitemap\Resources\Tag::class)
         ->replaceResource(\FoF\Sitemap\Resources\User::class, YourCustomUserResource::class)
+        ->modifyResourceQuery(\FoF\Sitemap\Resources\Discussion::class, fn (Builder $query) => $query->where('discussions.is_sticky', false))
         ->addStaticUrl('reviews.index')
         ->forceCached(),
 ];
@@ -148,8 +150,38 @@ return [
 - **`addResource(string $resourceClass)`**: Add a custom resource to the sitemap
 - **`removeResource(string $resourceClass)`**: Remove an existing resource from the sitemap
 - **`replaceResource(string $oldResourceClass, string $newResourceClass)`**: Replace an existing resource
+- **`modifyResourceQuery(string $resourceClass, callable|string $modifier)`**: Filter or adjust the query of an existing resource (see below)
 - **`addStaticUrl(string $routeName)`**: Add a static URL by route name
 - **`forceCached()`**: Force cached mode for managed hosting environments
+
+#### Filtering Existing Resources
+
+To leave items out of a built-in resource, use `modifyResourceQuery()` rather than `replaceResource()`. Modifiers from all extensions stack: every registered modifier runs, in registration order. `replaceResource()` swaps the class by exact name, so when two extensions replace or remove the same resource, only one of them takes effect.
+
+```php
+use FoF\Sitemap\Extend;
+use FoF\Sitemap\Resources;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+
+return [
+    (new Extend\Sitemap())
+        // Modify the Builder in place...
+        ->modifyResourceQuery(Resources\Discussion::class, function (Builder $query) {
+            $query->whereNull('discussions.redirect_url');
+        })
+        // ...or pass the ::class of an invokable class, resolved from the container
+        ->modifyResourceQuery(Resources\Tag::class, ExcludeInternalTags::class)
+        // Collection resources such as StaticUrls are filtered by returning a new Collection
+        ->modifyResourceQuery(Resources\StaticUrls::class, fn (Collection $routes) => $routes->reject(fn ($route) => $route === 'tags')),
+];
+```
+
+The modifier receives the resource's query (an Eloquent `Builder`, or a `Collection` for `StaticUrls`) and the resource instance. If it returns `null`, the query it was given is used. Any other return value replaces the query and must be a `Builder` or a `Collection`.
+
+Things to keep in mind:
+- A modifier applies to the resource class you name **and to its subclasses**, including a `replaceResource()` replacement that extends it. It does not apply to a replacement that extends `Resource` directly.
+- Qualify column names (`discussions.id`, not `id`). When **Risky Performance Improvements** is enabled, the Discussion query selects only `id`, `slug`, `created_at` and `last_posted_at`. Adding `where` clauses is fine, but don't rely on other columns being loaded, and avoid joins, which make the unqualified `id` in that select ambiguous.
 
 #### Creating Custom Resources
 

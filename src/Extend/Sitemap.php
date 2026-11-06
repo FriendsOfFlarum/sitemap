@@ -14,6 +14,7 @@ namespace FoF\Sitemap\Extend;
 
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use FoF\Sitemap\Resources\Resource;
 use FoF\Sitemap\Resources\StaticUrls;
 use Illuminate\Contracts\Container\Container;
@@ -24,6 +25,7 @@ class Sitemap implements ExtenderInterface
     private array $resourcesToAdd = [];
     private array $resourcesToRemove = [];
     private array $resourcesToReplace = [];
+    private array $queryModifiers = [];
     private array $staticUrls = [];
     private bool $forceCached = false;
 
@@ -70,6 +72,28 @@ class Sitemap implements ExtenderInterface
     {
         $this->validateResource($newResource);
         $this->resourcesToReplace[$oldResource] = $newResource;
+
+        return $this;
+    }
+
+    /**
+     * Modify the query of a resource before the sitemap is built.
+     * Applies to the given resource class and all of its subclasses, including replacements registered
+     * via replaceResource() that extend it. Modifiers from all extensions stack and run in registration order.
+     *
+     * The modifier receives the result of Resource::query() (a Builder, or a Collection for StaticUrls) and the
+     * resource instance. A Builder can be modified in place; any non-null return value replaces the query.
+     * The modifier can be a callable or the ::class of an invokable class, which is resolved from the container.
+     *
+     * @param class-string<resource> $resourceClass
+     * @param callable|class-string  $modifier
+     *
+     * @return self
+     */
+    public function modifyResourceQuery(string $resourceClass, callable|string $modifier): self
+    {
+        $this->validateResource($resourceClass);
+        $this->queryModifiers[] = [$resourceClass, $modifier];
 
         return $this;
     }
@@ -128,6 +152,16 @@ class Sitemap implements ExtenderInterface
                 }
 
                 return array_values($resources); // Re-index array
+            });
+        }
+
+        if (!empty($this->queryModifiers)) {
+            $container->extend('fof-sitemaps.queryModifiers', function (array $modifiers) use ($container) {
+                foreach ($this->queryModifiers as [$resourceClass, $modifier]) {
+                    $modifiers[] = [$resourceClass, ContainerUtil::wrapCallback($modifier, $container)];
+                }
+
+                return $modifiers;
             });
         }
 
