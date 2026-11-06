@@ -19,6 +19,7 @@ use Flarum\Testing\integration\ConsoleTestCase;
 use Flarum\User\User;
 use FoF\Sitemap\Extend\Sitemap;
 use FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+use Illuminate\Database\Eloquent\Builder;
 use PHPUnit\Framework\Attributes\Test;
 
 class CachedModeTest extends ConsoleTestCase
@@ -311,5 +312,27 @@ class CachedModeTest extends ConsoleTestCase
         $container = $this->app()->getContainer();
         $this->assertTrue($container->has('fof-sitemaps.forceCached'));
         $this->assertTrue($container->get('fof-sitemaps.forceCached'));
+    }
+
+    #[Test]
+    public function cached_mode_applies_query_modifiers()
+    {
+        $this->setting('fof-sitemap.mode', 'multi-file');
+
+        $this->extend(
+            (new Sitemap())
+                ->modifyResourceQuery(\FoF\Sitemap\Resources\Discussion::class, fn (Builder $query) => $query->where('discussions.id', '!=', 1))
+        );
+
+        $output = $this->runCommand([
+            'command' => 'fof:sitemap:build',
+        ]);
+
+        $this->assertStringContainsString('Completed', $output);
+
+        $urls = $this->getAllSitemapUrls();
+
+        $this->assertEmpty(array_filter($urls, fn (string $url) => preg_match('/\/d\/\d+/', $url)), 'Cached sitemap should not include the filtered discussion');
+        $this->assertNotEmpty(array_filter($urls, fn (string $url) => preg_match('/\/u\/\w+/', $url)), 'Cached sitemap should still include user URLs');
     }
 }

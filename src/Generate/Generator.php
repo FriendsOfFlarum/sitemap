@@ -26,13 +26,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use UnexpectedValueException;
 
 class Generator
 {
     public function __construct(
         protected DeployInterface $deploy,
         protected array $resources,
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected array $queryModifiers = []
     ) {
     }
 
@@ -88,7 +90,7 @@ class Generator
             }
 
             // Get query once and reuse
-            $query = $resource->query();
+            $query = $this->modifyQuery($resource, $resource->query());
 
             // For Collections, check if empty immediately to avoid unnecessary processing
             if ($query instanceof Collection && $query->isEmpty()) {
@@ -162,5 +164,28 @@ class Generator
         }
 
         return $remotes;
+    }
+
+    protected function modifyQuery(AbstractResource $resource, Builder|Collection $query): Builder|Collection
+    {
+        foreach ($this->queryModifiers as [$resourceClass, $modifier]) {
+            if (!$resource instanceof $resourceClass) {
+                continue;
+            }
+
+            $result = $modifier($query, $resource);
+
+            if ($result === null) {
+                continue;
+            }
+
+            if (!$result instanceof Builder && !$result instanceof Collection) {
+                throw new UnexpectedValueException('Sitemap query modifier for '.$resourceClass.' must return null, '.Builder::class.' or '.Collection::class.', got '.get_debug_type($result));
+            }
+
+            $query = $result;
+        }
+
+        return $query;
     }
 }

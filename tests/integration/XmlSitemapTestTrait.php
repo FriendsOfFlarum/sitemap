@@ -52,6 +52,29 @@ trait XmlSitemapTestTrait
         return $urls;
     }
 
+    /**
+     * Fetch the sitemap index and every set it lists, and return all URLs found in the sets.
+     */
+    private function getAllSitemapUrls(): array
+    {
+        $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
+        $this->assertEquals(200, $indexResponse->getStatusCode());
+
+        $urls = [];
+
+        foreach ($this->getSitemapUrls($indexResponse->getBody()->getContents()) as $sitemapUrl) {
+            $sitemapResponse = $this->send($this->request('GET', parse_url($sitemapUrl, PHP_URL_PATH)));
+            $this->assertEquals(200, $sitemapResponse->getStatusCode());
+
+            $sitemapBody = $sitemapResponse->getBody()->getContents();
+            $this->assertValidSitemapXml($sitemapBody);
+
+            $urls = array_merge($urls, $this->getUrlsFromSitemap($sitemapBody));
+        }
+
+        return $urls;
+    }
+
     private function assertValidSitemapIndexXml(string $xml): void
     {
         // Check if XML is well-formed

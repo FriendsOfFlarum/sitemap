@@ -41,11 +41,16 @@ class Provider extends AbstractServiceProvider
             ];
         });
 
+        $this->container->singleton('fof-sitemaps.queryModifiers', function () {
+            return [];
+        });
+
         $this->container->singleton(Generator::class, function (Container $container) {
             return new Generator(
                 $container->make(DeployInterface::class),
                 $container->make('fof-sitemaps.resources'),
-                $container->make(SettingsRepositoryInterface::class)
+                $container->make(SettingsRepositoryInterface::class),
+                $container->make('fof-sitemaps.queryModifiers')
             );
         });
     }
