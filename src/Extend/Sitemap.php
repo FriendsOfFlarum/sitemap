@@ -85,8 +85,8 @@ class Sitemap implements ExtenderInterface
      * resource instance. A Builder can be modified in place; any non-null return value replaces the query.
      * The modifier can be a callable or the ::class of an invokable class, which is resolved from the container.
      *
-     * @param class-string<Resource> $resourceClass
-     * @param callable|class-string   $modifier
+     * @param class-string<resource> $resourceClass
+     * @param callable|class-string  $modifier
      *
      * @return self
      */
