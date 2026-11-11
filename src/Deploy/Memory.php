@@ -16,7 +16,7 @@ use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
 use Psr\Log\LoggerInterface;
 
-class Memory implements DeployInterface
+class Memory implements DeployInterface, PrunesSets
 {
     protected array $cache = [];
 
@@ -63,5 +63,13 @@ class Memory implements DeployInterface
         $this->logger->debug('[FoF Sitemap] Memory: Serving index from in-memory cache');
 
         return $this->getSet('index');
+    }
+    public function removeStaleSets(int $setCount): void
+    {
+        foreach (array_keys($this->cache) as $key) {
+            if (is_int($key) && $key >= $setCount) {
+                unset($this->cache[$key]);
+            }
+        }
     }
 }
