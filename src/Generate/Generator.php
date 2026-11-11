@@ -51,20 +51,24 @@ class Generator
         }
 
         $store = resolve('cache.store')->getStore();
-        if (!$store instanceof \Illuminate\Contracts\Cache\LockProvider) {
-            throw new \RuntimeException('Sitemap disk builds require a cache store supporting atomic locks');
+        $lock = $store instanceof \Illuminate\Contracts\Cache\LockProvider
+            ? $store->lock('fof-sitemap.build', static::BUILD_LEASE_SECONDS)
+            : null;
+
+        // Without renewable locks builds can't be serialised. Build anyway, as
+        // before: a missing sitemap is worse than an unlikely overlap.
+        if (!$lock instanceof \Illuminate\Cache\Lock) {
+            resolve(\Psr\Log\LoggerInterface::class)->warning('[FoF Sitemap] The cache store has no renewable locks; building without protection against concurrent builds');
+
+            return $this->generateUnlocked($output);
         }
 
-        $lock = $store->lock('fof-sitemap.build', static::BUILD_LEASE_SECONDS);
         if (!$lock->get()) {
             resolve(\Psr\Log\LoggerInterface::class)->info('[FoF Sitemap] Skipping build: another build is running');
             return null;
         }
 
         try {
-            if (!is_callable([$lock, 'refresh'])) {
-                throw new \RuntimeException('Sitemap disk builds require renewable cache locks');
-            }
             $this->refreshBuildLease = \Closure::fromCallable([$lock, 'refresh']);
             $this->renewBuildLease(true);
             return $this->generateUnlocked($output);

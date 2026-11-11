@@ -394,8 +394,10 @@ A completed build publishes the index before removing surplus `sitemap-N.xml`
 files. Disk builds use an atomic cache lock across generation, publication and
 cleanup, so overlapping scheduler, command and queue builds cannot prune each
 other's files. All builders sharing sitemap storage must share the same cache.
-Upgrading requires a cache driver supporting atomic, renewable locks (the default
-file cache and Redis do). The ten-minute lease is renewed during generation and
+This needs a cache driver with atomic, renewable locks (the default file cache,
+Redis, Memcached and database caches all have them). With a custom cache driver
+that has none, builds still run but aren't protected from overlapping, and a
+warning is logged. The ten-minute lease is renewed during generation and
 before writes, publication and cleanup; a killed process therefore cannot block
 future builds permanently. Losing the lease aborts publication and pruning.
 Do not clear the shared cache during a build. A competing build skips without

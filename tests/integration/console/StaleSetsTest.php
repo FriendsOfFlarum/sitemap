@@ -87,6 +87,31 @@ class StaleSetsTest extends TestCase
         $this->assertNull($deploy->getSet(2));
     }
 
+    /**
+     * A cache store without atomic locks can't serialise builds, but that's no
+     * reason to stop building: the forum had a working sitemap before.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('diskBackends')]
+    #[Test]
+    public function disk_build_without_lock_support_still_publishes_and_prunes(string $backend): void
+    {
+        $this->extension('fof-sitemap');
+        $container = $this->app()->getContainer();
+        $container->instance('cache.store', new \Illuminate\Cache\Repository(new LocklessStore()));
+        $storage = $this->storage();
+        $deploy = $container->make($backend, ['sitemapStorage' => $storage, 'indexStorage' => $storage]);
+        foreach ([0, 1, 2] as $id) {
+            $deploy->storeSet($id, 'old URLs');
+        }
+        $deploy->storeIndex('old index');
+
+        (new Generator($deploy, [\FoF\Sitemap\Resources\StaticUrls::class], $container->make(SettingsRepositoryInterface::class)))->generate();
+
+        $this->assertStringContainsString('sitemap-0.xml', $deploy->getIndex());
+        $this->assertNull($deploy->getSet(1));
+        $this->assertNull($deploy->getSet(2));
+    }
+
     public static function diskBackends(): array
     {
         return [[\FoF\Sitemap\Deploy\Disk::class], [\FoF\Sitemap\Deploy\ProxyDisk::class]];
@@ -282,4 +307,24 @@ class ExpiredLeaseResource extends \FoF\Sitemap\Resources\StaticUrls
         \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::now()->addMinutes(11));
         return parent::url($routeName);
     }
+}
+
+/**
+ * A cache store that can't hand out locks.
+ */
+class LocklessStore implements \Illuminate\Contracts\Cache\Store
+{
+    private array $items = [];
+
+    public function get($key) { return $this->items[$key] ?? null; }
+    public function many(array $keys) { return array_map(fn ($key) => $this->get($key), array_combine($keys, $keys)); }
+    public function put($key, $value, $seconds) { $this->items[$key] = $value; return true; }
+    public function putMany(array $values, $seconds) { $this->items = $values + $this->items; return true; }
+    public function increment($key, $value = 1) { return $this->items[$key] = ($this->items[$key] ?? 0) + $value; }
+    public function decrement($key, $value = 1) { return $this->increment($key, -$value); }
+    public function forever($key, $value) { return $this->put($key, $value, 0); }
+    public function touch($key, $seconds) { return array_key_exists($key, $this->items); }
+    public function forget($key) { unset($this->items[$key]); return true; }
+    public function flush() { $this->items = []; return true; }
+    public function getPrefix() { return ''; }
 }
