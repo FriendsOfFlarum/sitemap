@@ -16,8 +16,8 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\User\Guest;
 use FoF\Sitemap\Sitemap\Frequency;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 
 class StaticUrls extends Resource
 {

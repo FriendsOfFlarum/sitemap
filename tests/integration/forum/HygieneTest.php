@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/sitemap.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 namespace FoF\Sitemap\Tests\integration\forum;
 
 use Flarum\Testing\integration\TestCase;
@@ -9,6 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 class HygieneTest extends TestCase
 {
     use \FoF\Sitemap\Tests\integration\XmlSitemapTestTrait;
+
     #[Test]
     public function homepage_ignores_activity_in_hidden_and_restricted_tags_in_one_query(): void
     {
