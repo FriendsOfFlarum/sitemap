@@ -170,6 +170,7 @@ class Generator
     {
         if ($query instanceof Collection) {
             $query->each($callback);
+
             return;
         }
 
@@ -192,6 +193,7 @@ class Generator
         if (!$hasKey || !$plainProjection || $base->orders || $base->offset || $base->limit || $base->groups
             || $base->havings || $base->distinct || $base->unions || $base->joins) {
             $query->each($callback, $chunkSize);
+
             return;
         }
 

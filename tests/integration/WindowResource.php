@@ -14,5 +14,8 @@ namespace FoF\Sitemap\Tests\integration;
 
 class WindowResource extends KeysetResource
 {
-    public function url($model): string { return parent::url($model).'/of-'.$model->total; }
+    public function url($model): string
+    {
+        return parent::url($model).'/of-'.$model->total;
+    }
 }

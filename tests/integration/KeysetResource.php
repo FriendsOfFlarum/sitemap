@@ -18,9 +18,23 @@ use Illuminate\Database\Eloquent\Builder;
 
 class KeysetResource extends Resource
 {
-    public function query(): Builder { return Discussion::query(); }
-    public function url($model): string { return 'https://example.com/d/'.substr($model->slug, 11); }
-    public function priority(): float { return 0.5; }
-    public function frequency(): string { return 'daily'; }
-}
+    public function query(): Builder
+    {
+        return Discussion::query();
+    }
 
+    public function url($model): string
+    {
+        return 'https://example.com/d/'.substr($model->slug, 11);
+    }
+
+    public function priority(): float
+    {
+        return 0.5;
+    }
+
+    public function frequency(): string
+    {
+        return 'daily';
+    }
+}
