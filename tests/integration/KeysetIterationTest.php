@@ -65,6 +65,17 @@ class KeysetIterationTest extends TestCase
     public function window_projection_keeps_full_result_totals_across_chunks(): void
     {
         $container = $this->app()->getContainer();
+        $connection = $container->make('db')->connection();
+
+        // Window functions need MySQL 8 or MariaDB 10.2; MySQL 5.7 has none.
+        if ($connection->getDriverName() === 'mysql') {
+            $version = (string) $connection->selectOne('select version() as v')->v;
+
+            if (!str_contains(strtolower($version), 'mariadb') && version_compare($version, '8.0', '<')) {
+                $this->markTestSkipped("MySQL $version has no window functions.");
+            }
+        }
+
         $deploy = $container->make(Memory::class);
         $generator = new class($deploy, [WindowResource::class], $container->make(SettingsRepositoryInterface::class), [[WindowResource::class, fn (Builder $query) => $query->select('discussions.*')->selectRaw('COUNT(*) OVER () AS total')]]) extends Generator {
             protected function chunkSize(): int
