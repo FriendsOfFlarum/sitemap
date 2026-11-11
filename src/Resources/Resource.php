@@ -58,7 +58,7 @@ abstract class Resource
 
     abstract public function frequency(): string;
 
-    public function lastModifiedAt($model): Carbon
+    public function lastModifiedAt($model): ?Carbon
     {
         return Carbon::now();
     }
