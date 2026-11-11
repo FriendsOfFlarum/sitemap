@@ -65,12 +65,14 @@ class Generator
 
         if (!$lock->get()) {
             resolve(\Psr\Log\LoggerInterface::class)->info('[FoF Sitemap] Skipping build: another build is running');
+
             return null;
         }
 
         try {
             $this->refreshBuildLease = \Closure::fromCallable([$lock, 'refresh']);
             $this->renewBuildLease(true);
+
             return $this->generateUnlocked($output);
         } finally {
             $this->refreshBuildLease = null;
@@ -219,7 +221,7 @@ class Generator
         if ($this->refreshBuildLease === null || (!$force && microtime(true) - $this->leaseRefreshedAt < 60)) {
             return;
         }
-        if (!(($this->refreshBuildLease)(static::BUILD_LEASE_SECONDS))) {
+        if (!($this->refreshBuildLease)(static::BUILD_LEASE_SECONDS)) {
             throw new \RuntimeException('Sitemap build lease was lost');
         }
         $this->leaseRefreshedAt = microtime(true);
@@ -229,6 +231,7 @@ class Generator
     {
         $xml = $set->toXml();
         $this->renewBuildLease(true);
+
         return $this->deploy->storeSet($index, $xml);
     }
 

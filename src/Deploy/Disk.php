@@ -108,6 +108,7 @@ class Disk implements DeployInterface, PrunesSets
 
         return $this->sitemapStorage->get($path);
     }
+
     public function removeStaleSets(int $setCount): void
     {
         foreach ($this->sitemapStorage->files() as $path) {

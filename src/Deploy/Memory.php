@@ -64,6 +64,7 @@ class Memory implements DeployInterface, PrunesSets
 
         return $this->getSet('index');
     }
+
     public function removeStaleSets(int $setCount): void
     {
         foreach (array_keys($this->cache) as $key) {

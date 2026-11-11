@@ -12,10 +12,10 @@
 
 namespace FoF\Sitemap\Tests\integration\console;
 
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
 use FoF\Sitemap\Deploy\Memory;
 use FoF\Sitemap\Generate\Generator;
-use Flarum\Settings\SettingsRepositoryInterface;
 use PHPUnit\Framework\Attributes\Test;
 
 class StaleSetsTest extends TestCase
@@ -28,6 +28,7 @@ class StaleSetsTest extends TestCase
         $container = $this->app()->getContainer();
         $lock = $container->make('cache.store')->getStore()->lock('fof-sitemap.build');
         $this->assertTrue($lock->get());
+
         try {
             $storage = $this->storage();
             $deploy = $container->make(\FoF\Sitemap\Deploy\Disk::class, ['sitemapStorage' => $storage, 'indexStorage' => $storage]);
@@ -52,6 +53,7 @@ class StaleSetsTest extends TestCase
             }
         };
         $settings = $container->make(SettingsRepositoryInterface::class);
+
         try {
             (new Generator($deploy, [], $settings))->generate();
             $this->fail('Cleanup failure must be reported');
@@ -131,6 +133,7 @@ class StaleSetsTest extends TestCase
         $deploy->storeIndex('old index');
         $storage->failIndex = true;
         $settings = $container->make(SettingsRepositoryInterface::class);
+
         try {
             (new Generator($deploy, [\FoF\Sitemap\Resources\StaticUrls::class], $settings))->generate();
             $this->fail('Index publication failure must be reported');
@@ -149,9 +152,13 @@ class StaleSetsTest extends TestCase
 
     protected function storage(): \Illuminate\Filesystem\FilesystemAdapter
     {
-        $adapter = new class extends \League\Flysystem\InMemory\InMemoryFilesystemAdapter {
-            public function getUrl(string $path): string { return 'https://example.com/'.$path; }
+        $adapter = new class() extends \League\Flysystem\InMemory\InMemoryFilesystemAdapter {
+            public function getUrl(string $path): string
+            {
+                return 'https://example.com/'.$path;
+            }
         };
+
         return new class(new \League\Flysystem\Filesystem($adapter), $adapter) extends \Illuminate\Filesystem\FilesystemAdapter {
             public bool $failIndex = false;
             public bool $failSet = false;
@@ -167,6 +174,7 @@ class StaleSetsTest extends TestCase
                 if ($this->beforeDelete) {
                     ($this->beforeDelete)();
                 }
+
                 return parent::delete($paths);
             }
         };
@@ -183,6 +191,7 @@ class StaleSetsTest extends TestCase
         $deploy->storeSet(0, 'old set');
         $deploy->storeSet(1, 'old surplus set');
         $deploy->storeIndex('old index');
+
         try {
             (new Generator($deploy, [LostLeaseResource::class], $container->make(SettingsRepositoryInterface::class)))->generate();
             $this->fail('A build that lost its lease must abort');
@@ -201,6 +210,7 @@ class StaleSetsTest extends TestCase
         $container = $this->app()->getContainer();
         $storage = $this->storage();
         $deploy = $container->make(\FoF\Sitemap\Deploy\Disk::class, ['sitemapStorage' => $storage, 'indexStorage' => $storage]);
+
         try {
             (new Generator($deploy, [ExpiredLeaseResource::class], $container->make(SettingsRepositoryInterface::class)))->generate();
             $this->fail('An expired build must abort');
@@ -224,6 +234,7 @@ class StaleSetsTest extends TestCase
         $deploy->storeSet(1, 'old surplus');
         $deploy->storeIndex('old index');
         $storage->failSet = true;
+
         try {
             (new Generator($deploy, [\FoF\Sitemap\Resources\StaticUrls::class], $container->make(SettingsRepositoryInterface::class)))->generate();
             $this->fail('Set write failure must be reported');
@@ -246,6 +257,7 @@ class StaleSetsTest extends TestCase
         $lock = $container->make('cache.store')->getStore()->lock('fof-sitemap.build', 600);
         $this->assertTrue($lock->get());
         $settings = ['fof-sitemap.mode' => 'run'];
+
         try {
             $container->make(\FoF\Sitemap\Listeners\SettingsListener::class)->whenSaving(new \Flarum\Settings\Event\Saving($settings));
             $this->assertSame('building set', $deploy->getSet(0));
@@ -268,7 +280,7 @@ class StaleSetsTest extends TestCase
     {
         $this->extension('fof-sitemap');
         $container = $this->app()->getContainer();
-        $adapter = new class extends \League\Flysystem\InMemory\InMemoryFilesystemAdapter {
+        $adapter = new class() extends \League\Flysystem\InMemory\InMemoryFilesystemAdapter {
             public function getUrl(string $path): string
             {
                 return 'https://example.com/'.$path;
@@ -296,6 +308,7 @@ class LostLeaseResource extends \FoF\Sitemap\Resources\StaticUrls
     public function url($routeName): string
     {
         resolve('cache.store')->getStore()->lock('fof-sitemap.build')->forceRelease();
+
         return parent::url($routeName);
     }
 }
@@ -305,6 +318,7 @@ class ExpiredLeaseResource extends \FoF\Sitemap\Resources\StaticUrls
     public function url($routeName): string
     {
         \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::now()->addMinutes(11));
+
         return parent::url($routeName);
     }
 }
@@ -316,15 +330,66 @@ class LocklessStore implements \Illuminate\Contracts\Cache\Store
 {
     private array $items = [];
 
-    public function get($key) { return $this->items[$key] ?? null; }
-    public function many(array $keys) { return array_map(fn ($key) => $this->get($key), array_combine($keys, $keys)); }
-    public function put($key, $value, $seconds) { $this->items[$key] = $value; return true; }
-    public function putMany(array $values, $seconds) { $this->items = $values + $this->items; return true; }
-    public function increment($key, $value = 1) { return $this->items[$key] = ($this->items[$key] ?? 0) + $value; }
-    public function decrement($key, $value = 1) { return $this->increment($key, -$value); }
-    public function forever($key, $value) { return $this->put($key, $value, 0); }
-    public function touch($key, $seconds) { return array_key_exists($key, $this->items); }
-    public function forget($key) { unset($this->items[$key]); return true; }
-    public function flush() { $this->items = []; return true; }
-    public function getPrefix() { return ''; }
+    public function get($key)
+    {
+        return $this->items[$key] ?? null;
+    }
+
+    public function many(array $keys)
+    {
+        return array_map(fn ($key) => $this->get($key), array_combine($keys, $keys));
+    }
+
+    public function put($key, $value, $seconds)
+    {
+        $this->items[$key] = $value;
+
+        return true;
+    }
+
+    public function putMany(array $values, $seconds)
+    {
+        $this->items = $values + $this->items;
+
+        return true;
+    }
+
+    public function increment($key, $value = 1)
+    {
+        return $this->items[$key] = ($this->items[$key] ?? 0) + $value;
+    }
+
+    public function decrement($key, $value = 1)
+    {
+        return $this->increment($key, -$value);
+    }
+
+    public function forever($key, $value)
+    {
+        return $this->put($key, $value, 0);
+    }
+
+    public function touch($key, $seconds)
+    {
+        return array_key_exists($key, $this->items);
+    }
+
+    public function forget($key)
+    {
+        unset($this->items[$key]);
+
+        return true;
+    }
+
+    public function flush()
+    {
+        $this->items = [];
+
+        return true;
+    }
+
+    public function getPrefix()
+    {
+        return '';
+    }
 }
