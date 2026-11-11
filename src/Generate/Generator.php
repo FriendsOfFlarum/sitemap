@@ -107,9 +107,9 @@ class Generator
             // We don't want to make it too high either because extensions impact the amount of data MySQL will have to return from that query
             // The value is arbitrary, as soon as we are above 50k chunks there seem to be diminishing returns
             // With risky improvements enabled, we can bump the value up because the number of columns returned is fixed
-            $chunkSize = $this->settings->get('fof-sitemap.riskyPerformanceImprovements') ? 150000 : 75000;
+            $chunkSize = $this->chunkSize();
 
-            $query->each(function (mixed $item) use (&$output, &$set, $resource, &$remotes, &$i, &$foundResults) {
+            $this->each($query, function (mixed $item) use (&$output, &$set, $resource, &$remotes, &$i, &$foundResults) {
                 $foundResults = true;
                 $url = new Url(
                     $resource->url($item),
@@ -164,6 +164,51 @@ class Generator
         }
 
         return $remotes;
+    }
+
+    protected function each(Builder|Collection $query, callable $callback, int $chunkSize): void
+    {
+        if ($query instanceof Collection) {
+            $query->each($callback);
+            return;
+        }
+
+        // Apply global scopes once so their ordering/projection is checked too.
+        $scoped = $query->applyScopes()->withoutGlobalScopes();
+        $base = $scoped->getQuery();
+        $model = $scoped->getModel();
+        $keyColumns = ['*', $model->getTable().'.*', $model->getKeyName(), $model->getQualifiedKeyName()];
+        $columns = $base->columns ?? ['*'];
+        $hasKey = count(array_intersect($keyColumns, array_filter($columns, 'is_string'))) > 0;
+        $plainProjection = true;
+        foreach ($columns as $column) {
+            if (!is_string($column) || !preg_match('/^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?(?:[a-zA-Z_][a-zA-Z0-9_]*|\*)$/D', $column)) {
+                $plainProjection = false;
+                break;
+            }
+        }
+
+        // Aggregates, joins, unions and custom ordering need their original semantics.
+        if (!$hasKey || !$plainProjection || $base->orders || $base->offset || $base->limit || $base->groups
+            || $base->havings || $base->distinct || $base->unions || $base->joins) {
+            $query->each($callback, $chunkSize);
+            return;
+        }
+
+        // The cursor must constrain the whole predicate, including top-level ORs.
+        $predicate = $base->forNestedWhere();
+        $predicate->wheres = $base->wheres;
+        $predicate->setBindings($base->getRawBindings()['where'], 'where');
+        $base->wheres = [];
+        $base->setBindings([], 'where');
+        $base->addNestedWhereQuery($predicate);
+
+        $scoped->eachById($callback, $chunkSize, $model->getQualifiedKeyName(), $model->getKeyName());
+    }
+
+    protected function chunkSize(): int
+    {
+        return $this->settings->get('fof-sitemap.riskyPerformanceImprovements') ? 150000 : 75000;
     }
 
     protected function modifyQuery(AbstractResource $resource, Builder|Collection $query): Builder|Collection
