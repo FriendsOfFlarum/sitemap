@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
+use FoF\Sitemap\Deploy\Memory;
 use FoF\Sitemap\Deploy\StoredSet;
 use FoF\Sitemap\Exceptions\SetLimitReachedException;
 use FoF\Sitemap\Resources\Resource as AbstractResource;
@@ -56,8 +57,11 @@ class Generator
             (new Sitemap($this->loop($output), $now))->toXML()
         );
 
-        // Update last build time
-        $this->settings->set('fof-sitemap.last_build_time', time());
+        // Runtime mode (Memory) generates on every request and persists nothing,
+        // so there is no build to record, and recording one would write a setting per request.
+        if (!$this->deploy instanceof Memory) {
+            $this->settings->set('fof-sitemap.last_build_time', time());
+        }
 
         $output->writeln('Completed in '.$startTime->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE, true, 2));
 
