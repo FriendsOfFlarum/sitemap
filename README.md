@@ -387,3 +387,22 @@ The initial version of this extension was sponsored by [profesionalreview.com](h
 - [Source code on GitHub](https://github.com/FriendsOfFlarum/sitemap)
 - [Report an issue](https://github.com/FriendsOFflarum/sitemap/issues)
 - [Download via Packagist](https://packagist.org/packages/fof/sitemap)
+
+### Cached build safety
+
+A completed build publishes the index before removing surplus `sitemap-N.xml`
+files. Disk builds use an atomic cache lock across generation, publication and
+cleanup, so overlapping scheduler, command and queue builds cannot prune each
+other's files. All builders sharing sitemap storage must share the same cache.
+This needs a cache driver with atomic, renewable locks (the default file cache,
+Redis, Memcached and database caches all have them). With a custom cache driver
+that has none, builds still run but aren't protected from overlapping, and a
+warning is logged. The ten-minute lease is renewed during generation and
+before writes, publication and cleanup; a killed process therefore cannot block
+future builds permanently. Losing the lease aborts publication and pruning.
+Do not clear the shared cache during a build. A competing build skips without
+an error; settings changed during a build take effect on the next scheduled build.
+Publication failure preserves the old index and surplus sets, but existing set
+files can already have been overwritten; this is not an atomic content snapshot.
+Cleanup failures are reported as build failures, since stale URLs remain served.
+The previously published index remains available throughout.

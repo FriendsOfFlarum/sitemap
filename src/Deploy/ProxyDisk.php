@@ -19,7 +19,7 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Queue\Queue;
 use Psr\Log\LoggerInterface;
 
-class ProxyDisk implements DeployInterface
+class ProxyDisk implements DeployInterface, PrunesSets
 {
     public function __construct(
         public Cloud $sitemapStorage,
@@ -34,7 +34,9 @@ class ProxyDisk implements DeployInterface
     {
         $path = "sitemap-$setIndex.xml";
 
-        $this->sitemapStorage->put($path, $set);
+        if (!$this->sitemapStorage->put($path, $set)) {
+            throw new \RuntimeException('Unable to store sitemap set: '.$path);
+        }
 
         // Return main domain URL instead of storage URL
         return new StoredSet(
@@ -45,7 +47,9 @@ class ProxyDisk implements DeployInterface
 
     public function storeIndex(string $index): ?string
     {
-        $this->indexStorage->put('sitemap.xml', $index);
+        if (!$this->indexStorage->put('sitemap.xml', $index)) {
+            throw new \RuntimeException('Unable to publish sitemap index');
+        }
 
         // Return main domain URL
         return $this->urlGenerator->to('forum')->route('fof-sitemap-index');
@@ -78,5 +82,17 @@ class ProxyDisk implements DeployInterface
         $this->logger->debug("[FoF Sitemap] ProxyDisk: Serving set $setIndex from remote storage");
 
         return $this->sitemapStorage->get($path);
+    }
+
+    public function removeStaleSets(int $setCount): void
+    {
+        foreach ($this->sitemapStorage->files() as $path) {
+            if (preg_match('/^sitemap-(\d+)\.xml$/D', $path, $matches) && (int) $matches[1] >= $setCount) {
+                $this->logger->info('[FoF Sitemap] Removing stale set: '.$path);
+                if (!$this->sitemapStorage->delete($path)) {
+                    throw new \RuntimeException('Unable to delete stale sitemap set: '.$path);
+                }
+            }
+        }
     }
 }

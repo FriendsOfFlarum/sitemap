@@ -54,12 +54,27 @@ class SettingsListener
 
     private function removeCachedSitemaps(): void
     {
-        $sitemapsDir = $this->filesystem->disk('flarum-sitemaps');
+        $store = resolve('cache.store')->getStore();
+        if (!$store instanceof \Illuminate\Contracts\Cache\LockProvider) {
+            return;
+        }
 
-        $files = $sitemapsDir->allFiles();
+        // Share the build lease; unused cached files may safely remain in runtime mode.
+        $lock = $store->lock('fof-sitemap.build', 600);
+        if (!$lock instanceof \Illuminate\Cache\Lock || !$lock->get()) {
+            return;
+        }
 
-        foreach ($files as $file) {
-            $sitemapsDir->delete($file);
+        try {
+            $sitemapsDir = $this->filesystem->disk('flarum-sitemaps');
+            foreach ($sitemapsDir->allFiles() as $file) {
+                if (!$lock->refresh(600)) {
+                    throw new \RuntimeException('Sitemap build lease was lost');
+                }
+                $sitemapsDir->delete($file);
+            }
+        } finally {
+            $lock->release();
         }
     }
 

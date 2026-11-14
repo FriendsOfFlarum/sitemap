@@ -19,7 +19,7 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Queue\Queue;
 use Psr\Log\LoggerInterface;
 
-class Disk implements DeployInterface
+class Disk implements DeployInterface, PrunesSets
 {
     public function __construct(
         public Cloud $sitemapStorage,
@@ -39,7 +39,10 @@ class Disk implements DeployInterface
 
         try {
             $result = $this->sitemapStorage->put($path, $set);
-            $this->logger->info("[FoF Sitemap] Disk: Successfully stored set $setIndex, result: ".($result ? 'true' : 'false'));
+            if (!$result) {
+                throw new \RuntimeException('Unable to store sitemap set: '.$path);
+            }
+            $this->logger->info("[FoF Sitemap] Disk: Successfully stored set $setIndex, result: ".'true');
         } catch (\Exception $e) {
             $this->logger->error("[FoF Sitemap] Disk: Failed to store set $setIndex: ".$e->getMessage());
 
@@ -58,7 +61,10 @@ class Disk implements DeployInterface
 
         try {
             $result = $this->indexStorage->put('sitemap.xml', $index);
-            $this->logger->info('[FoF Sitemap] Disk: Successfully stored index, result: '.($result ? 'true' : 'false'));
+            if (!$result) {
+                throw new \RuntimeException('Unable to publish sitemap index');
+            }
+            $this->logger->info('[FoF Sitemap] Disk: Successfully stored index, result: '.'true');
         } catch (\Exception $e) {
             $this->logger->error('[FoF Sitemap] Disk: Failed to store index: '.$e->getMessage());
 
@@ -101,5 +107,17 @@ class Disk implements DeployInterface
         $this->logger->debug("[FoF Sitemap] Disk: Serving set $setIndex from: {$fullPath}");
 
         return $this->sitemapStorage->get($path);
+    }
+
+    public function removeStaleSets(int $setCount): void
+    {
+        foreach ($this->sitemapStorage->files() as $path) {
+            if (preg_match('/^sitemap-(\d+)\.xml$/D', $path, $matches) && (int) $matches[1] >= $setCount) {
+                $this->logger->info('[FoF Sitemap] Removing stale set: '.$path);
+                if (!$this->sitemapStorage->delete($path)) {
+                    throw new \RuntimeException('Unable to delete stale sitemap set: '.$path);
+                }
+            }
+        }
     }
 }
