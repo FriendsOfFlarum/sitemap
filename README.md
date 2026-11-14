@@ -323,10 +323,30 @@ new \FoF\Sitemap\Extend\ForceCached();
 
 Control which elements are included in your XML sitemaps:
 
-- **Include priority values**: Used by some search engines like Bing and Yandex (ignored by Google)
-- **Include change frequency values**: Helps search engines schedule crawling (ignored by Google)
+- **Include priority values**: Optional hint, disabled by default; ignored by Google
+- **Include change frequency values**: Optional hint, disabled by default; ignored by Google
 
-Both are enabled by default. When enabled, the extension uses intelligent frequency calculation based on actual content activity.
+Both default to off whenever no explicit choice is saved, including on existing forums. Explicitly saved choices are preserved. When change frequency is enabled, the extension calculates it from content activity.
+
+### Sitemap timestamps and optional hints
+
+Installations without saved choices omit `priority` and `changefreq`; explicitly
+saved choices are preserved. Google ignores both hints; see [Google’s sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
+
+The `lastmod` on each page URL describes content activity, not build time.
+The sitemap index still records when its sitemap files were built.
+
+- Discussions use `last_posted_at`, falling back to `created_at`. This tracks replies, not every edit, rename or deletion.
+- Tags use their own `last_posted_at` when available.
+- Pages use `updated_at`, falling back to `created_at`.
+- The discussion-list homepage uses the latest guest-visible discussion activity through one indexed query, excluding discussions in hidden tags. Users, `/tags`, other registered static routes and custom homepages omit it; a custom homepage may have unrelated content.
+
+For resource authors, `Resource::lastModifiedAt()` now returns `?Carbon`.
+Existing overrides returning `Carbon` remain valid and are still called.
+Overrides of User, Tag or StaticUrls that call `parent::lastModifiedAt()` must handle
+null or supply their own timestamp. The base implementation remains unchanged
+for third-party resources. No second timestamp hook is required.
+Rebuild cached sitemaps after updating to apply these output changes.
 
 ### Performance Settings
 
@@ -387,3 +407,22 @@ The initial version of this extension was sponsored by [profesionalreview.com](h
 - [Source code on GitHub](https://github.com/FriendsOfFlarum/sitemap)
 - [Report an issue](https://github.com/FriendsOFflarum/sitemap/issues)
 - [Download via Packagist](https://packagist.org/packages/fof/sitemap)
+
+### Cached build safety
+
+A completed build publishes the index before removing surplus `sitemap-N.xml`
+files. Disk builds use an atomic cache lock across generation, publication and
+cleanup, so overlapping scheduler, command and queue builds cannot prune each
+other's files. All builders sharing sitemap storage must share the same cache.
+This needs a cache driver with atomic, renewable locks (the default file cache,
+Redis, Memcached and database caches all have them). With a custom cache driver
+that has none, builds still run but aren't protected from overlapping, and a
+warning is logged. The ten-minute lease is renewed during generation and
+before writes, publication and cleanup; a killed process therefore cannot block
+future builds permanently. Losing the lease aborts publication and pruning.
+Do not clear the shared cache during a build. A competing build skips without
+an error; settings changed during a build take effect on the next scheduled build.
+Publication failure preserves the old index and surplus sets, but existing set
+files can already have been overwritten; this is not an atomic content snapshot.
+Cleanup failures are reported as build failures, since stale URLs remain served.
+The previously published index remains available throughout.

@@ -60,6 +60,11 @@ class User extends Resource
         return !static::$settings->get('fof-sitemap.excludeUsers');
     }
 
+    public function lastModifiedAt($model): ?Carbon
+    {
+        return null;
+    }
+
     public function dynamicFrequency($model): string
     {
         $lastSeen = $model->last_seen_at ?? $model->joined_at;

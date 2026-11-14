@@ -42,8 +42,8 @@ class UrlSet
     public function toXml(): string
     {
         $settings = resolve(SettingsRepositoryInterface::class);
-        $includeChangefreq = $settings->get('fof-sitemap.include_changefreq') ?? true;
-        $includePriority = $settings->get('fof-sitemap.include_priority') ?? true;
+        $includeChangefreq = $settings->get('fof-sitemap.include_changefreq') ?? false;
+        $includePriority = $settings->get('fof-sitemap.include_priority') ?? false;
 
         $writer = new XMLWriter();
         $writer->openMemory();

@@ -204,6 +204,8 @@ class SitemapTagsTest extends TestCase
     #[Test]
     public function sitemap_validates_tag_xml_structure()
     {
+        $this->setting('fof-sitemap.include_priority', true);
+        $this->setting('fof-sitemap.include_changefreq', true);
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
         $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
 

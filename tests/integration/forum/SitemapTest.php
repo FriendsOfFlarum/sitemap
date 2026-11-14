@@ -222,9 +222,10 @@ class SitemapTest extends TestCase
     }
 
     #[Test]
-    public function sitemap_includes_priority_and_changefreq_by_default()
+    public function sitemap_preserves_explicit_priority_and_changefreq_choices()
     {
-        // Default settings should include priority and changefreq
+        $this->setting('fof-sitemap.include_priority', true);
+        $this->setting('fof-sitemap.include_changefreq', true);
         $indexResponse = $this->send($this->request('GET', '/sitemap.xml'));
         $sitemapUrls = $this->getSitemapUrls($indexResponse->getBody()->getContents());
 
@@ -271,6 +272,7 @@ class SitemapTest extends TestCase
     #[Test]
     public function sitemap_excludes_priority_when_disabled()
     {
+        $this->setting('fof-sitemap.include_changefreq', true);
         // Disable priority inclusion
         $this->setting('fof-sitemap.include_priority', false);
 
@@ -315,6 +317,7 @@ class SitemapTest extends TestCase
     #[Test]
     public function sitemap_excludes_changefreq_when_disabled()
     {
+        $this->setting('fof-sitemap.include_priority', true);
         // Disable changefreq inclusion
         $this->setting('fof-sitemap.include_changefreq', false);
 
