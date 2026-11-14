@@ -59,7 +59,7 @@ class BuildSitemapController extends AbstractDeleteController
 
         try {
             // Queue the build job (uses same job as scheduler and auto-rebuild)
-            // The Generator will update fof-sitemap.last_build_time when generation completes
+            // The Generator updates fof-sitemap.last_build_time when a persisted (non-runtime) build completes
             $jobId = $this->queue->push(new TriggerBuildJob());
 
             $this->logger->info('[FoF Sitemap] Build job successfully queued with ID: '.($jobId ?? 'null'));

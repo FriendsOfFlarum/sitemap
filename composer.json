@@ -91,6 +91,7 @@
             "@test:integration"
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
         "test:setup": "@php tests/integration/setup.php",
         "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter"
@@ -99,6 +100,7 @@
         "analyse:phpstan": "Run static analysis",
         "test": "Runs all tests.",
         "test:unit": "Runs all unit tests.",
+        "test:unit:filter": "Run matching unit tests.",
         "test:integration": "Runs all integration tests.",
         "test:setup": "Sets up a database for use with integration tests. Execute this only once.",
         "test:integration:filter": "Run matching integration tests."

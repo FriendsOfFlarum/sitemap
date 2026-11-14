@@ -14,6 +14,7 @@ namespace FoF\Sitemap\Tests\integration\console;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
+use FoF\Sitemap\Deploy\Disk;
 use FoF\Sitemap\Deploy\Memory;
 use FoF\Sitemap\Generate\Generator;
 use PHPUnit\Framework\Attributes\Test;
@@ -46,7 +47,9 @@ class StaleSetsTest extends TestCase
         $this->extension('fof-sitemap');
         $this->setting('fof-sitemap.last_build_time', '1');
         $container = $this->app()->getContainer();
-        $deploy = new class($container->make(\Flarum\Http\UrlGenerator::class), $container->make(\Psr\Log\LoggerInterface::class)) extends Memory {
+        $storage = $this->storage();
+        // A stored (non-runtime) build: runtime builds record no build time.
+        $deploy = new class($storage, $storage, $container->make(\Flarum\Http\UrlGenerator::class), $container->make(\Psr\Log\LoggerInterface::class), $container->make(\Illuminate\Contracts\Queue\Queue::class)) extends Disk {
             public function removeStaleSets(int $setCount): void
             {
                 throw new \RuntimeException('Cleanup failed');
@@ -60,7 +63,7 @@ class StaleSetsTest extends TestCase
         } catch (\RuntimeException $error) {
             $this->assertSame('Cleanup failed', $error->getMessage());
         }
-        $this->assertStringContainsString('sitemapindex', $deploy->getIndex());
+        $this->assertStringContainsString('sitemapindex', $storage->get('sitemap.xml'));
         $this->assertGreaterThan(1, $settings->get('fof-sitemap.last_build_time'));
     }
 

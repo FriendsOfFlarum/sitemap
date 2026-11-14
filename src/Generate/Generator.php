@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
+use FoF\Sitemap\Deploy\Memory;
 use FoF\Sitemap\Deploy\PrunesSets;
 use FoF\Sitemap\Deploy\StoredSet;
 use FoF\Sitemap\Exceptions\SetLimitReachedException;
@@ -99,8 +100,12 @@ class Generator
         $this->renewBuildLease(true);
         $url = $this->deploy->storeIndex($index);
 
-        // Record publication even if a later cleanup fails.
-        $this->settings->set('fof-sitemap.last_build_time', time());
+        // Record publication even if a later cleanup fails. Runtime mode (Memory)
+        // generates on every request and persists nothing, so there is no build
+        // to record, and recording one would write a setting per request.
+        if (!$this->deploy instanceof Memory) {
+            $this->settings->set('fof-sitemap.last_build_time', time());
+        }
 
         // Publish first: the old index may still reference the surplus sets.
         $this->renewBuildLease(true);
