@@ -323,10 +323,30 @@ new \FoF\Sitemap\Extend\ForceCached();
 
 Control which elements are included in your XML sitemaps:
 
-- **Include priority values**: Used by some search engines like Bing and Yandex (ignored by Google)
-- **Include change frequency values**: Helps search engines schedule crawling (ignored by Google)
+- **Include priority values**: Optional hint, disabled by default; ignored by Google
+- **Include change frequency values**: Optional hint, disabled by default; ignored by Google
 
-Both are enabled by default. When enabled, the extension uses intelligent frequency calculation based on actual content activity.
+Both default to off whenever no explicit choice is saved, including on existing forums. Explicitly saved choices are preserved. When change frequency is enabled, the extension calculates it from content activity.
+
+### Sitemap timestamps and optional hints
+
+Installations without saved choices omit `priority` and `changefreq`; explicitly
+saved choices are preserved. Google ignores both hints; see [Google’s sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
+
+The `lastmod` on each page URL describes content activity, not build time.
+The sitemap index still records when its sitemap files were built.
+
+- Discussions use `last_posted_at`, falling back to `created_at`. This tracks replies, not every edit, rename or deletion.
+- Tags use their own `last_posted_at` when available.
+- Pages use `updated_at`, falling back to `created_at`.
+- The discussion-list homepage uses the latest guest-visible discussion activity through one indexed query, excluding discussions in hidden tags. Users, `/tags`, other registered static routes and custom homepages omit it; a custom homepage may have unrelated content.
+
+For resource authors, `Resource::lastModifiedAt()` now returns `?Carbon`.
+Existing overrides returning `Carbon` remain valid and are still called.
+Overrides of User, Tag or StaticUrls that call `parent::lastModifiedAt()` must handle
+null or supply their own timestamp. The base implementation remains unchanged
+for third-party resources. No second timestamp hook is required.
+Rebuild cached sitemaps after updating to apply these output changes.
 
 ### Performance Settings
 
