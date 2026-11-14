@@ -24,9 +24,9 @@ fof-sitemap:
             risky_performance_improvements: Enable risky performance improvements
             risky_performance_improvements_help: These improvements make the CRON job run faster on million-rows datasets but might break compatibility with some extensions.
             include_priority: Include priority values in sitemap
-            include_priority_help: Priority values are ignored by Google but may be used by other search engines like Bing and Yandex
+            include_priority_help: Optional hint, disabled by default. Google ignores priority values.
             include_changefreq: Include change frequency values in sitemap
-            include_changefreq_help: Change frequency values are ignored by Google but may be used by other search engines for crawl scheduling
+            include_changefreq_help: Optional hint, disabled by default. Google ignores change frequency values.
             modes:
                 runtime: Runtime
                 multi_file: Multi file

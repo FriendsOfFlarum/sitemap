@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Sitemap\Deploy\DeployInterface;
+use FoF\Sitemap\Deploy\PrunesSets;
 use FoF\Sitemap\Deploy\StoredSet;
 use FoF\Sitemap\Exceptions\SetLimitReachedException;
 use FoF\Sitemap\Resources\Resource as AbstractResource;
@@ -30,6 +31,11 @@ use UnexpectedValueException;
 
 class Generator
 {
+    protected const BUILD_LEASE_SECONDS = 600;
+
+    protected ?\Closure $refreshBuildLease = null;
+    protected float $leaseRefreshedAt = 0;
+
     public function __construct(
         protected DeployInterface $deploy,
         protected array $resources,
@@ -39,6 +45,42 @@ class Generator
     }
 
     public function generate(?OutputInterface $output = null): ?string
+    {
+        if (!$this->deploy instanceof \FoF\Sitemap\Deploy\Disk && !$this->deploy instanceof \FoF\Sitemap\Deploy\ProxyDisk) {
+            return $this->generateUnlocked($output);
+        }
+
+        $store = resolve('cache.store')->getStore();
+        $lock = $store instanceof \Illuminate\Contracts\Cache\LockProvider
+            ? $store->lock('fof-sitemap.build', static::BUILD_LEASE_SECONDS)
+            : null;
+
+        // Without renewable locks builds can't be serialised. Build anyway, as
+        // before: a missing sitemap is worse than an unlikely overlap.
+        if (!$lock instanceof \Illuminate\Cache\Lock) {
+            resolve(\Psr\Log\LoggerInterface::class)->warning('[FoF Sitemap] The cache store has no renewable locks; building without protection against concurrent builds');
+
+            return $this->generateUnlocked($output);
+        }
+
+        if (!$lock->get()) {
+            resolve(\Psr\Log\LoggerInterface::class)->info('[FoF Sitemap] Skipping build: another build is running');
+
+            return null;
+        }
+
+        try {
+            $this->refreshBuildLease = \Closure::fromCallable([$lock, 'refresh']);
+            $this->renewBuildLease(true);
+
+            return $this->generateUnlocked($output);
+        } finally {
+            $this->refreshBuildLease = null;
+            $lock->release();
+        }
+    }
+
+    protected function generateUnlocked(?OutputInterface $output = null): ?string
     {
         $logger = resolve(\Psr\Log\LoggerInterface::class);
         $logger->info('[FoF Sitemap] Generator.generate() started, deploy class: '.get_class($this->deploy));
@@ -52,12 +94,19 @@ class Generator
 
         $now = Carbon::now();
 
-        $url = $this->deploy->storeIndex(
-            (new Sitemap($this->loop($output), $now))->toXML()
-        );
+        $sets = $this->loop($output);
+        $index = (new Sitemap($sets, $now))->toXML();
+        $this->renewBuildLease(true);
+        $url = $this->deploy->storeIndex($index);
 
-        // Update last build time
+        // Record publication even if a later cleanup fails.
         $this->settings->set('fof-sitemap.last_build_time', time());
+
+        // Publish first: the old index may still reference the surplus sets.
+        $this->renewBuildLease(true);
+        if ($this->deploy instanceof PrunesSets) {
+            $this->deploy->removeStaleSets(count($sets));
+        }
 
         $output->writeln('Completed in '.$startTime->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE, true, 2));
 
@@ -110,6 +159,7 @@ class Generator
             $chunkSize = $this->chunkSize();
 
             $this->each($query, function (mixed $item) use (&$output, &$set, $resource, &$remotes, &$i, &$foundResults) {
+                $this->renewBuildLease();
                 $foundResults = true;
                 $url = new Url(
                     $resource->url($item),
@@ -122,7 +172,7 @@ class Generator
                 try {
                     $set->add($url);
                 } catch (SetLimitReachedException) {
-                    $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
+                    $remotes[$i] = $this->storeSet($i, $set);
 
                     $memoryMB = round(memory_get_usage(true) / 1024 / 1024, 2);
                     $output->writeln("Storing set $i (Memory: {$memoryMB}MB)");
@@ -149,7 +199,7 @@ class Generator
 
             // Only store the set if it contains URLs (avoid empty sets)
             if (count($set->urls) > 0) {
-                $remotes[$i] = $this->deploy->storeSet($i, $set->toXml());
+                $remotes[$i] = $this->storeSet($i, $set);
 
                 $memoryMB = round(memory_get_usage(true) / 1024 / 1024, 2);
                 $output->writeln("Storing set $i (Memory: {$memoryMB}MB)");
@@ -211,6 +261,25 @@ class Generator
     protected function chunkSize(): int
     {
         return $this->settings->get('fof-sitemap.riskyPerformanceImprovements') ? 150000 : 75000;
+    }
+
+    protected function renewBuildLease(bool $force = false): void
+    {
+        if ($this->refreshBuildLease === null || (!$force && microtime(true) - $this->leaseRefreshedAt < 60)) {
+            return;
+        }
+        if (!($this->refreshBuildLease)(static::BUILD_LEASE_SECONDS)) {
+            throw new \RuntimeException('Sitemap build lease was lost');
+        }
+        $this->leaseRefreshedAt = microtime(true);
+    }
+
+    protected function storeSet(int $index, UrlSet $set): ?StoredSet
+    {
+        $xml = $set->toXml();
+        $this->renewBuildLease(true);
+
+        return $this->deploy->storeSet($index, $xml);
     }
 
     protected function modifyQuery(AbstractResource $resource, Builder|Collection $query): Builder|Collection

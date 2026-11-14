@@ -13,7 +13,10 @@
 namespace FoF\Sitemap\Resources;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\User\Guest;
 use FoF\Sitemap\Sitemap\Frequency;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 
 class StaticUrls extends Resource
@@ -56,8 +59,28 @@ class StaticUrls extends Resource
         return Frequency::DAILY;
     }
 
-    public function lastModifiedAt($routeName): Carbon
+    public function lastModifiedAt($routeName): ?Carbon
     {
-        return Carbon::now();
+        if ($routeName !== 'index' || static::$settings->get('default_route') !== '/all') {
+            return null;
+        }
+
+        // last_posted_at is indexed; fetch only the latest guest-visible activity.
+        $query = Discussion::whereVisibleTo(new Guest());
+
+        if (static::$extensionManager->isEnabled('flarum-tags')) {
+            // Hidden tags are guest-visible but excluded from All Discussions.
+            $query->whereNotExists(function (Builder $tags) {
+                $tags->selectRaw('1')
+                    ->from('discussion_tag')
+                    ->join('tags', 'tags.id', '=', 'discussion_tag.tag_id')
+                    ->whereColumn('discussion_tag.discussion_id', 'discussions.id')
+                    ->where('tags.is_hidden', true);
+            });
+        }
+
+        return $query->whereNotNull('discussions.last_posted_at')
+            ->orderByDesc('discussions.last_posted_at')
+            ->value('discussions.last_posted_at');
     }
 }

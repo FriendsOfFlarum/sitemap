@@ -12,6 +12,7 @@
 
 namespace FoF\Sitemap\Resources;
 
+use Carbon\Carbon;
 use Flarum\Tags\Tag as Model;
 use Flarum\User\Guest;
 use FoF\Sitemap\Sitemap\Frequency;
@@ -40,6 +41,11 @@ class Tag extends Resource
     public function frequency(): string
     {
         return Frequency::DAILY;
+    }
+
+    public function lastModifiedAt($model): ?Carbon
+    {
+        return $model->last_posted_at;
     }
 
     public function enabled(): bool
